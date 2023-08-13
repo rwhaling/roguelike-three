@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <title>Roguelike Browser Boilerplate</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Your game description goes here.">
+    <link rel="icon" href="icon.png">
+    <script src="https://cdn.jsdelivr.net/npm/rot-js@2/dist/rot.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/chr15m/jsfxr@42a643f/riffwave.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/chr15m/jsfxr@42a643f/sfxr.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/nes.css@2.3.0/css/nes.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet" id="style">
+  </head>
+  <body>
+
+    <!-- boilerplate splash -->
+    <div class="screen" id="plate">
+      <div>
+        <img src="icon.png" id="logo">
+        <p>Roguelike<br/>Browser<br/>Boilerplate</p>
+      </div>
+    </div>
+
+    <!-- title screen -->
+    <div id="title" class="screen">
+      <div class="game-title-animation">
+        <!-- The game title is set dynamically at the start of main.js -->
+        <svg id="game-title" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <path id="curve" d="M 100 150 C 200 100 500 100 600 150"/>
+          </defs>
+          <text stroke-width="10px" stroke="white">
+            <textPath xlink:href="#curve" text-anchor="middle" startOffset="50%">
+              <tspan class="game-title-text">Roguelike</tspan>
+            </textPath>
+          </text>
+          <text fill="#e33" stroke-width="10px">
+            <textPath xlink:href="#curve" text-anchor="middle" startOffset="50%">
+              <tspan class="game-title-text">Roguelike</tspan>
+            </textPath>
+          </text>
+        </svg>
+      </div>
+      <div id="options">
+        <div id="menu" class="nes-container is-rounded is-dark">
+          <label>
+            <input type="radio"
+                   value="instructions"
+                   class="nes-radio is-dark"
+                   name="menu-items"
+                   checked/>
+            <span>Instructions</span>
+          </label>
+		  <br/>
+          <label>
+            <input type="radio"
+                   value="settings"
+                   class="nes-radio is-dark"
+                   name="menu-items"/>
+            <span>Settings</span>
+          </label>
+		  <br/>
+          <label>
+            <input type="radio"
+                   value="credits"
+                   class="nes-radio is-dark"
+                   name="menu-items"/>
+            <span>Credits</span>
+          </label>
+        </div>
+      </div>
+      <button id="play" class="nes-btn is-success action">Play</button>
+    </div>
+
+    <!-- settings screen -->
+    <div id="settings" class="screen modal">
+      <p>Settings</p>
+      <div class="nes-container is-rounded is-dark">
+        <p>Put your settings menu here.</p>
+      </div>
+      <button class="nes-btn is-success action">Ok</button>
+    </div>
+
+    <!-- credits screen -->
+    <div id="credits" class="screen modal">
+      <div class="nes-container is-rounded is-dark">
+        <p>By Your Name</p>
+        <p>Made with:</p>
+        <p><a href="https://chr15m.itch.io/roguelike-browser-boilerplate"
+              target="_blank">
+          Roguelike Browser Boilerplate</a></p>
+        <ul>
+          <li>Engine =
+            <a href="https://ondras.github.io/rot.js/hp/"
+               target="_blank">ROT.js</a></li>
+          <li>Tiles by
+            <a href="https://kenney.nl/assets/micro-roguelike"
+               target="_blank">kenney.nl</a></li>
+          <li>Styles from
+            <a href="https://nostalgic-css.github.io/NES.css/"
+               target="_blank">NESS.css</a></li>
+          <li>SFX from
+            <a href="https://sfxr.me/"
+               target="_blank">sfxr.me</a></li>
+          <li>Pixel coin by
+            <a href="https://opengameart.org/content/spinning-pixel-coin-0"
+               target="_blank">irmirx</a></li>
+        </ul>
+      </div>
+      <button class="nes-btn is-success action">Ok</button>
+    </div>    
+
+    <!-- instructions screen -->
+    <div id="instructions" class="screen modal">
+      <p>Instructions</p>
+      <div class="nes-container is-rounded is-dark">
+        <p>You must find The Amulet and avoid getting captured by The Monster</p>
+        <p>Use the arrow keys to move around. To look in a chest move over it.</p>
+      </div>
+      <button class="nes-btn is-success action">Ok</button>
+    </div>
+
+    <!-- win screen -->
+    <div id="win" class="screen modal">
+      <p class="nes-container is-rounded is-dark">Win!</p>
+      <div class="nes-container is-rounded is-dark">
+        <p><div class="sprite amulet"></div></p>
+        <p>You found The Amulet and won the game!</p>
+        <p>You had <span class="gold-stat"></span> gold and <span class="xp-stat"></span> XP.</p>
+      </div>
+      <button class="nes-btn is-success action">Ok</button>
+    </div>
+
+    <!-- lose screen -->
+    <div id="lose" class="screen modal">
+      <p>Lose!</p>
+      <div class="nes-container is-rounded is-dark">
+        <div class="sprite tomb"></div>
+        <p>Oh no, The Monster got you.</p>
+        <p>You're dead.</p>
+        <p>You had <span class="gold-stat"></span> gold and <span class="xp-stat"></span> XP.</p>
+      </div>
+      <button class="nes-btn is-success action">Ok</button>
+    </div>
+
+    <!-- game screen -->
+    <div id="game" class="screen">
+      <div id="canvas"></div>
+      <div id="message" class="nes-container is-rounded is-dark hide"></div>
+      <div id="hud" class="nes-container is-rounded is-dark"></div>
+      <div id="inventory" class="nes-container is-rounded is-dark">
+        <div>
+          <p>Example inventory</p>
+          <ul></ul>
+          <span class="toggle">X</span>
+        </div>
+        <span class="toggle">i</span>
+      </div>
+      <div id="arrows">
+        <div id="btn-left" class="nes-container is-rounded is-dark"><span>&lt;</span></div>
+        <div id="btn-up" class="nes-container is-rounded is-dark"><span>&lt;</span></div>
+        <div id="btn-down" class="nes-container is-rounded is-dark"><span>&gt;</span></div>
+        <div id="btn-right" class="nes-container is-rounded is-dark"><span>&gt;</span></div>
+        <div id="btn-skip" class="nes-container is-rounded is-dark"><span>.</span></div>
+      </div>
+    </div>
+
+  </body>
+  <script src="dist/app.js" id="main"></script>
+</html>
