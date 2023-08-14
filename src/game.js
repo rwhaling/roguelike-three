@@ -2,7 +2,7 @@ import MyDisplay from "./mydisplay";
 function runGame(w,mydisplay) {
 
     // Update this string to set the game title
-    const gametitle = "My Rogue";
+    const gametitle = "The 3";
   
     /*****************
      *** resources ***
@@ -279,7 +279,11 @@ function runGame(w,mydisplay) {
       // starting tiles, which must be from the walkable list
       game.player = createBeing(makePlayer, freeCells);
       game.monsters = [createBeing(makeMonster, freeCells)];
-  
+
+      // hopefully moves the viewport?
+      game.display.setPlayerPos(game.player._x, game.player._y);
+      game.display._dirty = true;
+
       // draw the map and items
       for (let key in game.map) {
         drawTile(game, key);
@@ -523,6 +527,9 @@ function runGame(w,mydisplay) {
         // update the player's coordinates
         p._x = x;
         p._y = y;
+
+        Game.display.setPlayerPos(p._x, p._y);
+        Game.display.clear();
   
         // re-draw the player
         for (let key in Game.map) {
@@ -1180,8 +1187,8 @@ function runGame(w,mydisplay) {
     } else {
       // listen for the end of the title
       // animation to show the first screen
-      $("#plate").addEventListener(
-          "animationend", showScreen.bind(null, 'title'));
+    //   $("#plate").addEventListener(
+    //       "animationend", showScreen.bind(null, 'title'));
       // listen for clicks on the front screen menu options
       document.querySelectorAll("#options #menu input")
       .forEach(function(el) {

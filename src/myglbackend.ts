@@ -7,7 +7,7 @@ import * as WebGLDebug from "webgl-debug";
  * @class Tile backend
  * @private
  */
-export default class MyDisplay extends Backend {
+ export default class MyDisplay extends Backend {
 	_gl!: WebGLRenderingContext;
 	_program!: WebGLProgram;
 	_uniforms: {[key:string]: WebGLUniformLocation | null};
@@ -53,8 +53,54 @@ export default class MyDisplay extends Backend {
 	}
 
 
+	new_draw(data: DisplayData, player_pos:[number, number], clearBefore: boolean) {
+        // console.log("draw in mydisplay");
+		const gl = this._gl;
+		const opts = this._options;
+		let [x, y, ch, fg, bg] = data;
+		let [player_x, player_y] = player_pos;
+
+		console.log("drawing %o at %o %o (player at %o %o)", ch, x, y, player_x, player_y);		
+
+		let scissorY = gl.canvas.height - (y+1)*opts.tileHeight * 2;
+		// gl.scissor(x*opts.tileWidth * 2, scissorY, opts.tileWidth * 2, opts.tileHeight * 2);
+
+		// if (clearBefore) {
+		// 	if (opts.tileColorize) {
+		// 		gl.clearColor(0, 0, 0, 0);
+		// 	} else {
+		// 		gl.clearColor(...parseColor(bg));
+		// 	}
+		// 	gl.clear(gl.COLOR_BUFFER_BIT);
+		// }
+
+		if (!ch) { return; }
+
+		let chars = ([] as string[]).concat(ch);
+		let bgs = ([] as string[]).concat(bg);
+		let fgs = ([] as string[]).concat(fg);
+
+		gl.uniform2fv(this._uniforms["targetPosRel"], [x, y]);
+		gl.uniform2fv(this._uniforms["playerPosAbs"], [player_x, player_y]);
+
+		for (let i=0;i<chars.length;i++) {
+			let tile = this._options.tileMap[chars[i]];
+			if (!tile) { throw new Error(`Char "${chars[i]}" not found in tileMap`); }
+
+			gl.uniform1f(this._uniforms["colorize"], opts.tileColorize ? 1 : 0);
+			gl.uniform2fv(this._uniforms["tilesetPosAbs"], tile);
+
+			if (opts.tileColorize) {
+				gl.uniform4fv(this._uniforms["tint"], parseColor(fgs[i]));
+				gl.uniform4fv(this._uniforms["bg"], parseColor(bgs[i]));
+			}
+
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		}
+	}
+
 	draw(data: DisplayData, clearBefore: boolean) {
-        console.log("draw in mydisplay");
+        // console.log("draw in mydisplay");
 		const gl = this._gl;
 		const opts = this._options;
 		let [x, y, ch, fg, bg] = data;
@@ -109,7 +155,7 @@ export default class MyDisplay extends Backend {
 		return [width, height];
 	}
 
-	computeFontSize(): number {
+	computeFontSize(availWidth: number, availHeight: number): number {
 		throw new Error("Tile backend does not understand font size");
 	}
 
@@ -163,6 +209,7 @@ export default class MyDisplay extends Backend {
 		gl.viewport(0, 0, canvasSize[0], canvasSize[1]);
 		gl.uniform2fv(this._uniforms["tileSize"], [opts.tileWidth, opts.tileHeight]);
 		gl.uniform2fv(this._uniforms["targetSize"], canvasSize);
+		console.log("setting tileSize: %o targetSize %o", [opts.tileWidth, opts.tileHeight], canvasSize);
 	}
 
 	_updateTexture(tileSet: HTMLImageElement) {
@@ -170,7 +217,7 @@ export default class MyDisplay extends Backend {
   	}
 }
 
-const UNIFORMS = ["targetPosRel", "tilesetPosAbs", "tileSize", "targetSize", "colorize", "bg", "tint"];
+const UNIFORMS = ["targetPosRel", "tilesetPosAbs", "playerPosAbs", "tileSize", "targetSize", "colorize", "bg", "tint"];
 
 const VS = `
 #version 300 es
@@ -182,12 +229,20 @@ uniform vec2 tilesetPosAbs;
 uniform vec2 tileSize;
 uniform vec2 targetSize;
 uniform vec2 targetPosRel;
+uniform vec2 playerPosAbs;
 
 void main() {
+	float scaleFactor = 0.25;
+	vec2 mapSize = targetSize / (tileSize * vec2(2.0,2.0));
 	vec2 scaledTilePos = 1.0 * tilePosRel;
-	vec2 scaledTargetPos = 1.0 * targetPosRel;
+	// vec2 playerAdjust = (0.5 * mapSize) - playerPosAbs;
+	// vec2 playerAdjust = playerPosAbs - (mapSize * 0.5);
+	// vec2 playerAdjust = playerPosAbs - (vec2(20,20) * scaleFactor);
+	vec2 playerAdjust = playerPosAbs - (mapSize * scaleFactor) + vec2(0.5,0.5);
+
+	vec2 scaledTargetPos = 1.0 * (targetPosRel - (playerAdjust));
 	vec2 targetPosPx = (scaledTargetPos + scaledTilePos) * tileSize;
-	vec2 targetPosNdc = ((targetPosPx / (targetSize*0.5))-0.5)*2.0;
+	vec2 targetPosNdc = ((targetPosPx / (targetSize*scaleFactor))-0.5)*2.0;
 	targetPosNdc.y *= -1.0;
 
 	gl_Position = vec4(targetPosNdc, 0.0, 1.0);

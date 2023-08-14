@@ -180,7 +180,7 @@ a:hover {
 }
 
 .game-title-animation {
-  animation: 2s zoomInDown;
+  animation: 1.0s zoomInDown;
 }
 
 /* https://github.com/animate-css/animate.css/blob/master/animate.css */

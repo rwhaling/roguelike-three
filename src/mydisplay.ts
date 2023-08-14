@@ -47,7 +47,9 @@ export default class Display {
 	_data: { [pos:string] : DisplayData };
 	_dirty: boolean | { [pos: string]: boolean };
 	_options!: DisplayOptions;
-	_backend!: Backend;
+	_backend!: MyGLBackend;
+
+    _player_pos: [number, number];
 
 	static Rect = Rect;
 	static Hex = Hex;
@@ -59,6 +61,7 @@ export default class Display {
 		this._data = {};
 		this._dirty = false; // false = nothing, true = all, object = dirty cells
 		this._options = {} as DisplayOptions;
+        this._player_pos = [0,0];
 
 		options = Object.assign({}, DEFAULT_OPTIONS, options);
 		this.setOptions(options);
@@ -95,9 +98,11 @@ export default class Display {
 
 		if (options.width || options.height || options.fontSize || options.fontFamily || options.spacing || options.layout) {
 			if (options.layout) {
-				let ctor = BACKENDS[options.layout];
-				this._backend = new ctor();
-			}
+				// let ctor = BACKENDS[options.layout];
+				// this._backend = new ctor();
+				this._backend = new MyGLBackend();
+
+            }
 
 			this._backend.setOptions(this._options);
 			this._dirty = true;
@@ -166,9 +171,15 @@ export default class Display {
 	 * @param {string} [fg] foreground color
 	 * @param {string} [bg] background color
 	 */
-	draw(x: number, y: number, ch: string | string[] | null, fg: string | null, bg: string | null) {
+	draw(x: number, y: number, ch: string | string[] | null, 
+        fg: string | null, bg: string | null) {
 		if (!fg) { fg = this._options.fg; }
 		if (!bg) { bg = this._options.bg; }
+
+        if (ch === "@") {
+            this._player_pos = [x,y];
+        }
+
 		let key = `${x},${y}`;
 		this._data[key] = [x, y, ch, fg, bg];
 
@@ -201,6 +212,11 @@ export default class Display {
 			this.draw(x, y, ch, fg, bg);
 		}
 	}
+
+    setPlayerPos(x: number, y:number) {
+        console.log('setting player pos to %o %o',x,y);
+        this._player_pos = [x,y];
+    }
 
 	/**
 	 * Draws a text at given position. Optionally wraps at a maximum length. Currently does not work with hex layout.
@@ -300,6 +316,6 @@ export default class Display {
 		let data = this._data[key];
 		if (data[4] != this._options.bg) { clearBefore = true; }
 
-		this._backend.draw(data, clearBefore);
+		this._backend.new_draw(data, this._player_pos, clearBefore);
 	}
 }
