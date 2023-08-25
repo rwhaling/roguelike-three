@@ -235,9 +235,11 @@ void main() {
 	float scaleFactor = 0.25;
 	vec2 mapSize = targetSize / (tileSize * vec2(2.0,2.0));
 	vec2 scaledTilePos = 1.0 * tilePosRel;
+
 	// vec2 playerAdjust = (0.5 * mapSize) - playerPosAbs;
 	// vec2 playerAdjust = playerPosAbs - (mapSize * 0.5);
 	// vec2 playerAdjust = playerPosAbs - (vec2(20,20) * scaleFactor);
+
 	vec2 playerAdjust = playerPosAbs - (mapSize * scaleFactor) + vec2(0.5,0.5);
 
 	vec2 scaledTargetPos = 1.0 * (targetPosRel - (playerAdjust));
@@ -270,7 +272,8 @@ void main() {
 		fragColor.rgb = texel.a*texel.rgb + (1.0-texel.a)*bg.rgb;
 		fragColor.a = texel.a + (1.0-texel.a)*bg.a;
 	} else {
-		fragColor = texel;
+		float dist = distance(vec2(0, 0), tilesetPosPx);
+		fragColor = dist * texel;
 	}
 }`.trim()
 
