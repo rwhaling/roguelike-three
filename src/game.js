@@ -23,7 +23,7 @@ function runGame(w,mydisplay) {
     const tileOptions = {
       layout: "my-tile-gl",
     //   layout: "tile",
-      bg: "transparent",
+      bg: "black",
       tileWidth: 16,
       tileHeight: 16,
       tileSet: tileSet,
@@ -146,6 +146,7 @@ function runGame(w,mydisplay) {
       // where "character" can any one of:
       // background, item, player, or monster
       map: {},
+      animating: {},
       // map of all items
       items: {},
       // reference to the ROT.js engine which
@@ -165,6 +166,8 @@ function runGame(w,mydisplay) {
       lastArrow: null, // arrow keys held
       arrowInterval: null, // arrow key repeat
       arrowListener: null, // registered listener for arrow event
+
+      lastFrame: 0.0,
       // clean up this game instance
       // we keep a reference for live-reloading
       cleanup: cleanup,
@@ -199,6 +202,7 @@ function runGame(w,mydisplay) {
       // kick everything off
       game.engine = new ROT.Engine(game.scheduler);
       game.engine.start();
+      requestAnimationFrame(drawScene);
     }
   
     // this gets called at the end of the game when we want
@@ -241,7 +245,10 @@ function runGame(w,mydisplay) {
       // http://ondras.github.io/rot.js/manual/#map/dungeon
       const digger = new ROT.Map.Digger(
             tileOptions.width,
-            tileOptions.height);
+            tileOptions.height, {
+                corridorLength: [4,15],
+                dugPercentage: 0.5,
+            });
       // list of floor tiles that can be walked on
       // but don't have anything on them yet
       const freeCells = [];
@@ -285,9 +292,9 @@ function runGame(w,mydisplay) {
       game.display._dirty = true;
 
       // draw the map and items
-      for (let key in game.map) {
-        drawTile(game, key);
-      }
+    //   for (let key in game.map) {
+    //     drawTile(game, key);
+    //   }
   
       // here we are re-scaling the background so it is
       // zoomed in and centered on the player tile
@@ -332,12 +339,12 @@ function runGame(w,mydisplay) {
     // we're just going to place 100 plants randomly
     // in the spaces where there isn't anything already
     function generateScenery(map, freeCells) {
-      for (let i=0;i<100;i++) {
-        if (freeCells.length) {
-          const key = takeFreeCell(freeCells);
-          map[key] = ROT.RNG.getItem("abcde");
-        }
-      }
+    //   for (let i=0;i<100;i++) {
+    //     if (freeCells.length) {
+    //       const key = takeFreeCell(freeCells);
+    //       map[key] = ROT.RNG.getItem("abcde");
+    //     }
+    //   }
     }
   
     // to make the map look a bit cooler we'll generate
@@ -393,21 +400,193 @@ function runGame(w,mydisplay) {
         // room.getDoors(console.log);
       }
     }
+
+    function drawBg(game,key) {
+        const map = game.map;
+        const display = game.display;
+        const parts = posFromKey(key);
+        if (map[key]) {
+            const items = game.items;
+            const draw = [map[key], items[key]];
+            display.draw(parts[0], parts[1], draw.filter(i=>i));
+        }      
+    }
+
+    function lerp( a, b, alpha ) {
+        return a + alpha * ( b - a );
+    }
+
+    function drawCreatures(game,key) {
+        console.log("monsters:");
+        console.log(game.monsters);
+        let monsterPos = game.monsters[0] ? game.monsters[0]._x + "," + game.monsters[0]._y : null;
+        let playerPos = game.player._x + "," + game.player._y;
+        console.log(`drawing monster at ${monsterPos}, player at ${playerPos}`);
+        if (monsterPos) {
+            if (game.animating[monsterPos]) {
+                const animation = game.animating[monsterPos];
+                const startPos = animation.startPos;
+                const endPos = animation.endPos;
+
+                console.log(animation);
+    
+                let animPosStart = posFromKey(startPos);
+                let animPosEnd = posFromKey(endPos);
+                let animDuration = animation.endTime - animation.startTime;
+                let animElapsed = game.lastFrame - animation.startTime;
+                let animProgress = animElapsed / animDuration;
+                if (animProgress > 1.0) { animProgress = 1.0 };
+    
+                let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+                let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+                console.log(`drawing monster at progress ${animProgress}: ${animX}, ${animY}`);
+    
+                game.display.draw(animX, animY, ["M"]);
+
+                if (game.lastFrame > game.animating[monsterPos].endTime) {
+                    console.log(`animation done`);
+                    delete game.animating[monsterPos];
+                } 
+
+
+            } else {
+                console.log(`monster at ${monsterPos}`);
+                game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"]);
+            }
+        }
+        if (playerPos) {
+            if (game.animating[playerPos]) {
+                const animation = game.animating[playerPos];
+                const startPos = animation.startPos;
+                const endPos = animation.endPos;
+
+                console.log(animation);
+    
+                let animPosStart = posFromKey(startPos);
+                let animPosEnd = posFromKey(endPos);
+                let animDuration = animation.endTime - animation.startTime;
+                let animElapsed = game.lastFrame - animation.startTime;
+                let animProgress = animElapsed / animDuration;
+                if (animProgress > 1.0) { animProgress = 1.0 };
+    
+                let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+                let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+                console.log(`drawing player at progress ${animProgress}: ${animX}, ${animY}`);
+                game.display.setPlayerPos(animX, animY);
+    
+                game.display.draw(animX, animY, ["@"]);
+
+                if (game.lastFrame > game.animating[playerPos].endTime) {
+                    console.log(`animation done`);
+                    delete game.animating[playerPos];
+                } 
+        
+            } else {
+                console.log(`player at ${playerPos}`)
+                // hack
+                drawTile(game, playerPos);
+
+                game.display.setPlayerPos(game.player._x, game.player._y);
+                game.display.draw(game.player._x, game.player._y, ["@"]);
+            }
+        }                
+    }
   
     function drawTile(game, key, ignore) {
       const map = game.map;
+      const animating = game.animating;
+      const display = game.display;
+      const parts = posFromKey(key);
       if (map[key]) {
-        const parts = posFromKey(key);
-        const monster = monsterAt(parts[0], parts[1]);
-        const player = playerAt(parts[0], parts[1]);
-        const display = game.display;
+        // const monster = monsterAt(parts[0], parts[1]);
+        // const player = playerAt(parts[0], parts[1]);
         const items = game.items;
         const draw = [map[key], items[key]];
-        draw.push(monster && monster != ignore ? monster.character : null);
-        draw.push(player && player != ignore ? player.character : null);
+        // if (!animating[key]) {
+        //     draw.push(monster && monster != ignore ? monster.character : null);
+        //     draw.push(player && player != ignore ? player.character : null);    
+        // }
         display.draw(parts[0], parts[1], draw.filter(i=>i));
       }
+      if (animating[key]) {
+        const animation = animating[key];
+        const startPos = animation.startPos;
+        const endPos = animation.endPos;
+        const monster = monsterAt(parts[0], parts[1]);
+        const player = playerAt(parts[0], parts[1]);
+        const draw = [];
+        // if (monster) {
+        //     console.log(animation);
+        //     console.log(monster);
+
+        //     draw.push(monster.character);
+        //     let animPosStart = posFromKey(startPos);
+        //     let animPosEnd = posFromKey(endPos);
+        //     let animDuration = animation.endTime - animation.startTime;
+        //     let animElapsed = Game.lastFrame - animation.startTime;
+        //     let animProgress = animElapsed / animDuration;
+        //     if (animProgress > 1.0) { animProgress = 1.0 };
+
+        //     function lerp( a, b, alpha ) {
+        //         return a + alpha * ( b - a );
+        //     }
+
+        //     let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+        //     let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+        //     console.log(`drawing monster at progress ${animProgress}: ${animX}, ${animY}`);
+
+        //     display.draw(animX, animY, draw.filter(i=>i));
+
+        // } else if (player) {
+        //     draw.push(player.character);    
+
+        //     let animPosStart = posFromKey(startPos);
+        //     let animPosEnd = posFromKey(endPos);
+        //     let animDuration = animation.endTime - animation.startTime;
+        //     let animElapsed = Game.lastFrame - animation.startTime;
+        //     let animProgress = animElapsed / animDuration;
+        //     if (animProgress > 1.0) { animProgress = 1.0 };
+
+        //     function lerp( a, b, alpha ) {
+        //         return a + alpha * ( b - a );
+        //     }
+
+        //     let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+        //     let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+        //     console.log(`drawing player at progress ${animProgress}: ${animX}, ${animY}`);
+        //     Game.display.setPlayerPos(animX, animY);
+
+        //     display.draw(animX, animY, draw.filter(i=>i));
+
+        // }
+        // if (game.lastFrame > animating[key].endTime) {
+        //     console.log(`animation done`);
+        //     delete animating[key];
+        // }
+      }
     }
+
+    function drawScene(timestamp) {
+        if (Game.display === null) {
+            return;
+        }
+        requestAnimationFrame(drawScene);
+        let elapsed = timestamp - Game.lastFrame;
+
+        if (elapsed > 50) {
+            // console.log(`in drawScene, ${elapsed} elapsed, timestamp ${timestamp}`);
+            Game.lastFrame = timestamp;
+            Game.display.clear();
+            // re-draw the player
+            for (let key in Game.map) {
+                drawTile(Game, key);
+            }
+            drawCreatures(Game);
+
+        }
+    }
+
+
   
     // both the player and monster initial position is set
     // by choosing a random freeCell and creating the type
@@ -481,7 +660,7 @@ function runGame(w,mydisplay) {
         sfx["empty"].play();
         delete Game.items[key];
       }
-      drawTile(Game, key);
+    //   drawTile(Game, key);
     }
   
     // move the player according to a direction vector
@@ -490,6 +669,8 @@ function runGame(w,mydisplay) {
     // and also from the click/tap handler `handlePointing()` below
     function movePlayer(dir) {
       const p = Game.player;
+      console.log("moving player");
+      console.log(dir);
       return movePlayerTo(p._x + dir[0], p._y + dir[1]);
     }
   
@@ -522,19 +703,32 @@ function runGame(w,mydisplay) {
   
         // update the old tile to whatever was there before
         // (e.g. "." floor tile)
-        drawTile(Game, p._x + "," + p._y, p);
-  
+        // drawTile(Game, p._x + "," + p._y, p);
+        let oldKey = p._x + "," + p._y;
+
         // update the player's coordinates
         p._x = x;
         p._y = y;
 
-        Game.display.setPlayerPos(p._x, p._y);
-        Game.display.clear();
-  
-        // re-draw the player
-        for (let key in Game.map) {
-          drawTile(Game, key);
+        let newKey = p._x + "," + p._y;
+        let animation = {
+            startPos: oldKey,
+            endPos: newKey,
+            startTime: Game.lastFrame,
+            endTime: Game.lastFrame + 200
         }
+        Game.animating[newKey] = animation;
+
+
+        // Game.display.setPlayerPos(p._x, p._y);
+
+        // Game.display.clear();
+  
+        // // re-draw the player
+        // for (let key in Game.map) {
+        //   drawTile(Game, key);
+        // }
+
         // re-locate the game screen to center the player
         rescale(x, y, Game);
         // remove the arrow event listener
@@ -604,12 +798,21 @@ function runGame(w,mydisplay) {
         combat(m, p);
       } else {
         // draw whatever was on the last tile the monster was one
-        drawTile(Game, m._x + "," + m._y, m);
+        let oldKey = m._x + "," + m._y;
+        // drawTile(Game, m._x + "," + m._y, m);
         // the player is safe for now so update the monster position
         // to the first step on the path and redraw
         m._x = path[0][0];
         m._y = path[0][1];
-        drawTile(Game, m._x + "," + m._y);
+        let newKey = m._x + "," + m._y;
+        let animation = {
+            startPos: oldKey,
+            endPos: newKey,
+            startTime: Game.lastFrame,
+            endTime: Game.lastFrame + 250
+        }
+        Game.animating[newKey] = animation;
+        // drawTile(Game, m._x + "," + m._y);
       }
     }
   
@@ -648,7 +851,7 @@ function runGame(w,mydisplay) {
       const key = m._x + "," + m._y;
       Game.scheduler.remove(m);
       Game.monsters = Game.monsters.filter(mx=>mx!=m);
-      drawTile(Game, key);
+    //   drawTile(Game, key);
     }
   
   
@@ -708,7 +911,7 @@ function runGame(w,mydisplay) {
       // change the player into a tombstone tile
       const p = Game.player;
       p.character = "T";
-      drawTile(Game, p._x + "," + p._y);
+    //   drawTile(Game, p._x + "," + p._y);
       // create an animated div element over the top of the game
       // holding a rising ghost image above the tombstone
       const ghost = createGhost([p._x, p._y]);

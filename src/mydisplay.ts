@@ -48,6 +48,7 @@ export default class Display {
 	_dirty: boolean | { [pos: string]: boolean };
 	_options!: DisplayOptions;
 	_backend!: MyGLBackend;
+    _t: number;
 
     _player_pos: [number, number];
 
@@ -62,6 +63,7 @@ export default class Display {
 		this._dirty = false; // false = nothing, true = all, object = dirty cells
 		this._options = {} as DisplayOptions;
         this._player_pos = [0,0];
+        this._t = 0;
 
 		options = Object.assign({}, DEFAULT_OPTIONS, options);
 		this.setOptions(options);
@@ -88,6 +90,7 @@ export default class Display {
 	clear() {
 		this._data = {};
 		this._dirty = true;
+        this._t += 1;
 	}
 
 	/**
@@ -316,6 +319,6 @@ export default class Display {
 		let data = this._data[key];
 		if (data[4] != this._options.bg) { clearBefore = true; }
 
-		this._backend.new_draw(data, this._player_pos, clearBefore);
+		this._backend.new_draw(data, this._player_pos, this._t, clearBefore);
 	}
 }
