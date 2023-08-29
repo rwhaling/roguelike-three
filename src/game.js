@@ -416,52 +416,26 @@ function runGame(w,mydisplay) {
         return a + alpha * ( b - a );
     }
 
-    function drawCreatures(game,key) {
-        console.log("monsters:");
-        console.log(game.monsters);
-        let monsterPos = game.monsters[0] ? game.monsters[0]._x + "," + game.monsters[0]._y : null;
+    function drawPlayer(game) {
         let playerPos = game.player._x + "," + game.player._y;
-        console.log(`drawing monster at ${monsterPos}, player at ${playerPos}`);
-        if (monsterPos) {
-            if (game.animating[monsterPos]) {
-                const animation = game.animating[monsterPos];
-                const startPos = animation.startPos;
-                const endPos = animation.endPos;
+        if (!game.animating[playerPos]) { return; }
 
-                console.log(animation);
-    
-                let animPosStart = posFromKey(startPos);
-                let animPosEnd = posFromKey(endPos);
-                let animDuration = animation.endTime - animation.startTime;
-                let animElapsed = game.lastFrame - animation.startTime;
-                let animProgress = animElapsed / animDuration;
-                if (animProgress > 1.0) { animProgress = 1.0 };
-    
-                let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
-                let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
-                console.log(`drawing monster at progress ${animProgress}: ${animX}, ${animY}`);
-    
-                game.display.draw(animX, animY, ["M"]);
-
-                if (game.lastFrame > game.animating[monsterPos].endTime) {
-                    console.log(`animation done`);
-                    delete game.animating[monsterPos];
-                } 
-
-
-            } else {
-                console.log(`monster at ${monsterPos}`);
-                game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"]);
-            }
-        }
         if (playerPos) {
             if (game.animating[playerPos]) {
                 const animation = game.animating[playerPos];
                 const startPos = animation.startPos;
                 const endPos = animation.endPos;
 
+                if (game.lastFrame > game.animating[playerPos].endTime) {
+                    console.log(`animation done`);
+                    delete game.animating[playerPos];
+                    return
+                } 
+
                 console.log(animation);
-    
+
+                
+
                 let animPosStart = posFromKey(startPos);
                 let animPosEnd = posFromKey(endPos);
                 let animDuration = animation.endTime - animation.startTime;
@@ -476,10 +450,6 @@ function runGame(w,mydisplay) {
     
                 game.display.draw(animX, animY, ["@"]);
 
-                if (game.lastFrame > game.animating[playerPos].endTime) {
-                    console.log(`animation done`);
-                    delete game.animating[playerPos];
-                } 
         
             } else {
                 console.log(`player at ${playerPos}`)
@@ -491,6 +461,128 @@ function runGame(w,mydisplay) {
             }
         }                
     }
+
+    function drawMonster(game) {
+        let monsterPos = game.monsters[0] ? game.monsters[0]._x + "," + game.monsters[0]._y : null;
+        if (!game.animating[monsterPos]) { return; }
+
+        if (monsterPos) {
+            if (game.animating[monsterPos]) {
+                const animation = game.animating[monsterPos];
+                const startPos = animation.startPos;
+                const endPos = animation.endPos;
+
+                console.log(animation);
+
+                if (game.lastFrame > game.animating[monsterPos].endTime) {
+                    console.log(`animation done`);
+                    delete game.animating[monsterPos];
+                    return
+                } 
+                
+                let animPosStart = posFromKey(startPos);
+                let animPosEnd = posFromKey(endPos);
+                let animDuration = animation.endTime - animation.startTime;
+                let animElapsed = game.lastFrame - animation.startTime;
+                let animProgress = animElapsed / animDuration;
+                if (animProgress > 1.0) { animProgress = 1.0 };
+    
+                let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+                let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+                console.log(`drawing monster at progress ${animProgress}: ${animX}, ${animY}`);
+    
+                game.display.draw(animX, animY, ["M"]);
+
+
+
+            } else {
+                console.log(`monster at ${monsterPos}`);
+                drawTile(game, monsterPos);
+
+                game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"]);
+            }
+        }
+    }
+
+    // TODO delete
+    function drawCreatures(game) {
+        console.log("monsters:");
+        console.log(game.monsters);
+        let monsterPos = game.monsters[0] ? game.monsters[0]._x + "," + game.monsters[0]._y : null;
+        let playerPos = game.player._x + "," + game.player._y;
+        console.log(`drawing monster at ${monsterPos}, player at ${playerPos}`);
+
+        drawPlayer(game);
+        drawMonster(game);
+        // if (monsterPos) {
+        //     if (game.animating[monsterPos]) {
+        //         const animation = game.animating[monsterPos];
+        //         const startPos = animation.startPos;
+        //         const endPos = animation.endPos;
+
+        //         console.log(animation);
+    
+        //         let animPosStart = posFromKey(startPos);
+        //         let animPosEnd = posFromKey(endPos);
+        //         let animDuration = animation.endTime - animation.startTime;
+        //         let animElapsed = game.lastFrame - animation.startTime;
+        //         let animProgress = animElapsed / animDuration;
+        //         if (animProgress > 1.0) { animProgress = 1.0 };
+    
+        //         let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+        //         let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+        //         console.log(`drawing monster at progress ${animProgress}: ${animX}, ${animY}`);
+    
+        //         game.display.draw(animX, animY, ["M"]);
+
+        //         if (game.lastFrame > game.animating[monsterPos].endTime) {
+        //             console.log(`animation done`);
+        //             delete game.animating[monsterPos];
+        //         } 
+
+
+        //     } else {
+        //         console.log(`monster at ${monsterPos}`);
+        //         game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"]);
+        //     }
+        // }
+        // if (playerPos) {
+        //     if (game.animating[playerPos]) {
+        //         const animation = game.animating[playerPos];
+        //         const startPos = animation.startPos;
+        //         const endPos = animation.endPos;
+
+        //         console.log(animation);
+    
+        //         let animPosStart = posFromKey(startPos);
+        //         let animPosEnd = posFromKey(endPos);
+        //         let animDuration = animation.endTime - animation.startTime;
+        //         let animElapsed = game.lastFrame - animation.startTime;
+        //         let animProgress = animElapsed / animDuration;
+        //         if (animProgress > 1.0) { animProgress = 1.0 };
+    
+        //         let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
+        //         let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
+        //         console.log(`drawing player at progress ${animProgress}: ${animX}, ${animY}`);
+        //         game.display.setPlayerPos(animX, animY);
+    
+        //         game.display.draw(animX, animY, ["@"]);
+
+        //         if (game.lastFrame > game.animating[playerPos].endTime) {
+        //             console.log(`animation done`);
+        //             delete game.animating[playerPos];
+        //         } 
+        
+        //     } else {
+        //         console.log(`player at ${playerPos}`)
+        //         // hack
+        //         drawTile(game, playerPos);
+
+        //         game.display.setPlayerPos(game.player._x, game.player._y);
+        //         game.display.draw(game.player._x, game.player._y, ["@"]);
+        //     }
+        // }                
+    }
   
     function drawTile(game, key, ignore) {
       const map = game.map;
@@ -498,14 +590,14 @@ function runGame(w,mydisplay) {
       const display = game.display;
       const parts = posFromKey(key);
       if (map[key]) {
-        // const monster = monsterAt(parts[0], parts[1]);
-        // const player = playerAt(parts[0], parts[1]);
+        const monster = monsterAt(parts[0], parts[1]);
+        const player = playerAt(parts[0], parts[1]);
         const items = game.items;
         const draw = [map[key], items[key]];
-        // if (!animating[key]) {
-        //     draw.push(monster && monster != ignore ? monster.character : null);
-        //     draw.push(player && player != ignore ? player.character : null);    
-        // }
+        if (!animating[key]) {
+            draw.push(monster && monster != ignore ? monster.character : null);
+            draw.push(player && player != ignore ? player.character : null);    
+        }
         display.draw(parts[0], parts[1], draw.filter(i=>i));
       }
       if (animating[key]) {
@@ -578,11 +670,27 @@ function runGame(w,mydisplay) {
             Game.lastFrame = timestamp;
             Game.display.clear();
             // re-draw the player
+
+            let monsterPos = Game.monsters[0] ? Game.monsters[0]._x + "," + Game.monsters[0]._y : null;
+            let playerPos = Game.player._x + "," + Game.player._y;
+            console.log(`drawing monster at ${monsterPos}, player at ${playerPos}`);
+    
             for (let key in Game.map) {
                 drawTile(Game, key);
+                if (key === monsterPos && !Game.animating[monsterPos]) {
+                    drawMonster(Game);
+                }
+                if (key === playerPos && !Game.animating[playerPos]) {
+                    drawPlayer(Game);
+                }
             }
-            drawCreatures(Game);
-
+            if (Game.animating[monsterPos]) {
+                drawMonster(Game)
+            }
+            if (Game.animating[playerPos]) {
+                drawPlayer(Game);
+            }
+            Game.display._tick();
         }
     }
 
