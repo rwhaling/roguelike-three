@@ -2,6 +2,7 @@ import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
 import GameState from "./gamestate"
 import { genMap } from "./mapgen/MapGen";
+import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast } from "./ui/ui";
 function runGame(w,mydisplay) {
 
     // Update this string to set the game title
@@ -170,7 +171,7 @@ function runGame(w,mydisplay) {
       game.monsters.map((m) => game.scheduler.add(m, true));
   
       // render some example items in the inventory
-      renderInventory(game.player.inventory);
+      renderInventory(tileOptions, game.player.inventory);
   
       // render the stats hud at the bottom of the screen
       renderStats(game.player.stats);
@@ -297,14 +298,14 @@ function runGame(w,mydisplay) {
         // then play the pickup/win sound
         Game.player.stats.gold += 1;
         renderStats(Game.player.stats);
-        toast("You found gold!");
+        toast(Game, "You found gold!");
         sfx["win"].play();
         delete Game.items[key];
       } else if (Game.items[key] == "*") {
         // if an empty box is opened
         // by replacing with a floor tile, show the user
         // a message, and play the "empty" sound effect
-        toast("This chest is empty.");
+        toast(Game, "This chest is empty.");
         sfx["empty"].play();
         delete Game.items[key];
       }
@@ -467,7 +468,7 @@ function runGame(w,mydisplay) {
     function checkDeath(m) {
       if (m.stats.hp < 1) {
         if (m == Game.player) {
-          toast("You died!");
+          toast(Game, "You died!");
           lose();
         } else {
           const key = m._x + "," + m._y;
@@ -513,7 +514,7 @@ function runGame(w,mydisplay) {
       }
       // if there is a message to display do so
       if (msg) {
-        toast(battleMessage(msg));
+        toast(Game, battleMessage(msg));
       }
       // check if the receiver has died
       checkDeath(receiver);
@@ -544,7 +545,7 @@ function runGame(w,mydisplay) {
       p.character = "T";
       // create an animated div element over the top of the game
       // holding a rising ghost image above the tombstone
-      const ghost = createGhost([p._x, p._y]);
+      const ghost = createGhost(tileOptions, [p._x, p._y]);
       // we stop listening for user input while the ghost animates
       removeListeners(Game);
       // play the lose sound effect
@@ -612,194 +613,7 @@ function runGame(w,mydisplay) {
         };
         clearInterval(gamepadPoller);
       }
-    }
-  
-    // hides all screens and shows the requested screen
-    function showScreen(which, ev) {
-      ev && ev.preventDefault();
-      history.pushState(null, which, "#" + which);
-      const el = $("#" + which);
-      const actionbutton = $("#" + which + ">.action");
-      document.querySelectorAll(".screen")
-      .forEach(function(s) {
-        s.classList.remove("show");
-        s.classList.add("hide");
-      });
-      el.classList.remove("hide");
-      el.classList.remove("show");
-      void(el.offsetHeight); // trigger CSS reflow
-      el.classList.add("show");
-      if (actionbutton) { actionbutton.focus(); };
-    }
-  
-    // set the end-screen message to show
-    // how well the player did
-    function setEndScreenValues(xp, gold) {
-      $$(".xp-stat").forEach(el=>el.textContent = Math.floor(xp));
-      $$(".gold-stat").forEach(el=>el.textContent = gold);
-    }
-  
-    // updates the contents of the inventory UI
-    // with a list of things you want in there
-    // items is an array of ["C", "Words"]
-    // where "C" is the character from the tileset
-    // and "Words" are whatever words you want next
-    // to it
-    function renderInventory(items) {
-      const inv = $("#inventory ul");
-      inv.innerHTML = "";
-      items.forEach(function(i, idx) {
-        const tile = tileOptions.tileMap[i[0]];
-        const words = i[1];
-        attach(inv,
-             el("li", {"onclick": selectedInventory.bind(null, i, idx, items),
-                       "className": "inventory-item",},
-                [el("div", {
-                  "className": "sprite",
-                  "style": "background-position: -" +
-                    tile[0] + "px -" + tile[1] + "px;"
-                }), words]));
-      });
-    }
-  
-    // called when an inventory item is selected
-    function selectedInventory(which, index, items, ev) {
-      // this function is called when an inventory item is clicked
-      toast(which[1] + " selected");
-      toggleInventory(ev, true);
-      // if you want to remove an item from the inventory
-      // inventoryRemove(items, which);
-    }
-  
-    // call this to remove an item from the inventory
-    function inventoryRemove(items, which) {
-      const idx = items.indexOf(which);
-      items.splice(idx, 1);
-      renderInventory(items);
-    }
-  
-    // updates the stats listed at the bottom of the screen
-    // pass in an object containing key value pairs where
-    // the key is the name of the stat and the value is the
-    // number
-    function renderStats(stats) {
-      const st = $("#hud");
-      st.innerHTML = "";
-      for (let s in stats) {
-        attach(st, el("span", {}, [s.toUpperCase() + ": " + stats[s]]));
-      }
-    }
-  
-    // toggles the inventory UI open or closed
-    function toggleInventory(ev, force) {
-      const c = ev.target.className;
-      if (c != "sprite" && c != "inventory-item" || force) {
-        ev.preventDefault();
-        // toggle the inventory to visible/invisible
-        const b = $("#inventory>span");
-        const d = $("#inventory>div");
-        if (b.style.display == "none") {
-          b.style.display = "block";
-          d.style.display = "none";
-        } else {
-          b.style.display = "none";
-          d.style.display = "block";
-        }
-        return false;
-      }
-    }
-  
-    // creates the ghost sprite when the player dies
-    // use this template to overlay effects on the game canvas
-    function createGhost(pos) {
-      const tw = tileOptions.tileWidth;
-      const th = tileOptions.tileHeight;
-      // place the ghost on the map at the player's position
-      const left = "left:" + (pos[0] * tw) + "px;";
-      const top = "top:" + (pos[1] * th) + "px;";
-      const ghost = el("div", {"className": "sprite ghost free float-up", "style": left + top});
-      ghost.onanimationend = function() { rmel(ghost); };
-      return attach($("#canvas"), ghost);
-    }
-  
-    // creates a battle message with highlighted outcomes
-    // pass it an array of strings like:
-    // ["Something missed something.", "Something hit something."]
-    // it will highlight the word "miss" and "hit"
-    // by giving them a CSS class
-    function battleMessage(messages) {
-      const components = messages.reduce(function(msgs, m) {
-        return msgs.concat(m.split(" ").map(function(p) {
-          const match = p.match(/hit|miss/);
-          return el("span", {"className": match ? match[0] : ""}, [p, " "]);
-        })).concat(el("br", {}));
-      }, []);
-      return el("span", {}, components);
-    }
-  
-    // this function displays a message at the top
-    // of the game screen for the player such as
-    // "You have found a sneaky wurzel."
-    function toast(message) {
-      const m = $("#message");
-      // if current scheduler act is player
-      // then clear our messages first
-      // or if we're hiding the messages anyway
-      if (Game.scheduler._current == Game.player ||
-          m.className.indexOf("show") == -1) {
-        m.innerHTML = "";
-      }
-      m.classList.remove("fade-out");
-      m.classList.add("show");
-      if (typeof(message) == "string") {
-        m.appendChild(el("span", {}, [message]));
-      } else {
-        m.appendChild(message);
-      }
-    }
-  
-    // hide the toast message
-    function hideToast(instant) {
-      const m = $("#message");
-      if (instant) {
-        m.classList.remove("show");
-        m.classList.remove("fade-out")
-        m.innerHTML = "";
-      } else if (m.className.match("show")) {
-        m.classList.remove("show");
-        m.classList.add("fade-out");
-        m.onanimationend = function() {
-          m.classList.remove("fade-out");
-          m.innerHTML = "";
-        };
-      }
-    }
-  
-    // create an HTML element
-    function el(tag, attrs, children) {
-      const node = document.createElement(tag);
-      for (let a in attrs) { node[a] = attrs[a]; }
-      (children || []).forEach(function(c) {
-        if (typeof(c) == "string") {
-          node.appendChild(document.createTextNode(c));
-        } else {
-          attach(node, c);
-        }
-      });
-      return node;
-    }
-  
-    // add an HTML element to a parent node
-    function attach(node, el) {
-        node.appendChild(el);
-        return el;
-    }
-  
-    // remove an element from the dom
-    function rmel(node) {
-      node.parentNode.removeChild(node);
-    }
-  
+    }  
   
     /*************************
      *** UI event handlers ***
@@ -921,12 +735,6 @@ function runGame(w,mydisplay) {
             });
           }
           gamepadState[gp.id] = newstate;
-          //console.log(newstate);
-          //console.log(gp.index, gp.id, gp.buttons, gp.axes);
-          //console.log("Gamepad connected at index " + gp.index + ": " + gp.id +
-          //  ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.");
-          //gameLoop();
-          //clearInterval(interval);
         }
       }
     }
