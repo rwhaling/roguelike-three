@@ -258,6 +258,7 @@ function runGame(w,mydisplay) {
         // player's position
         _x: x,
         _y: y,
+        lastArrow: [1,0],
         // which tile to draw the player with
         character: "@",
         // the name to display in combat
@@ -394,6 +395,7 @@ function runGame(w,mydisplay) {
         name: "the monster",
         // the monster's stats
         stats: {"hp": 14},
+        lastArrow: [1,0],
         // called by the ROT.js scheduler
         act: monsterAct,
       }
@@ -436,6 +438,11 @@ function runGame(w,mydisplay) {
         let oldKey = m._x + "," + m._y;
         // the player is safe for now so update the monster position
         // to the first step on the path and redraw
+        let delta = [path[0][0] - m._x, path[0][1] - m._y ];
+        console.log("moving monster");
+        console.log(delta);
+        m.lastArrow = delta;
+
         m._x = path[0][0];
         m._y = path[0][1];
         let newKey = m._x + "," + m._y;
@@ -686,6 +693,9 @@ function runGame(w,mydisplay) {
     function arrowStart(dir) {
       const last = Game.lastArrow;
       Game.lastArrow = dir;
+      Game.player.lastArrow = dir;
+      console.log("lastArrow:");
+      console.log(Game.lastArrow);
       if (!last) {
         document.dispatchEvent(new Event("arrow"));
         if (Game.arrowInterval) { clearInterval(Game.arrowInterval); };

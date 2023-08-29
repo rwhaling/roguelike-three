@@ -174,9 +174,14 @@ export default class Display {
         this._player_pos = [x,y];
     }
 
-    draw_immediate(x:number,y:number,ch:string[]) {
-        let glyphs:Glyph[] = ch.map((c) => new Glyph(c))
-        this._backend.draw_immediate(x,y,this._player_pos,glyphs);
+    draw_batch(x:number,y:number,ch:string[]) {
+        ch.forEach((c) => {
+            this._backend.draw_immediate(x,y,this._player_pos[0], this._player_pos[1],c);
+        })
+    }
+
+    draw_immediate(x:number,y:number,c:string,pose:number,orientation:number) {
+        this._backend.draw_immediate(x,y,this._player_pos[0], this._player_pos[1],c, pose, orientation);
     }
 }
 

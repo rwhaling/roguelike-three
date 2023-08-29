@@ -107,32 +107,43 @@ import { Glyph } from "./mydisplay";
 		}
 	}
 
-	draw_immediate(x: number, y: number, player_pos: [number, number], glyphs: Glyph[]) {
+	draw_immediate(
+		x: number, 
+		y: number, 
+		player_x: number,
+		player_y: number,
+		glyph: string,
+		g_pose?: number,
+		g_orientation?: number,
+	) {
 		const gl = this._gl;
 		const opts = this._options;
-		let [player_x, player_y] = player_pos;
 
 		let t = 0;
+		let pose = g_pose || 0;
+		let orientation = g_orientation || 0;
 
 		gl.uniform2fv(this._uniforms["targetPosRel"], [x, y]);
 		gl.uniform2fv(this._uniforms["playerPosAbs"], [player_x, player_y]);
 		gl.uniform1f(this._uniforms["t"], t);
 
-		for (let i=0;i<glyphs.length;i++) {
-			let ch = glyphs[i].glyph;
-			let tile = [...this._options.tileMap[ch]];
-			// hack
-			if ((ch == "@" || ch == "M") && this._t % 8 >= 4) {
-				tile[1] += 16;
-				// console.log(`drawing alt tile for ${chars[i]}, ${tile}`);
-			}
-			if (!tile) { throw new Error(`Char "${ch}" not found in tileMap`); }
+		// for (let i=0;i<glyphs.length;i++) {
+		let ch = glyph;
+		let tile = [...this._options.tileMap[ch]];
+		// hack
+		tile[0] += orientation * 16
+		tile[1] += pose * 16;
+		// if ((ch == "@" || ch == "M") && this._t % 8 >= 4) {
+		// 	tile[1] += 16;
+		// 	// console.log(`drawing alt tile for ${chars[i]}, ${tile}`);
+		// }
+		if (!tile) { throw new Error(`Char "${ch}" not found in tileMap`); }
 
-			gl.uniform1f(this._uniforms["colorize"], opts.tileColorize ? 1 : 0);
-			gl.uniform2fv(this._uniforms["tilesetPosAbs"], tile);
+		gl.uniform1f(this._uniforms["colorize"], opts.tileColorize ? 1 : 0);
+		gl.uniform2fv(this._uniforms["tilesetPosAbs"], tile);
 
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-		}
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		// }
 	}
 
 	draw(data: DisplayData, clearBefore: boolean) {

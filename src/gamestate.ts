@@ -17,6 +17,7 @@ export default class GameState {
     arrowListener;
     lastFrame: number
     lastFrameDur: number
+    frameCount: number
     cleanup: any
     tick: Function
 
@@ -35,6 +36,7 @@ export default class GameState {
         this.arrowListener = null;
         this.lastFrame = 0.0;
         this.lastFrameDur = 0.0;
+        this.frameCount = 0;
         this.cleanup = null;
         this.tick = null;
     }
