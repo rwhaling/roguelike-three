@@ -2,6 +2,7 @@ import Backend from "rot-js/lib/display/backend.js";
 import { DisplayOptions, DisplayData } from "rot-js/lib/display/types.js";
 import * as Color from "rot-js/lib/color.js";
 import * as WebGLDebug from "webgl-debug";
+import { Glyph } from "./mydisplay";
 
 /**
  * @class Tile backend
@@ -101,6 +102,34 @@ import * as WebGLDebug from "webgl-debug";
 				gl.uniform4fv(this._uniforms["tint"], parseColor(fgs[i]));
 				gl.uniform4fv(this._uniforms["bg"], parseColor(bgs[i]));
 			}
+
+			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+		}
+	}
+
+	draw_immediate(x: number, y: number, player_pos: [number, number], glyphs: Glyph[]) {
+		const gl = this._gl;
+		const opts = this._options;
+		let [player_x, player_y] = player_pos;
+
+		let t = 0;
+
+		gl.uniform2fv(this._uniforms["targetPosRel"], [x, y]);
+		gl.uniform2fv(this._uniforms["playerPosAbs"], [player_x, player_y]);
+		gl.uniform1f(this._uniforms["t"], t);
+
+		for (let i=0;i<glyphs.length;i++) {
+			let ch = glyphs[i].glyph;
+			let tile = [...this._options.tileMap[ch]];
+			// hack
+			if ((ch == "@" || ch == "M") && this._t % 8 >= 4) {
+				tile[1] += 16;
+				// console.log(`drawing alt tile for ${chars[i]}, ${tile}`);
+			}
+			if (!tile) { throw new Error(`Char "${ch}" not found in tileMap`); }
+
+			gl.uniform1f(this._uniforms["colorize"], opts.tileColorize ? 1 : 0);
+			gl.uniform2fv(this._uniforms["tilesetPosAbs"], tile);
 
 			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 		}

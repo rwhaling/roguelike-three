@@ -69,7 +69,7 @@ export default class Display {
 		this.setOptions(options);
 		this.DEBUG = this.DEBUG.bind(this);
 
-		this._tick = this._tick.bind(this);
+		// this._tick = this._tick.bind(this);
 		// this._backend.schedule(this._tick);
 	}
 
@@ -81,7 +81,7 @@ export default class Display {
 	 */
 	DEBUG(x: number, y: number, what: number) {
 		let colors = [this._options.bg, this._options.fg];
-		this.draw(x, y, null, null, colors[what % colors.length]);
+		// this.draw(x, y, null, null, colors[what % colors.length]);
 	}
 
 	/**
@@ -91,6 +91,8 @@ export default class Display {
 		this._data = {};
 		this._dirty = true;
         this._t += 1;
+        
+        this._backend.clear();
 	}
 
 	/**
@@ -167,158 +169,25 @@ export default class Display {
 		return this._backend.eventToPosition(x, y);
 	}
 
-	/**
-	 * @param {int} x
-	 * @param {int} y
-	 * @param {string || string[]} ch One or more chars (will be overlapping themselves)
-	 * @param {string} [fg] foreground color
-	 * @param {string} [bg] background color
-	 */
-	draw(x: number, y: number, ch: string | string[] | null, 
-        fg: string | null, bg: string | null) {
-		if (!fg) { fg = this._options.fg; }
-		if (!bg) { bg = this._options.bg; }
-
-        if (ch === "@") {
-            this._player_pos = [x,y];
-        }
-
-		let key = `${x},${y}`;
-		this._data[key] = [x, y, ch, fg, bg];
-
-		if (this._dirty === true) { return; } // will already redraw everything 
-		if (!this._dirty) { this._dirty = {}; } // first!
-		this._dirty[key] = true;
-	}
-
-	/**
-	 * @param {int} x
-	 * @param {int} y
-	 * @param {string || string[]} ch One or more chars (will be overlapping themselves)
-	 * @param {string || null} [fg] foreground color
-	 * @param {string || null} [bg] background color
-	 */
-	drawOver(
-		x: number,
-		y: number,
-		ch: string | null,
-		fg: string | null,
-		bg: string | null
-	) {
-		const key = `${x},${y}`;
-		const existing = this._data[key];
-		if (existing) {
-			existing[2] = ch || existing[2];
-			existing[3] = fg || existing[3];
-			existing[4] = bg || existing[4];
-		} else {
-			this.draw(x, y, ch, fg, bg);
-		}
-	}
-
     setPlayerPos(x: number, y:number) {
-        console.log('setting player pos to %o %o',x,y);
+        // console.log('setting player pos to %o %o',x,y);
         this._player_pos = [x,y];
     }
 
-	/**
-	 * Draws a text at given position. Optionally wraps at a maximum length. Currently does not work with hex layout.
-	 * @param {int} x
-	 * @param {int} y
-	 * @param {string} text May contain color/background format specifiers, %c{name}/%b{name}, both optional. %c{}/%b{} resets to default.
-	 * @param {int} [maxWidth] wrap at what width?
-	 * @returns {int} lines drawn
-	 */
-	drawText(x:number, y:number, text:string, maxWidth?:number) {
-		let fg = null;
-		let bg = null;
-		let cx = x;
-		let cy = y;
-		let lines = 1;
-		if (!maxWidth) { maxWidth = this._options.width-x; }
+    draw_immediate(x:number,y:number,ch:string[]) {
+        let glyphs:Glyph[] = ch.map((c) => new Glyph(c))
+        this._backend.draw_immediate(x,y,this._player_pos,glyphs);
+    }
+}
 
-		let tokens = Text.tokenize(text, maxWidth);
+export class Glyph {
+    glyph: string
+    orientation: number
+    pose: number
 
-		while (tokens.length) { // interpret tokenized opcode stream
-			let token = tokens.shift();
-			switch (token.type) {
-				case Text.TYPE_TEXT:
-					let isSpace = false, isPrevSpace = false, isFullWidth = false, isPrevFullWidth = false;
-					for (let i=0;i<token.value.length;i++) {
-						let cc = token.value.charCodeAt(i);
-						let c = token.value.charAt(i);
-						if (this._options.layout === "term") {
-							let cch = cc >> 8;
-							let isCJK = cch === 0x11 || (cch >= 0x2e && cch <= 0x9f) || (cch >= 0xac && cch <= 0xd7) || (cc >= 0xA960 && cc <= 0xA97F);
-							if (isCJK) {
-								this.draw(cx + 0, cy, c, fg, bg);
-								this.draw(cx + 1, cy, "\t", fg, bg);
-								cx += 2;
-								continue;
-							}
-						}
-
-						// Assign to `true` when the current char is full-width.
-						isFullWidth = (cc > 0xff00 && cc < 0xff61) || (cc > 0xffdc && cc < 0xffe8) || cc > 0xffee;
-						// Current char is space, whatever full-width or half-width both are OK.
-						isSpace = (c.charCodeAt(0) == 0x20 || c.charCodeAt(0) == 0x3000);
-						// The previous char is full-width and
-						// current char is nether half-width nor a space.
-						if (isPrevFullWidth && !isFullWidth && !isSpace) { cx++; } // add an extra position
-						// The current char is full-width and
-						// the previous char is not a space.
-						if(isFullWidth && !isPrevSpace) { cx++; } // add an extra position
-						this.draw(cx++, cy, c, fg, bg);
-						isPrevSpace = isSpace;
-						isPrevFullWidth = isFullWidth;
-					}
-				break;
-
-				case Text.TYPE_FG:
-					fg = token.value || null;
-				break;
-
-				case Text.TYPE_BG:
-					bg = token.value || null;
-				break;
-
-				case Text.TYPE_NEWLINE:
-					cx = x;
-					cy++;
-					lines++;
-				break;
-			}
-		}
-
-		return lines;
-	}
-
-	/**
-	 * Timer tick: update dirty parts
-	 */
-	_tick() {
-		// this._backend.schedule(this._tick);
-
-		if (!this._dirty) { return; }
-
-		if (this._dirty === true) { // draw all
-			this._backend.clear();
-			for (let id in this._data) { this._draw(id, false); } // redraw cached data 
-		} else { // draw only dirty 
-			for (let key in this._dirty) { this._draw(key, false); }
-		}
-
-		this._dirty = false;
-	}
-
-	/**
-	 * @param {string} key What to draw
-	 * @param {bool} clearBefore Is it necessary to clean before?
-	 */
-	_draw(key: string, clearBefore: boolean) {
-		let data = this._data[key];
-		if (data[4] != this._options.bg) { clearBefore = true; }
-
-		this._backend.new_draw(data, this._player_pos, this._t, clearBefore);
-	}
+    constructor(glyph:string, orientation?: number, pose?: number) {
+        this.glyph = glyph;
+        this.orientation = orientation || 0;
+        this.pose = pose || 0;
+    }
 }
