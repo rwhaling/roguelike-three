@@ -376,9 +376,9 @@ void main() {
 	vec4 texel = texelFetch(image, ivec2(tilesetPosPx), 0);
 
 	if (colorize) {
-		// texel.rgb = tint.a * tint.rgb + (1.0-tint.a) * texel.rgb;
-		// fragColor.rgb = texel.a*texel.rgb + (1.0-texel.a)*bg.rgb;
-		// fragColor.a = texel.a + (1.0-texel.a)*bg.a;
+		texel.rgb = tint.a * tint.rgb + (1.0-tint.a) * texel.rgb;
+		fragColor.rgb = texel.a*texel.rgb + (1.0-texel.a)*bg.rgb;
+		fragColor.a = texel.a + (1.0-texel.a)*bg.a;
 	} else {
 		// fragColor = texel;
 		if (texel == vec4(0,0,0,0)) {

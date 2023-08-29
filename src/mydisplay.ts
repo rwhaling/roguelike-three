@@ -302,7 +302,7 @@ export default class Display {
 		if (!this._dirty) { return; }
 
 		if (this._dirty === true) { // draw all
-			this._backend.clear();
+			// this._backend.clear();
 			for (let id in this._data) { this._draw(id, false); } // redraw cached data 
 		} else { // draw only dirty 
 			for (let key in this._dirty) { this._draw(key, true); }
