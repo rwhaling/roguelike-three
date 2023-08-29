@@ -199,7 +199,7 @@ import * as WebGLDebug from "webgl-debug";
   			gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA,
   			gl.ONE, gl.ONE_MINUS_SRC_ALPHA
   		);
-  		gl.enable(gl.SCISSOR_TEST)
+  		gl.enable(gl.SCISSOR_TEST);
 		return gl;
 	}
 
