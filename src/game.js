@@ -168,6 +168,7 @@ function runGame(w,mydisplay) {
       arrowListener: null, // registered listener for arrow event
 
       lastFrame: 0.0,
+      lastFrameDur: 0.0,
       // clean up this game instance
       // we keep a reference for live-reloading
       cleanup: cleanup,
@@ -426,15 +427,7 @@ function runGame(w,mydisplay) {
                 const startPos = animation.startPos;
                 const endPos = animation.endPos;
 
-                if (game.lastFrame > game.animating[playerPos].endTime) {
-                    console.log(`animation done`);
-                    delete game.animating[playerPos];
-                    return
-                } 
-
-                console.log(animation);
-
-                
+                console.log(animation);                
 
                 let animPosStart = posFromKey(startPos);
                 let animPosEnd = posFromKey(endPos);
@@ -446,11 +439,16 @@ function runGame(w,mydisplay) {
                 let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
                 let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
                 console.log(`drawing player at progress ${animProgress}: ${animX}, ${animY}`);
+
                 game.display.setPlayerPos(animX, animY);
-    
                 game.display.draw(animX, animY, ["@"]);
 
-        
+                if (game.lastFrame + game.lastFrameDur > game.animating[playerPos].endTime) {
+                    console.log(`animation done`);
+                    delete game.animating[playerPos];
+                    return
+                } 
+
             } else {
                 console.log(`player at ${playerPos}`)
                 // hack
@@ -473,12 +471,6 @@ function runGame(w,mydisplay) {
                 const endPos = animation.endPos;
 
                 console.log(animation);
-
-                if (game.lastFrame > game.animating[monsterPos].endTime) {
-                    console.log(`animation done`);
-                    delete game.animating[monsterPos];
-                    return
-                } 
                 
                 let animPosStart = posFromKey(startPos);
                 let animPosEnd = posFromKey(endPos);
@@ -493,6 +485,11 @@ function runGame(w,mydisplay) {
     
                 game.display.draw(animX, animY, ["M"]);
 
+                if (game.lastFrame + game.lastFrameDur > game.animating[monsterPos].endTime) {
+                    console.log(`animation done`);
+                    delete game.animating[monsterPos];
+                    return
+                } 
 
 
             } else {
@@ -667,6 +664,7 @@ function runGame(w,mydisplay) {
 
         if (elapsed > 50) {
             // console.log(`in drawScene, ${elapsed} elapsed, timestamp ${timestamp}`);
+            Game.lastFrameDur = elapsed;
             Game.lastFrame = timestamp;
             Game.display.clear();
             // re-draw the player
