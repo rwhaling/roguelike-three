@@ -10,7 +10,7 @@ const walkable = [".", "*", "g"]
 const noreplace = walkable.concat(["M", "╔", "╗", "╚", "╝", "═", "║"]);
 
     // guess what, this generates the game map
-export function genMap(game:GameState, tileOptions) {
+export function genMap(game:GameState, tileOptions, minimap?) {
     // we're using the ROT.js Digger tilemap
     // there are lots of interesting dungeon
     // generation algorithms here:
@@ -38,13 +38,14 @@ export function genMap(game:GameState, tileOptions) {
         const key = x + "," + y;
         if (value) {
         // store this in the non-walkable cells list
-        zeroCells.push(key);
+            zeroCells.push(key);
         } else {
-        // on our map we want to draw a "walkable" tile
-        // here which is represented by a dot
-        game.map[key] = ".";
-        // store this in the walkable cells list
-        freeCells.push(key);
+            // on our map we want to draw a "walkable" tile
+            // here which is represented by a dot
+            game.map[key] = ".";
+            minimap.draw(x,y,"","","white");
+            // store this in the walkable cells list
+            freeCells.push(key);
         }
     }
     // kick off the map creation algorithm to build

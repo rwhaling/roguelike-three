@@ -1,5 +1,6 @@
 import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
+import { Display } from "rot-js/lib/index"
 import GameState from "./gamestate"
 import { genMap } from "./mapgen/MapGen";
 import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast } from "./ui/ui";
@@ -154,11 +155,15 @@ function runGame(w,mydisplay) {
       game.display = new MyDisplay(tileOptions);
     //   game.display._backend = new MyDisplay();
       resetCanvas(game.display.getContainer());
-  
+      let mapDisplay = new Display({width: 20, height: 20, fontSize:6, });
+
+      $("#mapcanvas").innerHTML = "";
+      $("#mapcanvas").appendChild(mapDisplay.getContainer());
+
       // this is where we populate the map data structure
       // with all of the background tiles, items,
       // player and the monster positions
-      let [zeroCells, freeCells] = genMap(game, tileOptions);
+      let [zeroCells, freeCells] = genMap(game, tileOptions, mapDisplay);
       game.player = createBeing(makePlayer, freeCells);
       game.monsters = [createBeing(makeMonster, freeCells)];
       game.display.setPlayerPos(game.player._x, game.player._y);

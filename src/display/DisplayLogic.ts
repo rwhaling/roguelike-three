@@ -21,7 +21,7 @@ export function drawPlayer(game:GameState) {
     let playerPos = game.player._x + "," + game.player._y;
     // if (!game.animating[playerPos]) { return; }
     let pose = game.frameCount % 8 >= 4 ? 1 : 0;
-    let ori_string = game.player.lastArrow[0] + "," + game.player.lastArrow[1]
+    let ori_string = game.player.lastArrow[0] + "," + game.player.lastArrow[1];
     let orientation = 0;
 
     switch(ori_string) {
