@@ -1,3 +1,5 @@
+import { Player } from "../entities/player";
+
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
   
 // handy shortcuts and shims for manipulating the dom
@@ -73,13 +75,31 @@ export function inventoryRemove(items, which) {
 // pass in an object containing key value pairs where
 // the key is the name of the stat and the value is the
 // number
-export function renderStats(stats) {
+export function renderStats(player:Player) {
+  player.controls.dirty = false;
   const st = $("#hud");
   st.innerHTML = "";
-  for (let s in stats) {
-    attach(st, el("span", {}, [s.toUpperCase() + ": " + stats[s]]));
-  }
+  let moves = player.controls.moves;
+  let selected = player.controls.selectedMove;
+  console.log("selected move:", selected);
+  // for (let s in stats) {
+  moves.forEach((s,idx) => {
+    if (s.enabled) {
+      if (idx === selected) {
+        attach(st, el("span", { "style": "text-decoration: underline" }, [s.name]));
+      } else {
+        attach(st, el("span", { "style": "text-decoration: none" }, [s.name]));
+      }
+    } else {
+      if (idx === selected) {
+        attach(st, el("span", { "style": "text-decoration: underline; color: grey" }, [s.name]));
+      } else {
+        attach(st, el("span", { "style": "text-decoration: none; color: grey" }, [s.name]));
+      }
+    }
+  })
 }
+
     
 // toggles the inventory UI open or closed
 export function toggleInventory(ev, force) {

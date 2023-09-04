@@ -96,6 +96,14 @@ function takeFreeCell(freeCells) {
     const key = freeCells.splice(index, 1)[0];
     return key;
 }
+
+export function createBeing(game, what, freeCells) {
+    const key = takeFreeCell(freeCells);
+    const pos = posFromKey(key);
+    const being = what(game, pos[0], pos[1]);
+    return being;
+}
+
   
     // to make the map look a bit cooler we'll generate
     // walls around the rooms

@@ -2,7 +2,8 @@ import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
 import { Display } from "rot-js/lib/index"
 import GameState from "./gamestate"
-import { genMap } from "./mapgen/MapGen";
+import { genMap, createBeing } from "./mapgen/MapGen";
+import { Player, makePlayer } from "./entities/player";
 import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast } from "./ui/ui";
 function runGame(w,mydisplay) {
 
@@ -122,6 +123,16 @@ function runGame(w,mydisplay) {
       2: 2,
       3: 4,
     };
+
+    const moveSelectMap = {
+      74: -1,
+      76: 1
+    }
+
+    const targetSelectMap = {
+      73: -1,
+      75: 1
+    }
   
     const arrowMap = {
       "btn-left": 6,
@@ -129,10 +140,7 @@ function runGame(w,mydisplay) {
       "btn-up": 0,
       "btn-down": 4,
     };
-  
-    const gamepadState = {}; // last known state of gamepad buttons
-    var gamepadPoller = null; // poller checking for gamepad events
-  
+    
     /*****************
      *** game code ***
      *****************/
@@ -164,8 +172,8 @@ function runGame(w,mydisplay) {
       // with all of the background tiles, items,
       // player and the monster positions
       let [zeroCells, freeCells] = genMap(game, tileOptions, mapDisplay);
-      game.player = createBeing(makePlayer, freeCells);
-      game.monsters = [createBeing(makeMonster, freeCells)];
+      game.player = createBeing(game, makePlayer, freeCells);
+      game.monsters = [createBeing(game, makeMonster, freeCells)];
       game.display.setPlayerPos(game.player._x, game.player._y);
 
       //   generateMap(game);
@@ -179,7 +187,7 @@ function runGame(w,mydisplay) {
       renderInventory(tileOptions, game.player.inventory);
   
       // render the stats hud at the bottom of the screen
-      renderStats(game.player.stats);
+      renderStats(game.player);
   
       // kick everything off
       game.engine = new ROT.Engine(game.scheduler);
@@ -215,80 +223,19 @@ function runGame(w,mydisplay) {
       // close out the game screen and show the title
       showScreen("title");
     }
-    
-    // randomly choose one cell from the freeCells array
-    // remove it from the array and return it
-    function takeFreeCell(freeCells) {
-      const index = Math.floor(
-        ROT.RNG.getUniform() * freeCells.length);
-      const key = freeCells.splice(index, 1)[0];
-      return key;
-    }
-  
-    // parse a string "x,y" key and return the
-    // actual x, y values
-    function posFromKey(key) {
-      const parts = key.split(",");
-      const x = parseInt(parts[0]);
-      const y = parseInt(parts[1]);
-      return [x, y];
-    }
-  
+      
     function drawScene(timestamp) {
         if (Game.display === null) {
             return;
         }
+        if (Game.player && Game.player.controls.dirty) {
+          renderStats(Game.player);
+        }
+        // TODO: check if key held and not animating player
         requestAnimationFrame(drawScene);
         render(Game,timestamp);
     }
-  
-    // both the player and monster initial position is set
-    // by choosing a random freeCell and creating the type
-    // of object (`what`) on that position
-    function createBeing(what, freeCells) {
-      const key = takeFreeCell(freeCells);
-      const pos = posFromKey(key);
-      const being = what(pos[0], pos[1]);
-      return being;
-    }
-  
-    /******************
-     *** the player ***
-     ******************/
-  
-  
-    // creates a player object with position, inventory, and stats
-    function makePlayer(x, y) {
-      return {
-        // player's position
-        _x: x,
-        _y: y,
-        lastArrow: [1,0],
-        // which tile to draw the player with
-        character: "@",
-        // the name to display in combat
-        name: "you",
-        // what the player is carrying
-        inventory: [
-          ["x", "Axe (+5)"],
-          ["p", "Potion"]
-        ],
-        // the player's stats
-        stats: {"hp": 10, "xp": 1, "gold": 0},
-        // the ROT.js scheduler calls this method when it is time
-        // for the player to act
-        // what this does is lock the engine to take control
-        // and then wait for input from the user
-        act: () => {
-          Game.engine.lock();
-          if (!Game["arrowListener"]) {
-            document.addEventListener("arrow", arrowEventHandler);
-            Game.arrowListener = true;
-          }
-        },
-      }
-    }
-  
+
     // this method gets called by the `movePlayer` function
     // in order to check whether they hit an empty box
     // or The Amulet
@@ -303,7 +250,7 @@ function runGame(w,mydisplay) {
         // show a message, re-render the stats
         // then play the pickup/win sound
         Game.player.stats.gold += 1;
-        renderStats(Game.player.stats);
+        renderStats(Game.player);
         toast(Game, "You found gold!");
         sfx["win"].play();
         delete Game.items[key];
@@ -323,6 +270,7 @@ function runGame(w,mydisplay) {
     // and also from the click/tap handler `handlePointing()` below
     function movePlayer(dir) {
       const p = Game.player;
+      Game.player.lastArrow = dir;
       console.log("moving player");
       console.log(dir);
       return movePlayerTo(p._x + dir[0], p._y + dir[1]);
@@ -372,8 +320,6 @@ function runGame(w,mydisplay) {
         }
         Game.animating[newKey] = animation;
 
-        // remove the arrow event listener
-        window.removeEventListener("arrow", arrowEventHandler);
         Game.engine.unlock();
         // play the "step" sound
         sfx["step"].play();
@@ -389,7 +335,7 @@ function runGame(w,mydisplay) {
   
   
     // basic ROT.js entity with position and stats
-    function makeMonster(x, y) {
+    function makeMonster(game, x, y) {
       return {
         // monster position
         _x: x,
@@ -599,8 +545,6 @@ function runGame(w,mydisplay) {
         document.ontouchstart = handleArrowTouch;
         document.ontouchend = arrowStop;
       };
-      clearInterval(gamepadPoller);
-      gamepadPoller = setInterval(pollGamepads, 25);
       showScreen("game");
     }
   
@@ -609,13 +553,9 @@ function runGame(w,mydisplay) {
     // and lock the game
     function removeListeners(game) {
       if (game.engine) {
-        game.lastArrow = null;
-        clearInterval(game.arrowInterval);
-        game.arrowInterval = null;
+        game.arrowHeld = null;
         game.engine.lock();
         game.scheduler.clear();
-        window.removeEventListener("arrow", arrowEventHandler);
-        game.arrowListener = false;
         window.onkeydown = null;
         window.onkeyup = null;
         if (usePointer) { $("#canvas").removeEventListener(clickevt, handlePointing); };
@@ -623,7 +563,6 @@ function runGame(w,mydisplay) {
           document.ontouchstart = null;
           document.ontouchend = null;
         };
-        clearInterval(gamepadPoller);
       }
     }  
   
@@ -669,16 +608,27 @@ function runGame(w,mydisplay) {
         return;
       }
       if (code == 81) { destroy(Game); return; }
-      if (code == 73) { toggleInventory(ev, true); return; }
+      // if (code == 73) { toggleInventory(ev, true); return; }
       // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
       if (code == 190) { Game.engine.unlock(); return; } // skip turn
       /* one of numpad directions? */
-      if (!(code in keyMap)) { return; }
-      const dir = ROT.DIRS[8][keyMap[code]];
-      if (Game.display) {
-        ev.preventDefault();
+      if (code in moveSelectMap) {
+        console.log("move selector: ",code, moveSelectMap[code]);
+        Game.player.controls.selectMove(moveSelectMap[code]);
+        return;
       }
-      arrowStart(dir);
+      if (code in targetSelectMap) {
+        console.log("target selector:", code, targetSelectMap[code]);
+        return;
+      }
+      if (!(code in keyMap)) { return; }
+      if (code in keyMap) {
+        const dir = ROT.DIRS[8][keyMap[code]];
+        if (Game.display) {
+          ev.preventDefault();
+        }
+        arrowStart(dir);  
+      }
     }
   
   
@@ -696,64 +646,22 @@ function runGame(w,mydisplay) {
   
     // handle an on-screen or keyboard arrow
     function arrowStart(dir) {
-      const last = Game.lastArrow;
-      Game.lastArrow = dir;
-      Game.player.lastArrow = dir;
-      console.log("lastArrow:");
-      console.log(Game.lastArrow);
+      let last = Game.arrowHeld;
+      Game.arrowHeld = dir;
+      // Game.player.lastArrow = dir;
+      console.log("arrowHeld:");
+      console.log(Game.arrowHeld);
       if (!last) {
-        document.dispatchEvent(new Event("arrow"));
-        if (Game.arrowInterval) { clearInterval(Game.arrowInterval); };
-        Game.arrowInterval = setInterval(function() {
-          document.dispatchEvent(new Event("arrow"));
-        }, turnLengthMS);
+        movePlayer(dir)
+        // document.dispatchEvent(new Event("arrow"));
       }
     }
   
     // when the fingers have been lifted
     function arrowStop(ev) {
-      clearInterval(Game.arrowInterval);
-      Game.arrowInterval = null;
-      Game.lastArrow = null;
+      Game.arrowHeld = null;
     }
-  
-    // actually move the player when an arrow is pressed
-    function arrowEventHandler() {
-      if (Game.lastArrow) {
-        movePlayer(Game.lastArrow);
-      } else {
-        arrowStop();
-      }
-    }
-  
-    // trigger arrow events from gamepad changes
-    function pollGamepads() {
-      const gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
-      for (var i = 0; i < gamepads.length; i++) {
-        var gp = gamepads[i];
-        if (gp) {
-          const newstate = {
-            "h": Math.round(gp.axes[6]),
-            "v": Math.round(gp.axes[7]),
-            "b": [0,1,3,4].map(i=>gp.buttons[i].pressed),
-          }
-          const oldstate = gamepadState[gp.id];
-          if (oldstate) {
-            [["btn-left", "h", "btn-right"], ["btn-up", "v", "btn-down"]].map(tr => {
-              if (newstate[tr[1]] != oldstate[tr[1]]) {
-                if (newstate[tr[1]] == 0) {
-                  arrowStop();
-                } else {
-                  arrowStart(ROT.DIRS[8][arrowMap[tr[newstate[tr[1]] + 1]]]);
-                }
-              }
-            });
-          }
-          gamepadState[gp.id] = newstate;
-        }
-      }
-    }
-  
+    
     // this function gets called from the first screen
     // when the "play" button is clicked.
     function startGame(ev) {
@@ -806,12 +714,7 @@ function runGame(w,mydisplay) {
   
     // listen for the start game button
     $("#play").addEventListener(clickevt, startGame);
-  
-    // listen for gamepads to make them readable
-    window.addEventListener("gamepadconnected", function(e) {
-      console.log("Gamepad connected:", e);
-    });
-  
+    
     // allow live reloading of the game code
     if (w["rbb"]) {
       w["rbb"].cleanup();

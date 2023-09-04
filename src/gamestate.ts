@@ -1,6 +1,7 @@
 import Display from "./mydisplay";
 import { Engine } from "rot-js/lib/index"
 import Simple from "rot-js/lib/scheduler/simple";
+import { Player } from "./entities/player";
 
 export default class GameState {
     display: Display
@@ -9,12 +10,10 @@ export default class GameState {
     animating: Object
     engine: Engine
     scheduler: Simple
-    player: any
+    player: Player
     monsters: Array<any>
     amulet: Object
-    lastArrow: Object
-    arrowInterval;
-    arrowListener;
+    arrowHeld: [number, number]
     lastFrame: number
     lastFrameDur: number
     frameCount: number
@@ -31,9 +30,7 @@ export default class GameState {
         this.player = null;
         this.monsters = null;
         this.amulet = null;
-        this.lastArrow = null;
-        this.arrowInterval = null;
-        this.arrowListener = null;
+        this.arrowHeld = null;
         this.lastFrame = 0.0;
         this.lastFrameDur = 0.0;
         this.frameCount = 0;
