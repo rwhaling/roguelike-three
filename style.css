@@ -390,6 +390,18 @@ a:hover {
   padding: 0px;
 }
 
+#enemies_container {
+  display: block;
+  clear: both;
+  padding: 8px;
+}
+
+#enemytarget_container {
+  display: block;
+  clear: both;
+  padding: 8px;
+}
+
 
 #message {
   position: absolute;

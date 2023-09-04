@@ -1,6 +1,7 @@
 import GameState from "../gamestate";
 
 export default class Monster {
+    id: string
     _x: number
     _y: number
     character: string

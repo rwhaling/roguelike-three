@@ -1,5 +1,6 @@
 
 export class Player {
+    id: string
     _x: number
     _y: number
     lastArrow: [number, number]
@@ -16,11 +17,13 @@ export class Player {
 export class PlayerControls {
     moves: PlayerMove[]
     selectedMove: number
+    currentTarget: string;
     dirty: boolean;
 
     constructor(moves: PlayerMove[]) {
         this.moves = moves;
         this.selectedMove = 0;
+        this.currentTarget = null;
         this.dirty = true;
     }
 
@@ -47,9 +50,10 @@ export class PlayerMove {
 }
 
 // creates a player object with position, inventory, and stats
-export function makePlayer(game, x:number, y:number):Player {
+export function makePlayer(game, id:string, x:number, y:number):Player {
     return {
         // player's position
+        id: id,
         _x: x,
         _y: y,
         lastArrow: [1,0],

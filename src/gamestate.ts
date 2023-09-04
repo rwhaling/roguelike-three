@@ -12,6 +12,8 @@ export default class GameState {
     scheduler: Simple
     player: Player
     monsters: Array<any>
+    entities: {[key:string]: any}
+    animatingEntities: {[key:string]: any}
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -29,6 +31,8 @@ export default class GameState {
         this.scheduler = null;
         this.player = null;
         this.monsters = null;
+        this.entities = {};
+        this.animatingEntities = {};
         this.amulet = null;
         this.arrowHeld = null;
         this.lastFrame = 0.0;

@@ -1,4 +1,5 @@
 import RNG from "rot-js/lib/rng";
+import { v4 as uuidv4 } from 'uuid';
 import Digger from "rot-js/lib/map/digger";
 import GameState from "../gamestate";
 import { posFromKey } from "../utils"
@@ -98,9 +99,11 @@ function takeFreeCell(freeCells) {
 }
 
 export function createBeing(game, what, freeCells) {
+    let uuid = uuidv4();
     const key = takeFreeCell(freeCells);
     const pos = posFromKey(key);
-    const being = what(game, pos[0], pos[1]);
+    const being = what(game, uuid, pos[0], pos[1]);
+    game.entities[uuid] = being;
     return being;
 }
 

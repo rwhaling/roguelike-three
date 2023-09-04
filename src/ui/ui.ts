@@ -1,4 +1,5 @@
 import { Player } from "../entities/player";
+import GameState from "../gamestate";
 
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
   
@@ -97,9 +98,27 @@ export function renderStats(player:Player) {
         attach(st, el("span", { "style": "text-decoration: none; color: grey" }, [s.name]));
       }
     }
-  })
+  });
 }
 
+export function renderTargets(game:GameState) {
+  game.player.controls.dirty = false;
+  const st = $("#enemies");
+  st.innerHTML = "";
+  console.log("entities rendering?", game.entities);
+  for (let key in game.entities) {
+    let ent = game.entities[key];
+    if (key == game.player.id) {
+      continue;
+    } else {
+      console.log("enemies rendering?",key,ent);
+      //hack, todo: actual table structure?
+  
+      let row = attach(st, el("tr", { "style": "text-decoration: underline;" }, [ent.name]));
+      // attach(row, el("td", {}, ent.name));  
+    }
+  }
+}
     
 // toggles the inventory UI open or closed
 export function toggleInventory(ev, force) {

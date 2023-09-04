@@ -4,7 +4,7 @@ import { Display } from "rot-js/lib/index"
 import GameState from "./gamestate"
 import { genMap, createBeing } from "./mapgen/MapGen";
 import { Player, makePlayer } from "./entities/player";
-import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast } from "./ui/ui";
+import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast, renderTargets } from "./ui/ui";
 function runGame(w,mydisplay) {
 
     // Update this string to set the game title
@@ -205,12 +205,14 @@ function runGame(w,mydisplay) {
       // tear everything down and
       // reset all our variables back
       // to null as before init()
+      // TODO: all new state
       if (game.engine) {
         game.engine.lock();
         game.display = null;
         game.map = {};
         game.items = {};
         game.engine = null;
+        game.entities = {};
         game.scheduler.clear();
         game.scheduler = null;
         game.player = null;
@@ -229,7 +231,9 @@ function runGame(w,mydisplay) {
             return;
         }
         if (Game.player && Game.player.controls.dirty) {
+          console.log("ui dirty");
           renderStats(Game.player);
+          renderTargets(Game);
         }
         // TODO: check if key held and not animating player
         requestAnimationFrame(drawScene);
@@ -335,9 +339,10 @@ function runGame(w,mydisplay) {
   
   
     // basic ROT.js entity with position and stats
-    function makeMonster(game, x, y) {
+    function makeMonster(game, id, x, y) {
       return {
         // monster position
+        id: id,
         _x: x,
         _y: y,
         // which tile to draw the player with
@@ -441,7 +446,8 @@ function runGame(w,mydisplay) {
     function removeMonster(m) {
       const key = m._x + "," + m._y;
       Game.scheduler.remove(m);
-      Game.monsters = Game.monsters.filter(mx=>mx!=m);
+      Game.monsters = Game.monsters.filter(mx=>mx!=m);     
+      delete Game.entities[m.id];
     }
   
   
