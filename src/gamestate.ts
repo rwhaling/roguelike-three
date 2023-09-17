@@ -1,4 +1,5 @@
 import Display from "./mydisplay";
+import { Animation } from "./display/DisplayLogic"
 import { Engine } from "rot-js/lib/index"
 import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";
@@ -7,13 +8,12 @@ export default class GameState {
     display: Display
     map: Object
     items: Object
-    animating: Object
     engine: Engine
     scheduler: Simple
     player: Player
     monsters: Array<any>
     entities: {[key:string]: any}
-    animatingEntities: {[key:string]: any}
+    animatingEntities: {[key:string]: Animation}
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -25,7 +25,6 @@ export default class GameState {
     constructor() {
         this.display = null;
         this.map = {};
-        this.animating = {};
         this.items = {};
         this.engine = null;
         this.scheduler = null;

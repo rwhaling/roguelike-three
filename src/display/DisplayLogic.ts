@@ -17,9 +17,18 @@ function lerp( a, b, alpha ) {
     return a + alpha * ( b - a );
 }
 
+export class Animation {
+    id: string
+    startPos: [number, number]
+    newPos: [number, number]
+    startTime: number
+    endTime: number
+}
+
+export type AnimationResult = [number, number, boolean]
+
 export function drawPlayer(game:GameState) {
     let playerPos = game.player._x + "," + game.player._y;
-    // if (!game.animating[playerPos]) { return; }
     let pose = game.frameCount % 8 >= 4 ? 1 : 0;
     let ori_string = game.player.lastArrow[0] + "," + game.player.lastArrow[1];
     let orientation = 0;
@@ -45,45 +54,39 @@ export function drawPlayer(game:GameState) {
     }
 
     if (playerPos) {
-        if (game.animating[playerPos]) {
-            const animation = game.animating[playerPos];
-            const startPos = animation.startPos;
-            const endPos = animation.endPos;
-
-            console.log(animation);                
-
-            let animPosStart = posFromKey(startPos);
-            let animPosEnd = posFromKey(endPos);
-            let animDuration = animation.endTime - animation.startTime;
-            let animElapsed = game.lastFrame - animation.startTime;
-            let animProgress = animElapsed / animDuration;
-            if (animProgress > 1.0) { animProgress = 1.0 };
-
-            let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
-            let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
-            // console.log(`drawing player at progress ${animProgress}: ${animX}, ${animY}`);
-
-            game.display.setPlayerPos(animX, animY);
+        if (game.animatingEntities[game.player.id]) {
+            let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[game.player.id])
+            game.display.setPlayerPos(posX, posY);
             // game.display.draw(animX, animY, ["@"], null, null);
-            game.display.draw_immediate(animX, animY, game.player.character,pose,orientation);
-
-            if (game.lastFrame + game.lastFrameDur > game.animating[playerPos].endTime) {
-                // console.log(`animation done`);
-                delete game.animating[playerPos];
-                return
-            } 
-
+            game.display.draw_immediate(posX, posY, game.player.character,pose,orientation);
+            if (isDone) {
+                delete game.animatingEntities[game.player.id];
+            }
         } else {
-            // console.log(`player at ${playerPos}`)
-            // hack
             drawTile(game, playerPos);
 
             game.display.setPlayerPos(game.player._x, game.player._y);
-            // game.display.draw(game.player._x, game.player._y, ["@"], null, null);
             game.display.draw_immediate(game.player._x, game.player._y, game.player.character,pose,orientation);
-
         }
     }                
+}
+
+function updateAnimation(game, animation):AnimationResult {
+    let animDuration = animation.endTime - animation.startTime;
+    let animElapsed = game.lastFrame - animation.startTime;
+    let animProgress = animElapsed / animDuration;
+    if (animProgress > 1.0) { animProgress = 1.0 };
+
+    let animX = lerp( animation.startPos[0], animation.endPos[0], animProgress);
+    let animY = lerp( animation.startPos[1], animation.endPos[1], animProgress);
+
+    if (game.lastFrame + game.lastFrameDur > animation.endTime) {
+        return [animX, animY, true]
+    } else {
+        return [animX, animY, false]
+    }
+
+
 }
 
 export function drawMonster(game:GameState) {
@@ -113,32 +116,13 @@ export function drawMonster(game:GameState) {
                 break;
         }
 
-        if (game.animating[monsterPos]) {
-            const animation = game.animating[monsterPos];
-            const startPos = animation.startPos;
-            const endPos = animation.endPos;
-
-            console.log(animation);
-            
-            let animPosStart = posFromKey(startPos);
-            let animPosEnd = posFromKey(endPos);
-            let animDuration = animation.endTime - animation.startTime;
-            let animElapsed = game.lastFrame - animation.startTime;
-            let animProgress = animElapsed / animDuration;
-            if (animProgress > 1.0) { animProgress = 1.0 };
-
-            let animX = lerp( animPosStart[0], animPosEnd[0], animProgress);
-            let animY = lerp( animPosStart[1], animPosEnd[1], animProgress);
-            // console.log(`drawing monster at progress ${animProgress}: ${animX}, ${animY}`);
-
-            // game.display.draw(animX, animY, ["M"], null, null);
-            game.display.draw_immediate(animX, animY, "M",pose,orientation);
-
-            if (game.lastFrame + game.lastFrameDur > game.animating[monsterPos].endTime) {
-                // console.log(`animation done`);
-                delete game.animating[monsterPos];
-                return
-            } 
+        if (game.animatingEntities[m.id]) {
+            let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[m.id])
+            // game.display.draw(animX, animY, ["@"], null, null);
+            game.display.draw_immediate(posX, posY, "M",pose,orientation);
+            if (isDone) {
+                delete game.animatingEntities[m.id];
+            }
         } else {
             // console.log(`monster at ${monsterPos}`);
             drawTile(game, monsterPos);
@@ -148,26 +132,7 @@ export function drawMonster(game:GameState) {
     }
 }
 
-function monsterAt(game, x, y) {
-    if (game.monsters && game.monsters.length) {
-        for (let mi=0; mi< game.monsters.length; mi++) {
-            const m = game.monsters[mi];
-            if (m && m._x == x && m._y == y) {
-                return m;
-            }
-        }
-    }
-}
-
-function playerAt(game, x, y) {
-    return game.player && game.player._x == x && game.player._y == y ? game.player : null;
-}
-
 export function render(game,timestamp) {
-    // if (game.display === null) {
-    //     return;
-    // }
-    // requestAnimationFrame(drawScene);
     let elapsed = timestamp - game.lastFrame;
 
     if (elapsed > 30) {

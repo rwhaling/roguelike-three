@@ -105,19 +105,25 @@ export function renderTargets(game:GameState) {
   game.player.controls.dirty = false;
   const st = $("#enemies");
   st.innerHTML = "";
-  console.log("entities rendering?", game.entities);
-  for (let key in game.entities) {
-    let ent = game.entities[key];
-    if (key == game.player.id) {
-      continue;
-    } else {
-      console.log("enemies rendering?",key,ent);
-      //hack, todo: actual table structure?
-  
-      let row = attach(st, el("tr", { "style": "text-decoration: underline;" }, [ent.name]));
-      // attach(row, el("td", {}, ent.name));  
+  for (let m of game.monsters) {
+    console.log("targets rendering?", game.monsters);
+    if (m.awake) {
+      console.log("monster rendering?", m);
+      let row = attach(st, el("tr", { "style": "text-decoration: underline;" }, [m.name]));
     }
   }
+  // for (let key in game.entities) {
+  //   let ent = game.entities[key];
+  //   if (key == game.player.id) {
+  //     continue;
+  //   } else {
+  //     console.log("enemies rendering?",key,ent);
+  //     //hack, todo: actual table structure?
+  
+  //     let row = attach(st, el("tr", { "style": "text-decoration: underline;" }, [ent.name]));
+  //     // attach(row, el("td", {}, ent.name));  
+  //   }
+  // }
 }
     
 // toggles the inventory UI open or closed

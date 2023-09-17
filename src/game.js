@@ -188,6 +188,8 @@ function runGame(w,mydisplay) {
   
       // render the stats hud at the bottom of the screen
       renderStats(game.player);
+
+      renderTargets(game);
   
       // kick everything off
       game.engine = new ROT.Engine(game.scheduler);
@@ -285,6 +287,8 @@ function runGame(w,mydisplay) {
       // get a reference to our global player object
       // this is needed when called from the tap/click handler
       const p = Game.player;
+      // does this go here or somewhere else?
+      p.controls.dirty = true;
   
       // map lookup - if we're not moving onto a floor tile
       // or a treasure chest, then we should abort this move
@@ -307,22 +311,22 @@ function runGame(w,mydisplay) {
         // hide the toast message when the player moves
         hideToast();
   
-        // update the old tile to whatever was there before
-        // (e.g. "." floor tile)
-        let oldKey = p._x + "," + p._y;
+        let oldPos = [p._x, p._y]
 
         // update the player's coordinates
         p._x = x;
         p._y = y;
 
-        let newKey = p._x + "," + p._y;
+        let newPos = [p._x, p._y]
         let animation = {
-            startPos: oldKey,
-            endPos: newKey,
+            id: p.id,
+            startPos: oldPos,
+            endPos: newPos,
             startTime: Game.lastFrame,
             endTime: Game.lastFrame + 200
         }
-        Game.animating[newKey] = animation;
+        // Game.animating[newKey] = animation;
+        Game.animatingEntities[p.id] = animation;
 
         Game.engine.unlock();
         // play the "step" sound
@@ -353,6 +357,7 @@ function runGame(w,mydisplay) {
         stats: {"hp": 14},
         lastArrow: [1,0],
         // called by the ROT.js scheduler
+        awake: false,
         act: monsterAct,
       }
     }
@@ -389,9 +394,16 @@ function runGame(w,mydisplay) {
       // square then initiate combat
       if (path.length <= 1) {
         combat(m, p);
+      } else if (path.length >= 7) {
+      
       } else {
+        if (this.awake == false) {
+          this.awake = true;
+          console.log("the monster sees you");
+        }
         // draw whatever was on the last tile the monster was one
-        let oldKey = m._x + "," + m._y;
+        // let oldKey = m._x + "," + m._y;
+        let oldPos = [m._x, m._y];
         // the player is safe for now so update the monster position
         // to the first step on the path and redraw
         let delta = [path[0][0] - m._x, path[0][1] - m._y ];
@@ -401,14 +413,17 @@ function runGame(w,mydisplay) {
 
         m._x = path[0][0];
         m._y = path[0][1];
-        let newKey = m._x + "," + m._y;
+        // let newKey = m._x + "," + m._y;
+        let newPos = [m._x, m._y];
         let animation = {
-            startPos: oldKey,
-            endPos: newKey,
+            id: m.id,
+            startPos: oldPos,
+            endPos: newPos,
             startTime: Game.lastFrame,
             endTime: Game.lastFrame + 250
         }
-        Game.animating[newKey] = animation;
+        Game.animatingEntities[m.id] = animation;
+        // Game.animating[newKey] = animation;
       }
     }
   
