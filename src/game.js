@@ -59,7 +59,7 @@ function runGame(w,mydisplay) {
         "║": [368, 0], // room edge
         "o": [384, 0], // room corner
       },
-      width: 20,
+      width: 50, // TODO: this is making the window too wide
       height: 20
     }
   
@@ -160,10 +160,11 @@ function runGame(w,mydisplay) {
       game.map = {};
       game.items = {};
       // first create a ROT.js display manager
+      // TODO: picking up map width as display width, not ideal
       game.display = new MyDisplay(tileOptions);
     //   game.display._backend = new MyDisplay();
       resetCanvas(game.display.getContainer());
-      let mapDisplay = new Display({width: 20, height: 20, fontSize:6, });
+      let mapDisplay = new Display({width: tileOptions.width, height: 20, fontSize:6, });
 
       $("#mapcanvas").innerHTML = "";
       $("#mapcanvas").appendChild(mapDisplay.getContainer());
@@ -173,8 +174,15 @@ function runGame(w,mydisplay) {
       // player and the monster positions
       let [zeroCells, freeCells] = genMap(game, tileOptions, mapDisplay);
       game.player = createBeing(game, makePlayer, freeCells);
-      game.monsters = [createBeing(game, makeMonster, freeCells)];
       game.display.setPlayerPos(game.player._x, game.player._y);
+
+      // game.monsters = [createBeing(game, makeMonster, freeCells)];
+      game.monsters = [
+        createBeing(game, makeMonster, freeCells),
+        createBeing(game, makeMonster, freeCells),
+        createBeing(game, makeMonster, freeCells)
+      ];
+
 
       //   generateMap(game);
   
@@ -299,6 +307,7 @@ function runGame(w,mydisplay) {
       // and if we have initiate combat
       const hitMonster = monsterAt(x, y);
       if (hitMonster) {
+        p.controls.currentTarget = hitMonster.id;
         // we enter a combat situation
         combat(p, hitMonster);
         // pass the turn on to the next entity
@@ -462,6 +471,9 @@ function runGame(w,mydisplay) {
       const key = m._x + "," + m._y;
       Game.scheduler.remove(m);
       Game.monsters = Game.monsters.filter(mx=>mx!=m);     
+      if (Game.player.controls.currentTarget == m.id) {
+        Game.player.controls.currentTarget = null;
+      }
       delete Game.entities[m.id];
     }
   
@@ -636,10 +648,26 @@ function runGame(w,mydisplay) {
       if (code in moveSelectMap) {
         console.log("move selector: ",code, moveSelectMap[code]);
         Game.player.controls.selectMove(moveSelectMap[code]);
+        Game.player.controls.dirty = true;
         return;
       }
       if (code in targetSelectMap) {
         console.log("target selector:", code, targetSelectMap[code]);
+        console.log("player:", Game.player);
+        console.log("current target:", Game.player.controls.currentTarget);
+        let currentTarget = Game.player.controls.currentTarget
+        let awakeTargets = Game.monsters.filter( (m) => m.awake).map( (m) => m.id);
+        let currentTargetIndex = awakeTargets.indexOf(currentTarget);
+        console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
+        let newTargetIndex = currentTargetIndex + targetSelectMap[code];
+        if (newTargetIndex < 0) { 
+          Game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
+        } else if (newTargetIndex >= awakeTargets.length) {
+          Game.player.controls.currentTarget = awakeTargets[0];
+        } else {
+          Game.player.controls.currentTarget = awakeTargets[newTargetIndex];
+        }
+        Game.player.controls.dirty = true;
         return;
       }
       if (!(code in keyMap)) { return; }
@@ -649,6 +677,7 @@ function runGame(w,mydisplay) {
           ev.preventDefault();
         }
         arrowStart(dir);  
+        Game.player.controls.dirty = true;
       }
     }
   

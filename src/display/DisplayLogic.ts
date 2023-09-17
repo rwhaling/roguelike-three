@@ -85,17 +85,12 @@ function updateAnimation(game, animation):AnimationResult {
     } else {
         return [animX, animY, false]
     }
-
-
 }
 
-export function drawMonster(game:GameState) {
-    let monsterPos = game.monsters[0] ? game.monsters[0]._x + "," + game.monsters[0]._y : null;
-    if (monsterPos === null) { return; }
-    // if (!game.animating[monsterPos]) { return; }
+export function drawMonster(game:GameState,m) {
+    let monsterPos = m._x + "," + m._y;
 
     if (monsterPos) {
-        let m = game.monsters[0];
         let pose = game.frameCount % 8 >= 4 ? 1 : 0;
     
         let ori_string = m.lastArrow[0] + "," + m.lastArrow[1]
@@ -127,7 +122,7 @@ export function drawMonster(game:GameState) {
             // console.log(`monster at ${monsterPos}`);
             drawTile(game, monsterPos);
             // game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"], null, null);
-            game.display.draw_immediate(game.monsters[0]._x, game.monsters[0]._y, "M",pose,orientation);
+            game.display.draw_immediate(m._x, m._y, "M",pose,orientation);
         }
     }
 }
@@ -143,14 +138,11 @@ export function render(game,timestamp) {
         game.display.clear();
         // re-draw the player
 
-        let monsterPos = game.monsters[0] ? game.monsters[0]._x + "," + game.monsters[0]._y : null;
-        let playerPos = game.player._x + "," + game.player._y;
-
         for (let key in game.map) {
             drawTile(game, key);
         }
-        if (monsterPos != null) {
-            drawMonster(game);
+        for (let monster of game.monsters) {
+            drawMonster(game,monster);
         }
         drawPlayer(game);
     }

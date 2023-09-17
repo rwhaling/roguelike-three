@@ -119,13 +119,13 @@ import { Glyph } from "./mydisplay";
 		const gl = this._gl;
 		const opts = this._options;
 
-		let t = 0;
+		// let t = 0;
 		let pose = g_pose || 0;
 		let orientation = g_orientation || 0;
 
 		gl.uniform2fv(this._uniforms["targetPosRel"], [x, y]);
 		gl.uniform2fv(this._uniforms["playerPosAbs"], [player_x, player_y]);
-		gl.uniform1f(this._uniforms["t"], t);
+		gl.uniform1f(this._uniforms["t"], this._t);
 
 		// for (let i=0;i<glyphs.length;i++) {
 		let ch = glyph;
@@ -424,9 +424,12 @@ void main() {
 		if (texel == vec4(0,0,0,0)) {
 			fragColor = texel;
 		} else {
-			float dist = distance(vec2(328, 296), gl_FragCoord.xy);
-//			float r = cnoise(vec3(floor(gl_FragCoord.x / 4.0),floor(gl_FragCoord.y / 4.0),t));
-			float r = noise(vec3(floor(gl_FragCoord.x / 8.0), floor(gl_FragCoord.y / 8.0), t));
+			// todo: 808, 296 is derived from map AND display width
+			float dist = distance(vec2(808, 296), gl_FragCoord.xy);
+
+			// float dist = distance(vec2(328, 296), gl_FragCoord.xy);
+//			float r = cnoise(vec3(floor(gl_FragCoord.x / 4.0),floor(gl_FragCoord.y / 4.0), int(t)/2));
+			float r = noise(vec3(floor(gl_FragCoord.x / 8.0), floor(gl_FragCoord.y / 8.0), int(t)/2));
 			// fragColor = mix(texel, vec4(0,0,0,1), r * 0.3);
 			float distFactor = clamp( ( (dist - 140.0) / 240.0), 0.0, 1.0);
 			float rFactor = abs(r * 0.85 * distFactor);
