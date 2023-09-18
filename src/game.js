@@ -508,6 +508,7 @@ function runGame(w,mydisplay) {
         toast(Game, battleMessage(msg));
       }
       // check if the receiver has died
+      Game.player.controls.dirty = true;
       checkDeath(receiver);
     }
   

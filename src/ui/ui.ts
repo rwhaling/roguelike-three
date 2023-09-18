@@ -78,6 +78,15 @@ export function inventoryRemove(items, which) {
 // number
 export function renderStats(player:Player) {
   player.controls.dirty = false;
+
+  const playerStats = $("#playerdata");
+  playerStats.innerHTML = "";
+  attach(playerStats, el("tr", {}, ["Player"]));
+  attach(playerStats, el("tr", {}, ["CLASS: Warrior"]));
+  attach(playerStats, el("tr", {}, [`HP: ${player.stats.hp}`]));
+  attach(playerStats, el("tr", {}, [`XP: ${player.stats.xp}`]));
+  attach(playerStats, el("tr", {}, [`GOLD: ${player.stats.gold}`]));
+
   const st = $("#hud");
   st.innerHTML = "";
   let moves = player.controls.moves;
@@ -105,16 +114,24 @@ export function renderTargets(game:GameState) {
   game.player.controls.dirty = false;
   const st = $("#enemies");
   st.innerHTML = "";
+  const targetStats = $("#targetstatus");
+  targetStats.innerHTML = "";
+
   for (let m of game.monsters) {
     console.log("targets rendering?", game.monsters);
     if (m.awake && m.id == game.player.controls.currentTarget) {
       console.log("monster rendering?", m);
       let row = attach(st, el("tr", { "style": "text-decoration: underline;" }, [m.name]));
+
+      attach(targetStats,el("tr",{},[m.name]))
+      attach(targetStats,el("tr",{},[`HP: ${m.stats.hp}`]))
+
     } else if (m.awake) {
       console.log("monster rendering?", m);
       let row = attach(st, el("tr", { "style": "" }, [m.name]));
     }
   }
+
 }
     
 // toggles the inventory UI open or closed
