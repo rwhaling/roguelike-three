@@ -25,6 +25,16 @@ export class Animation {
     endTime: number
 }
 
+export class Particle extends Animation {
+    id: string
+    char: string
+    orientation: number
+    startPos: [number, number]
+    endPos: [number, number]
+    startTime: number
+    endTime: number
+}
+
 export type AnimationResult = [number, number, boolean]
 
 export function drawPlayer(game:GameState) {
@@ -114,6 +124,7 @@ export function drawMonster(game:GameState,m) {
         if (game.animatingEntities[m.id]) {
             let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[m.id])
             // game.display.draw(animX, animY, ["@"], null, null);
+            console.log
             game.display.draw_immediate(posX, posY, "M",pose,orientation);
             if (isDone) {
                 delete game.animatingEntities[m.id];
@@ -124,6 +135,15 @@ export function drawMonster(game:GameState,m) {
             // game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"], null, null);
             game.display.draw_immediate(m._x, m._y, "M",pose,orientation);
         }
+    }
+}
+
+export function drawParticle(game, particle) {
+    let [posX, posY, isDone] = updateAnimation(game, particle);
+    game.display.draw_immediate(posX, posY, particle.char, 0, particle.orientation);
+    if (isDone) {
+        game.particles.splice(game.particles.indexOf(particle), 1);
+        // delete game.particles[game.particles.indexOf(particle)];
     }
 }
 
@@ -145,5 +165,8 @@ export function render(game,timestamp) {
             drawMonster(game,monster);
         }
         drawPlayer(game);
+        for (let particle of game.particles) {
+            drawParticle(game, particle);
+        }
     }
 }

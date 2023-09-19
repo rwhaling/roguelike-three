@@ -1,5 +1,5 @@
 import Display from "./mydisplay";
-import { Animation } from "./display/DisplayLogic"
+import { Animation, Particle } from "./display/DisplayLogic"
 import { Engine } from "rot-js/lib/index"
 import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";
@@ -14,6 +14,7 @@ export default class GameState {
     monsters: Array<any>
     entities: {[key:string]: any}
     animatingEntities: {[key:string]: Animation}
+    particles: Particle[]
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -32,6 +33,7 @@ export default class GameState {
         this.monsters = null;
         this.entities = {};
         this.animatingEntities = {};
+        this.particles = [];
         this.amulet = null;
         this.arrowHeld = null;
         this.lastFrame = 0.0;

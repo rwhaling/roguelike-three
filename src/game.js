@@ -1,6 +1,7 @@
 import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
 import { Display } from "rot-js/lib/index"
+import { v4 as uuidv4 } from 'uuid';
 import GameState from "./gamestate"
 import { genMap, createBeing } from "./mapgen/MapGen";
 import { Player, makePlayer } from "./entities/player";
@@ -18,7 +19,7 @@ function runGame(w,mydisplay) {
     // It's the "microrogue" tileset
   
     const tileSet = document.createElement("img");
-    tileSet.src = "tiny_dungeon_sprites_1.png"
+    tileSet.src = "tiny_dungeon_sprites_2.png"
     // tileSet.src = "colored_tilemap_packed.png";
   
     // This is where you specify which tile
@@ -48,6 +49,8 @@ function runGame(w,mydisplay) {
         "c": [336, 256], // tree 3
         "d": [336, 256], // tree 4
         "e": [336, 256], // tree 5
+
+        "A": [256, 368], // arrow particle
 
         "T": [400, 192], // tombstone
 
@@ -140,6 +143,12 @@ function runGame(w,mydisplay) {
       "btn-up": 0,
       "btn-down": 4,
     };
+
+    const actionMap = {
+      186: 1, // semicolon
+      222: 2, // quote
+      13: 3 // enter
+    }
     
     /*****************
      *** game code ***
@@ -669,6 +678,55 @@ function runGame(w,mydisplay) {
           Game.player.controls.currentTarget = awakeTargets[newTargetIndex];
         }
         Game.player.controls.dirty = true;
+        return;
+      }
+      if (code in actionMap) {
+        console.log("ACTION!");
+        if (Game.player.controls.currentTarget) {
+          let target = Game.monsters.filter( (m) => m.id == Game.player.controls.currentTarget )[0];
+          let angle = Math.atan2(  Game.player._y - target._y,  Game.player._x - target._x );
+//          let angle = Math.atan2(  target._y - Game.player._y,  target._x - Game.player._x );
+          let orientation = 0;
+          let frac = angle / Math.PI;
+          if (frac < 0) {
+            frac += 1
+          }
+
+          if (frac < 1/16) {
+            orientation = 0;
+          } else if (frac < 3/16) {
+            orientation = 1;
+          } else if (frac < 5/16) {
+            orientation = 2;
+          } else if (frac < 7/16) {
+            orientation = 3;
+          } else if (frac < 9/16) {
+            orientation = 4;
+          } else if (frac < 11/16) {
+            orientation = 5;
+          } else if (frac < 13/16) {
+            orientation = 6;
+          } else if (frac < 15/16) {
+            orientation = 7
+          }
+
+
+          console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,Game.player._x, Game.player._y, `target at`,target._x,target._y);
+          let id = uuidv4();
+
+          let particle = {
+            id: id,
+            char: "A",
+            orientation: orientation,
+            startPos: [Game.player._x, Game.player._y],
+            endPos: [target._x, target._y],
+            startTime: Game.lastFrame,
+            endTime: Game.lastFrame + 300
+          }
+          Game.particles.push(particle);
+
+
+        }
         return;
       }
       if (!(code in keyMap)) { return; }
