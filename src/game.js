@@ -1,11 +1,15 @@
 import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
-import { Display } from "rot-js/lib/index"
+import { checkDeath, checkItem, combat, destroy, movePlayerTo, lose, win } from "./core/GameLogic";
+import { Display } from "rot-js/lib/index";
 import { v4 as uuidv4 } from 'uuid';
 import GameState from "./gamestate"
 import { genMap, createBeing } from "./mapgen/MapGen";
 import { Player, makePlayer } from "./entities/player";
+import { sfx } from "./sound/sfx";
 import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast, renderTargets } from "./ui/ui";
+import { movePlayer, keyHandler, resolvePointing } from "./ui/hid";
+
 function runGame(w,mydisplay) {
 
     // Update this string to set the game title
@@ -81,31 +85,6 @@ function runGame(w,mydisplay) {
     // these map tiles should not be replaced by room edges
     const noreplace = walkable.concat(["M", "╔", "╗", "╚", "╝", "═", "║"]);
   
-    // These sound effects are generated using sfxr.me
-    //
-    // You can generate your own and click the "copy" button
-    // to get the sound code and paste it here.
-    // Play sounds using this code: `sfxr[soundname].play()`
-  
-    const sfx = {
-      "rubber": "5EoyNVaezhPnpFZjpkcJkF8FNCioPncLoztbSHU4u9wDQ8W3P7puffRWvGMnrLRdHa61kGcwhZK3RdoDRitmtwn4JjrQsZCZBmDQgkP5uGUGk863wbpRi1xdA",
-      "step": "34T6PkwiBPcxMGrK7aegATo5WTMWoP17BTc6pwXbwqRvndwRjGYXx6rG758rLSU5suu35ZTkRCs1K2NAqyrTZbiJUHQmra9qvbBrSdbBbJ7JvmyBFVDo6eiVD",
-      "choice": "34T6PkzXyyB6jHiwFztCFWEWsogkzrhzAH3FH2d97BCuFhqmZgfuXG3xtz8YYSKMzn95yyX8xZXJyesKmpcjpEL3dPP5h2e8mt5MmhExAksyqZyqgavBgsWMd",
-      "hide": "34T6PkzXyyB6jHiwFztCFWEniygA1GJtjsQuGxcd38JLDquhRqTB28dQgigseMjQSjSY14Z3aBmAtzz9KWcJZ2o9S1oCcgqQY4dxTAXikS7qCs3QJ3KuWJUyD",
-      "empty": "111112RrwhZ2Q7NGcdAP21KUHHKNQa3AhmK4Xea8mbiXfzkxr9aX41M8XYt5xYaaLeo9iZdUKUVL3u2N6XASue2wPv2wCCDy6W6TeFiUjk3dXSzFcBY7kTAM",
-      "hit": "34T6Pks4nddGzchAFWpSTRAKitwuQsfX8bfzRpJx5eDR7NSqxeeLMEkLjcuwvTCDS1ve7amXBg4eipzDdgKWoYnJBsQVESZh2X1DFV2GWybY5bAihB2EdHsbd",
-      "miss": "8R25jogvbp3Qy6A4GTPxRP4aT2SywwsAgoJ2pKmxUFMExgNashjgd311MnmZ2ThwrPQz71LA53QCfFmYQLHaXo6SocUv4zcfNAU5SFocZnoQSDCovnjpioNz3",
-      "win": "34T6Pkv34QJsqDqEa8aV4iwF2LnASMc3683oFUPKZic6kVUHvwjUQi6rz8qNRUHRs34cu37P5iQzz2AzipW3DHMoG5h4BZgDmZnyLhsXgPKsq2r4Fb2eBFVuR",
-      "lose": "7BMHBGHKKnn7bgcmGprqiBmpuRaTytcd4JS9eRNDzUTRuQy8BTBzs5g8XzS7rrp4C9cNeSaqAtWR9qdvXvtnWVTmTC8GXgDuCXD2KyHJNXzfUahbZrce8ibuy",
-      "kill": "7BMHBGKMhg8NZkxKcJxNfTWXKtMPiZVNsLR4aPEAghCSpz5ZxpjS5k4j4ZQpJ65UZnHSr4R2d7ALCHJe41pAS2ZPjauM7SveudhDGAxw2dhXpiNwEhG8xUYkX",
-    }
-  
-    // here we are turning the sfxr sound codes into
-    // audio objects that can be played with `sfx[name].play()`
-    for (let s in sfx) {
-      sfx[s] = (new SoundEffect(sfx[s])).generate().getAudio();
-    }
-  
     // these are lookup tables mapping keycodes and
     // click/tap directions to game direction vectors
   
@@ -172,7 +151,7 @@ function runGame(w,mydisplay) {
       // TODO: picking up map width as display width, not ideal
       game.display = new MyDisplay(tileOptions);
     //   game.display._backend = new MyDisplay();
-      resetCanvas(game.display.getContainer());
+      resetCanvas(game, game.display.getContainer());
       let mapDisplay = new Display({width: tileOptions.width, height: 20, fontSize:6, });
 
       $("#mapcanvas").innerHTML = "";
@@ -214,36 +193,36 @@ function runGame(w,mydisplay) {
       requestAnimationFrame(drawScene);
     }
   
-    // this gets called at the end of the game when we want
-    // to exit back out and clean everything up to display
-    // the menu and get ready for next round
-    function destroy(game) {
-      // remove all listening event handlers
-      removeListeners(game);
+    // // this gets called at the end of the game when we want
+    // // to exit back out and clean everything up to display
+    // // the menu and get ready for next round
+    // function destroy(game) {
+    //   // remove all listening event handlers
+    //   removeListeners(game);
   
-      // tear everything down and
-      // reset all our variables back
-      // to null as before init()
-      // TODO: all new state
-      if (game.engine) {
-        game.engine.lock();
-        game.display = null;
-        game.map = {};
-        game.items = {};
-        game.engine = null;
-        game.entities = {};
-        game.scheduler.clear();
-        game.scheduler = null;
-        game.player = null;
-        game.monsters = null;
-        game.amulet = null;
-      }
+    //   // tear everything down and
+    //   // reset all our variables back
+    //   // to null as before init()
+    //   // TODO: all new state
+    //   if (game.engine) {
+    //     game.engine.lock();
+    //     game.display = null;
+    //     game.map = {};
+    //     game.items = {};
+    //     game.engine = null;
+    //     game.entities = {};
+    //     game.scheduler.clear();
+    //     game.scheduler = null;
+    //     game.player = null;
+    //     game.monsters = null;
+    //     game.amulet = null;
+    //   }
   
-      // hide the toast message
-      hideToast(true);
-      // close out the game screen and show the title
-      showScreen("title");
-    }
+    //   // hide the toast message
+    //   hideToast(true);
+    //   // close out the game screen and show the title
+    //   showScreen("title");
+    // }
       
     function drawScene(timestamp) {
         if (Game.display === null) {
@@ -259,101 +238,6 @@ function runGame(w,mydisplay) {
         render(Game,timestamp);
     }
 
-    // this method gets called by the `movePlayer` function
-    // in order to check whether they hit an empty box
-    // or The Amulet
-    function checkItem(entity) {
-      const key = entity._x + "," + entity._y;
-      if (key == Game.amulet) {
-        // the amulet is hit initiate the win flow below
-        win();
-      } else if (Game.items[key] == "g") {
-        // if the player stepped on gold
-        // increment their gold stat,
-        // show a message, re-render the stats
-        // then play the pickup/win sound
-        Game.player.stats.gold += 1;
-        renderStats(Game.player);
-        toast(Game, "You found gold!");
-        sfx["win"].play();
-        delete Game.items[key];
-      } else if (Game.items[key] == "*") {
-        // if an empty box is opened
-        // by replacing with a floor tile, show the user
-        // a message, and play the "empty" sound effect
-        toast(Game, "This chest is empty.");
-        sfx["empty"].play();
-        delete Game.items[key];
-      }
-    }
-  
-    // move the player according to a direction vector
-    // called from the keyboard event handler below
-    // `keyHandler()`
-    // and also from the click/tap handler `handlePointing()` below
-    function movePlayer(dir) {
-      const p = Game.player;
-      Game.player.lastArrow = dir;
-      console.log("moving player");
-      console.log(dir);
-      return movePlayerTo(p._x + dir[0], p._y + dir[1]);
-    }
-  
-    // move the player on the tilemap to a particular position
-    function movePlayerTo(x, y) {
-      // get a reference to our global player object
-      // this is needed when called from the tap/click handler
-      const p = Game.player;
-      // does this go here or somewhere else?
-      p.controls.dirty = true;
-  
-      // map lookup - if we're not moving onto a floor tile
-      // or a treasure chest, then we should abort this move
-      const newKey = x + "," + y;
-      if (walkable.indexOf(Game.map[newKey]) == -1) { return; }
-  
-      // check if we've hit the monster
-      // and if we have initiate combat
-      const hitMonster = monsterAt(x, y);
-      if (hitMonster) {
-        p.controls.currentTarget = hitMonster.id;
-        // we enter a combat situation
-        combat(p, hitMonster);
-        // pass the turn on to the next entity
-        setTimeout(function() {
-          Game.engine.unlock();
-        }, 250);
-      } else {
-        // we're taking a step
-  
-        // hide the toast message when the player moves
-        hideToast();
-  
-        let oldPos = [p._x, p._y]
-
-        // update the player's coordinates
-        p._x = x;
-        p._y = y;
-
-        let newPos = [p._x, p._y]
-        let animation = {
-            id: p.id,
-            startPos: oldPos,
-            endPos: newPos,
-            startTime: Game.lastFrame,
-            endTime: Game.lastFrame + 200
-        }
-        // Game.animating[newKey] = animation;
-        Game.animatingEntities[p.id] = animation;
-
-        Game.engine.unlock();
-        // play the "step" sound
-        sfx["step"].play();
-        // check if the player stepped on an item
-        checkItem(p);
-      }
-    }
-  
   
     /*******************
      *** The monster ***
@@ -411,7 +295,7 @@ function runGame(w,mydisplay) {
       // if the distance from the monster to the player is less than one
       // square then initiate combat
       if (path.length <= 1) {
-        combat(m, p);
+        combat(Game, m, p);
       } else if (path.length >= 7) {
       
       } else {
@@ -444,125 +328,8 @@ function runGame(w,mydisplay) {
         // Game.animating[newKey] = animation;
       }
     }
-  
-    function monsterAt(x, y) {
-      if (Game.monsters && Game.monsters.length) {
-        for (let mi=0; mi<Game.monsters.length; mi++) {
-          const m = Game.monsters[mi];
-          if (m && m._x == x && m._y == y) {
-            return m;
-          }
-        }
-      }
-    }
-  
-    function playerAt(x, y) {
-      return Game.player && Game.player._x == x && Game.player._y == y ? Game.player : null;
-    }
-  
-    // if the monster is dead remove it from the game
-    function checkDeath(m) {
-      if (m.stats.hp < 1) {
-        if (m == Game.player) {
-          toast(Game, "You died!");
-          lose();
-        } else {
-          const key = m._x + "," + m._y;
-          removeMonster(m);
-          sfx["kill"].play();
-          return true;
-        }
-      }
-    }
-  
-    // remove a monster from the game
-    function removeMonster(m) {
-      const key = m._x + "," + m._y;
-      Game.scheduler.remove(m);
-      Game.monsters = Game.monsters.filter(mx=>mx!=m);     
-      if (Game.player.controls.currentTarget == m.id) {
-        Game.player.controls.currentTarget = null;
-      }
-      delete Game.entities[m.id];
-    }
-  
-  
-    /******************************
-     *** combat/win/lose events ***
-     ******************************/
-  
-  
-    // this is how the player fights a monster
-    function combat(hitter, receiver) {
-      const names = ["you", "the monster"];
-      // a description of the combat to tell
-      // the user what is happening
-      let msg = [];
-      // roll a dice to see if the player hits
-      const roll1 = ROT.RNG.getItem([1,2,3,4,5,6]);
-      // a hit is a four or more
-      if (roll1 > 3) {
-        // add to the combat message
-        msg.push(hitter.name + " hit " + receiver.name + ".");
-        // remove hitpoints from the receiver
-        receiver.stats.hp -= roll1;
-        // play the hit sound
-        sfx["hit"].play();
-      } else {
-        sfx["miss"].play();
-        msg.push(hitter.name + " missed " + receiver.name + ".");
-      }
-      // if there is a message to display do so
-      if (msg) {
-        toast(Game, battleMessage(msg));
-      }
-      // check if the receiver has died
-      Game.player.controls.dirty = true;
-      checkDeath(receiver);
-    }
-  
-    // this gets called when the player wins the game
-    function win() {
-      Game.engine.lock();
-      // play the win sound effect a bunch of times
-      for (let i=0; i<5; i++) {
-        setTimeout(function() {
-          sfx["win"].play();
-        }, 100 * i);
-      }
-      // set our stats for the end screen
-      setEndScreenValues(Game.player.stats.xp, Game.player.stats.gold);
-      // tear down the game
-      destroy(Game);
-      // show the blingy "win" screen to the user
-      showScreen("win");
-    }
-  
-    // this gets called when the player loses the game
-    function lose() {
-      Game.engine.lock();
-      // change the player into a tombstone tile
-      const p = Game.player;
-      p.character = "T";
-      // create an animated div element over the top of the game
-      // holding a rising ghost image above the tombstone
-      const ghost = createGhost(tileOptions, [p._x, p._y]);
-      // we stop listening for user input while the ghost animates
-      removeListeners(Game);
-      // play the lose sound effect
-      sfx["lose"].play();
-      // wait 2 seconds for the ghost animation to finish
-      setTimeout(function() {
-        // set our stats for the end screen
-        setEndScreenValues(Game.player.stats.xp, Game.player.stats.gold);
-        // tear down the game
-        destroy(Game);
-        // show the "lose" screen to the user
-        showScreen("lose");
-      }, 2000);
-    }
-  
-  
+
+      
     /************************************
      *** graphics, UI & browser utils ***
      ************************************/
@@ -578,12 +345,20 @@ function runGame(w,mydisplay) {
     // this code resets the ROT.js display canvas
     // and sets up the touch and click event handlers
     // when it's called at the start of the game
-    function resetCanvas(el) {
+    function resetCanvas(game, el) {
+      // $("#canvas").replaceWith($("#canvas").clone());
       $("#canvas").innerHTML = "";
       $("#canvas").appendChild(el);
-      window.onkeydown = keyHandler;
+      window.onkeydown = (e) => keyHandler(game, e);
       window.onkeyup = arrowStop;
-      if (usePointer) { $("#canvas").addEventListener(clickevt, handlePointing); };
+      game.listening = true;
+      if (usePointer) { $("#canvas").addEventListener(clickevt, function (ev) {
+        ev.preventDefault();
+        if (game.touchScreen) { return; }
+        if (!game.listening) { return; }
+        let dir = resolvePointing(game,ev);
+        movePlayer(game, dir);
+      }); };
       if (useArrows) {
         document.ontouchstart = handleArrowTouch;
         document.ontouchend = arrowStop;
@@ -591,154 +366,117 @@ function runGame(w,mydisplay) {
       showScreen("game");
     }
   
-    // while showing the lose animation we don't want
-    // any event handlers to fire so we remove them
-    // and lock the game
-    function removeListeners(game) {
-      if (game.engine) {
-        game.arrowHeld = null;
-        game.engine.lock();
-        game.scheduler.clear();
-        window.onkeydown = null;
-        window.onkeyup = null;
-        if (usePointer) { $("#canvas").removeEventListener(clickevt, handlePointing); };
-        if (useArrows) {
-          document.ontouchstart = null;
-          document.ontouchend = null;
-        };
-      }
-    }  
+
   
     /*************************
      *** UI event handlers ***
      *************************/
   
   
-    // when a touch event happens
-    // this is where it is caught
-    function handlePointing(ev) {
-      ev.preventDefault();
-      if (Game.touchScreen) { return; }
-      const g = $("#game");
-      // where on the map the click or touch occurred
-      const cx = (ev["touches"] ? ev.touches[0].clientX : ev.clientX);
-      const cy = (ev["touches"] ? ev.touches[0].clientY : ev.clientY)
-      const x = cx - (g.offsetWidth / 2);
-      const y = cy - (g.offsetHeight / 2) -
-            (game.touchScreen ? touchOffsetY : 0) * window.devicePixelRatio;
-      // figure out which quadrant was clicked relative to the player
-      const qs = Math.ceil((Math.floor(
-                (Math.atan2(y, x) + Math.PI) /
-                (Math.PI / 4.0)) % 7) / 2);
-      const dir = ROT.DIRS[8][tapMap[qs]];
-      // actually move the player in that direction
-      movePlayer(dir);
-    }
-  
-    // when keyboard input happens this even handler is called
-    // and the position of the player is updated
-    function keyHandler(ev) {
-      const code = ev.keyCode;
-      // prevent zoom
-      if (code == 187 || code == 189) {
-        ev.preventDefault();
-        return;
-      }
-      // full screen
-      if (code == 70 && ev.altKey && ev.ctrlKey && ev.shiftKey) {
-        document.body.requestFullscreen();
-        console.log("Full screen pressed.");
-        return;
-      }
-      if (code == 81) { destroy(Game); return; }
-      // if (code == 73) { toggleInventory(ev, true); return; }
-      // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
-      if (code == 190) { Game.engine.unlock(); return; } // skip turn
-      /* one of numpad directions? */
-      if (code in moveSelectMap) {
-        console.log("move selector: ",code, moveSelectMap[code]);
-        Game.player.controls.selectMove(moveSelectMap[code]);
-        Game.player.controls.dirty = true;
-        return;
-      }
-      if (code in targetSelectMap) {
-        console.log("target selector:", code, targetSelectMap[code]);
-        console.log("player:", Game.player);
-        console.log("current target:", Game.player.controls.currentTarget);
-        let currentTarget = Game.player.controls.currentTarget
-        let awakeTargets = Game.monsters.filter( (m) => m.awake).map( (m) => m.id);
-        let currentTargetIndex = awakeTargets.indexOf(currentTarget);
-        console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
-        let newTargetIndex = currentTargetIndex + targetSelectMap[code];
-        if (newTargetIndex < 0) { 
-          Game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
-        } else if (newTargetIndex >= awakeTargets.length) {
-          Game.player.controls.currentTarget = awakeTargets[0];
-        } else {
-          Game.player.controls.currentTarget = awakeTargets[newTargetIndex];
-        }
-        Game.player.controls.dirty = true;
-        return;
-      }
-      if (code in actionMap) {
-        console.log("ACTION!");
-        if (Game.player.controls.currentTarget) {
-          let target = Game.monsters.filter( (m) => m.id == Game.player.controls.currentTarget )[0];
-          let angle = Math.atan2(  Game.player._y - target._y,  Game.player._x - target._x );
-//          let angle = Math.atan2(  target._y - Game.player._y,  target._x - Game.player._x );
-          let orientation = 0;
-          let frac = angle / Math.PI;
-          if (frac < 0) {
-            frac += 1
-          }
+//     // when keyboard input happens this even handler is called
+//     // and the position of the player is updated
+//     function keyHandler(ev) {
+//       const code = ev.keyCode;
+//       // prevent zoom
+//       if (code == 187 || code == 189) {
+//         ev.preventDefault();
+//         return;
+//       }
+//       // full screen
+//       if (code == 70 && ev.altKey && ev.ctrlKey && ev.shiftKey) {
+//         document.body.requestFullscreen();
+//         console.log("Full screen pressed.");
+//         return;
+//       }
+//       if (code == 81) { destroy(Game); return; }
+//       // if (code == 73) { toggleInventory(ev, true); return; }
+//       // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
+//       if (code == 190) { Game.engine.unlock(); return; } // skip turn
+//       /* one of numpad directions? */
+//       if (code in moveSelectMap) {
+//         console.log("move selector: ",code, moveSelectMap[code]);
+//         Game.player.controls.selectMove(moveSelectMap[code]);
+//         Game.player.controls.dirty = true;
+//         return;
+//       }
+//       if (code in targetSelectMap) {
+//         console.log("target selector:", code, targetSelectMap[code]);
+//         console.log("player:", Game.player);
+//         console.log("current target:", Game.player.controls.currentTarget);
+//         let currentTarget = Game.player.controls.currentTarget
+//         let awakeTargets = Game.monsters.filter( (m) => m.awake).map( (m) => m.id);
+//         let currentTargetIndex = awakeTargets.indexOf(currentTarget);
+//         console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
+//         let newTargetIndex = currentTargetIndex + targetSelectMap[code];
+//         if (newTargetIndex < 0) { 
+//           Game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
+//         } else if (newTargetIndex >= awakeTargets.length) {
+//           Game.player.controls.currentTarget = awakeTargets[0];
+//         } else {
+//           Game.player.controls.currentTarget = awakeTargets[newTargetIndex];
+//         }
+//         Game.player.controls.dirty = true;
+//         return;
+//       }
+//       if (code in actionMap) {
+//         console.log("ACTION!");
+//         if (Game.player.controls.currentTarget) {
+//           let target = Game.monsters.filter( (m) => m.id == Game.player.controls.currentTarget )[0];
+//           let angle = Math.atan2(  Game.player._y - target._y,  Game.player._x - target._x );
+// //          let angle = Math.atan2(  target._y - Game.player._y,  target._x - Game.player._x );
+//           let orientation = 0;
+//           let frac = angle / Math.PI;
+//           if (frac < 0) {
+//             frac += 1
+//           }
 
-          if (frac < 1/16) {
-            orientation = 0;
-          } else if (frac < 3/16) {
-            orientation = 1;
-          } else if (frac < 5/16) {
-            orientation = 2;
-          } else if (frac < 7/16) {
-            orientation = 3;
-          } else if (frac < 9/16) {
-            orientation = 4;
-          } else if (frac < 11/16) {
-            orientation = 5;
-          } else if (frac < 13/16) {
-            orientation = 6;
-          } else if (frac < 15/16) {
-            orientation = 7
-          }
+//           if (frac < 1/16) {
+//             orientation = 0;
+//           } else if (frac < 3/16) {
+//             orientation = 1;
+//           } else if (frac < 5/16) {
+//             orientation = 2;
+//           } else if (frac < 7/16) {
+//             orientation = 3;
+//           } else if (frac < 9/16) {
+//             orientation = 4;
+//           } else if (frac < 11/16) {
+//             orientation = 5;
+//           } else if (frac < 13/16) {
+//             orientation = 6;
+//           } else if (frac < 15/16) {
+//             orientation = 7
+//           }
 
 
-          console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,Game.player._x, Game.player._y, `target at`,target._x,target._y);
-          let id = uuidv4();
+//           console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,Game.player._x, Game.player._y, `target at`,target._x,target._y);
+//           let id = uuidv4();
 
-          let particle = {
-            id: id,
-            char: "A",
-            orientation: orientation,
-            startPos: [Game.player._x, Game.player._y],
-            endPos: [target._x, target._y],
-            startTime: Game.lastFrame,
-            endTime: Game.lastFrame + 300
-          }
-          Game.particles.push(particle);
+//           let particle = {
+//             id: id,
+//             char: "A",
+//             orientation: orientation,
+//             startPos: [Game.player._x, Game.player._y],
+//             endPos: [target._x, target._y],
+//             startTime: Game.lastFrame,
+//             endTime: Game.lastFrame + 300
+//           }
+//           Game.particles.push(particle);
 
 
-        }
-        return;
-      }
-      if (!(code in keyMap)) { return; }
-      if (code in keyMap) {
-        const dir = ROT.DIRS[8][keyMap[code]];
-        if (Game.display) {
-          ev.preventDefault();
-        }
-        arrowStart(dir);  
-        Game.player.controls.dirty = true;
-      }
-    }
+//         }
+//         return;
+//       }
+//       if (!(code in keyMap)) { return; }
+//       if (code in keyMap) {
+//         const dir = ROT.DIRS[8][keyMap[code]];
+//         if (Game.display) {
+//           ev.preventDefault();
+//         }
+//         arrowStart(dir);  
+//         Game.player.controls.dirty = true;
+//       }
+//     }
   
   
     // when the on-screen arrow buttons are clicked
@@ -753,18 +491,18 @@ function runGame(w,mydisplay) {
       arrowStart(dir);
     }
   
-    // handle an on-screen or keyboard arrow
-    function arrowStart(dir) {
-      let last = Game.arrowHeld;
-      Game.arrowHeld = dir;
-      // Game.player.lastArrow = dir;
-      console.log("arrowHeld:");
-      console.log(Game.arrowHeld);
-      if (!last) {
-        movePlayer(dir)
-        // document.dispatchEvent(new Event("arrow"));
-      }
-    }
+    // // handle an on-screen or keyboard arrow
+    // function arrowStart(dir) {
+    //   let last = Game.arrowHeld;
+    //   Game.arrowHeld = dir;
+    //   // Game.player.lastArrow = dir;
+    //   console.log("arrowHeld:");
+    //   console.log(Game.arrowHeld);
+    //   if (!last) {
+    //     movePlayer(dir)
+    //     // document.dispatchEvent(new Event("arrow"));
+    //   }
+    // }
   
     // when the fingers have been lifted
     function arrowStop(ev) {

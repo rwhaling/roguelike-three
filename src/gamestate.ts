@@ -20,6 +20,7 @@ export default class GameState {
     lastFrame: number
     lastFrameDur: number
     frameCount: number
+    listening: boolean
     cleanup: any
     tick: Function
 
@@ -39,7 +40,10 @@ export default class GameState {
         this.lastFrame = 0.0;
         this.lastFrameDur = 0.0;
         this.frameCount = 0;
+        this.listening = false;
         this.cleanup = null;
         this.tick = null;
     }
+
+    
 }

@@ -2,7 +2,10 @@ import { Player } from "../entities/player";
 import GameState from "../gamestate";
 
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
-  
+
+const usePointer = true;
+const useArrows = true;
+
 // handy shortcuts and shims for manipulating the dom
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
@@ -25,7 +28,42 @@ export function showScreen(which, ev) {
   el.classList.add("show");
   if (actionbutton) { actionbutton.focus(); };
 }
-    
+
+// // this code resets the ROT.js display canvas
+// // and sets up the touch and click event handlers
+// // when it's called at the start of the game
+// function resetCanvas(el) {
+//   $("#canvas").innerHTML = "";
+//   $("#canvas").appendChild(el);
+//   window.onkeydown = keyHandler;
+//   window.onkeyup = arrowStop;
+//   if (usePointer) { $("#canvas").addEventListener(clickevt, handlePointing); };
+//   if (useArrows) {
+//     document.ontouchstart = handleArrowTouch;
+//     document.ontouchend = arrowStop;
+//   };
+//   showScreen("game");
+// }
+
+// while showing the lose animation we don't want
+// any event handlers to fire so we remove them
+// and lock the game
+export function removeListeners(game) {
+  if (game.engine) {
+    game.arrowHeld = null;
+    game.engine.lock();
+    game.scheduler.clear();
+    window.onkeydown = null;
+    window.onkeyup = null;
+    game.listening = false;
+    // if (usePointer) { $("#canvas").removeEventListener(clickevt, handlePointing); };
+    if (useArrows) {
+      document.ontouchstart = null;
+      document.ontouchend = null;
+    };
+  }
+}  
+
 // set the end-screen message to show
 // how well the player did
 export function setEndScreenValues(xp, gold) {
@@ -155,9 +193,12 @@ export function toggleInventory(ev, force) {
     
 // creates the ghost sprite when the player dies
 // use this template to overlay effects on the game canvas
-export function createGhost(tileOptions, pos) {
-  const tw = tileOptions.tileWidth;
-  const th = tileOptions.tileHeight;
+export function createGhost(w,h,pos) {
+  // const tw = tileOptions.tileWidth;
+  // const th = tileOptions.tileHeight;
+  const tw = w;
+  const th = h;
+
   // place the ghost on the map at the player's position
   const left = "left:" + (pos[0] * tw) + "px;";
   const top = "top:" + (pos[1] * th) + "px;";
