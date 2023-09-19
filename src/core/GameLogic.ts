@@ -3,7 +3,7 @@ import { RNG } from "rot-js/lib";
 import { battleMessage, createGhost, hideToast, removeListeners, renderStats, setEndScreenValues, showScreen, toast } from "../ui/ui";
 
 // these map tiles are walkable
-const walkable = [".", "*", "g"]
+export const walkable = [".", "*", "g"]
 
 // this gets called at the end of the game when we want
 // to exit back out and clean everything up to display

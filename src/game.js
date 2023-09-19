@@ -1,6 +1,7 @@
 import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
 import { checkDeath, checkItem, combat, destroy, movePlayerTo, lose, win } from "./core/GameLogic";
+import { makeMonster } from "./entities/monster";
 import { Display } from "rot-js/lib/index";
 import { v4 as uuidv4 } from 'uuid';
 import GameState from "./gamestate"
@@ -192,37 +193,6 @@ function runGame(w,mydisplay) {
       game.engine.start();
       requestAnimationFrame(drawScene);
     }
-  
-    // // this gets called at the end of the game when we want
-    // // to exit back out and clean everything up to display
-    // // the menu and get ready for next round
-    // function destroy(game) {
-    //   // remove all listening event handlers
-    //   removeListeners(game);
-  
-    //   // tear everything down and
-    //   // reset all our variables back
-    //   // to null as before init()
-    //   // TODO: all new state
-    //   if (game.engine) {
-    //     game.engine.lock();
-    //     game.display = null;
-    //     game.map = {};
-    //     game.items = {};
-    //     game.engine = null;
-    //     game.entities = {};
-    //     game.scheduler.clear();
-    //     game.scheduler = null;
-    //     game.player = null;
-    //     game.monsters = null;
-    //     game.amulet = null;
-    //   }
-  
-    //   // hide the toast message
-    //   hideToast(true);
-    //   // close out the game screen and show the title
-    //   showScreen("title");
-    // }
       
     function drawScene(timestamp) {
         if (Game.display === null) {
@@ -236,97 +206,6 @@ function runGame(w,mydisplay) {
         // TODO: check if key held and not animating player
         requestAnimationFrame(drawScene);
         render(Game,timestamp);
-    }
-
-  
-    /*******************
-     *** The monster ***
-     *******************/
-  
-  
-    // basic ROT.js entity with position and stats
-    function makeMonster(game, id, x, y) {
-      return {
-        // monster position
-        id: id,
-        _x: x,
-        _y: y,
-        // which tile to draw the player with
-        character: "M",
-        // the name to display in combat
-        name: "the monster",
-        // the monster's stats
-        stats: {"hp": 14},
-        lastArrow: [1,0],
-        // called by the ROT.js scheduler
-        awake: false,
-        act: monsterAct,
-      }
-    }
-  
-    // the ROT.js scheduler calls this method when it is time
-    // for the monster to act
-    function monsterAct() {
-      // reference to the monster itself
-      const m = this;
-      // the monster wants to know where the player is
-      const p = Game.player;
-      // reference to the game map
-      const map = Game.map;
-      // reference to ROT.js display
-      const display = Game.display;
-  
-      // in this whole code block we use the ROT.js "astar" path finding
-      // algorithm to help the monster figure out the fastest way to get
-      // to the player - for implementation details check out the doc:
-      // http://ondras.github.io/rot.js/manual/#path
-      const passableCallback = function(x, y) {
-        return (walkable.indexOf(map[x + "," + y]) != -1);
-      }
-      const astar = new ROT.Path.AStar(p._x, p._y, passableCallback, {topology:4});
-      const path = [];
-      const pathCallback = function(x, y) {
-        path.push([x, y]);
-      }
-      astar.compute(m._x, m._y, pathCallback);
-  
-      // ignore the first move on the path as it is the starting point
-      path.shift();
-      // if the distance from the monster to the player is less than one
-      // square then initiate combat
-      if (path.length <= 1) {
-        combat(Game, m, p);
-      } else if (path.length >= 7) {
-      
-      } else {
-        if (this.awake == false) {
-          this.awake = true;
-          console.log("the monster sees you");
-        }
-        // draw whatever was on the last tile the monster was one
-        // let oldKey = m._x + "," + m._y;
-        let oldPos = [m._x, m._y];
-        // the player is safe for now so update the monster position
-        // to the first step on the path and redraw
-        let delta = [path[0][0] - m._x, path[0][1] - m._y ];
-        console.log("moving monster");
-        console.log(delta);
-        m.lastArrow = delta;
-
-        m._x = path[0][0];
-        m._y = path[0][1];
-        // let newKey = m._x + "," + m._y;
-        let newPos = [m._x, m._y];
-        let animation = {
-            id: m.id,
-            startPos: oldPos,
-            endPos: newPos,
-            startTime: Game.lastFrame,
-            endTime: Game.lastFrame + 250
-        }
-        Game.animatingEntities[m.id] = animation;
-        // Game.animating[newKey] = animation;
-      }
     }
 
       
@@ -371,114 +250,7 @@ function runGame(w,mydisplay) {
     /*************************
      *** UI event handlers ***
      *************************/
-  
-  
-//     // when keyboard input happens this even handler is called
-//     // and the position of the player is updated
-//     function keyHandler(ev) {
-//       const code = ev.keyCode;
-//       // prevent zoom
-//       if (code == 187 || code == 189) {
-//         ev.preventDefault();
-//         return;
-//       }
-//       // full screen
-//       if (code == 70 && ev.altKey && ev.ctrlKey && ev.shiftKey) {
-//         document.body.requestFullscreen();
-//         console.log("Full screen pressed.");
-//         return;
-//       }
-//       if (code == 81) { destroy(Game); return; }
-//       // if (code == 73) { toggleInventory(ev, true); return; }
-//       // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
-//       if (code == 190) { Game.engine.unlock(); return; } // skip turn
-//       /* one of numpad directions? */
-//       if (code in moveSelectMap) {
-//         console.log("move selector: ",code, moveSelectMap[code]);
-//         Game.player.controls.selectMove(moveSelectMap[code]);
-//         Game.player.controls.dirty = true;
-//         return;
-//       }
-//       if (code in targetSelectMap) {
-//         console.log("target selector:", code, targetSelectMap[code]);
-//         console.log("player:", Game.player);
-//         console.log("current target:", Game.player.controls.currentTarget);
-//         let currentTarget = Game.player.controls.currentTarget
-//         let awakeTargets = Game.monsters.filter( (m) => m.awake).map( (m) => m.id);
-//         let currentTargetIndex = awakeTargets.indexOf(currentTarget);
-//         console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
-//         let newTargetIndex = currentTargetIndex + targetSelectMap[code];
-//         if (newTargetIndex < 0) { 
-//           Game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
-//         } else if (newTargetIndex >= awakeTargets.length) {
-//           Game.player.controls.currentTarget = awakeTargets[0];
-//         } else {
-//           Game.player.controls.currentTarget = awakeTargets[newTargetIndex];
-//         }
-//         Game.player.controls.dirty = true;
-//         return;
-//       }
-//       if (code in actionMap) {
-//         console.log("ACTION!");
-//         if (Game.player.controls.currentTarget) {
-//           let target = Game.monsters.filter( (m) => m.id == Game.player.controls.currentTarget )[0];
-//           let angle = Math.atan2(  Game.player._y - target._y,  Game.player._x - target._x );
-// //          let angle = Math.atan2(  target._y - Game.player._y,  target._x - Game.player._x );
-//           let orientation = 0;
-//           let frac = angle / Math.PI;
-//           if (frac < 0) {
-//             frac += 1
-//           }
-
-//           if (frac < 1/16) {
-//             orientation = 0;
-//           } else if (frac < 3/16) {
-//             orientation = 1;
-//           } else if (frac < 5/16) {
-//             orientation = 2;
-//           } else if (frac < 7/16) {
-//             orientation = 3;
-//           } else if (frac < 9/16) {
-//             orientation = 4;
-//           } else if (frac < 11/16) {
-//             orientation = 5;
-//           } else if (frac < 13/16) {
-//             orientation = 6;
-//           } else if (frac < 15/16) {
-//             orientation = 7
-//           }
-
-
-//           console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,Game.player._x, Game.player._y, `target at`,target._x,target._y);
-//           let id = uuidv4();
-
-//           let particle = {
-//             id: id,
-//             char: "A",
-//             orientation: orientation,
-//             startPos: [Game.player._x, Game.player._y],
-//             endPos: [target._x, target._y],
-//             startTime: Game.lastFrame,
-//             endTime: Game.lastFrame + 300
-//           }
-//           Game.particles.push(particle);
-
-
-//         }
-//         return;
-//       }
-//       if (!(code in keyMap)) { return; }
-//       if (code in keyMap) {
-//         const dir = ROT.DIRS[8][keyMap[code]];
-//         if (Game.display) {
-//           ev.preventDefault();
-//         }
-//         arrowStart(dir);  
-//         Game.player.controls.dirty = true;
-//       }
-//     }
-  
-  
+    
     // when the on-screen arrow buttons are clicked
     function handleArrowTouch(ev) {
       ev.preventDefault();
@@ -490,20 +262,7 @@ function runGame(w,mydisplay) {
       // actually move the player in that direction
       arrowStart(dir);
     }
-  
-    // // handle an on-screen or keyboard arrow
-    // function arrowStart(dir) {
-    //   let last = Game.arrowHeld;
-    //   Game.arrowHeld = dir;
-    //   // Game.player.lastArrow = dir;
-    //   console.log("arrowHeld:");
-    //   console.log(Game.arrowHeld);
-    //   if (!last) {
-    //     movePlayer(dir)
-    //     // document.dispatchEvent(new Event("arrow"));
-    //   }
-    // }
-  
+
     // when the fingers have been lifted
     function arrowStop(ev) {
       Game.arrowHeld = null;
