@@ -307,6 +307,24 @@ a:hover {
   }
 }
 
+.bounce-up {
+  animation: bounce-up 1s linear forwards;
+}
+
+@keyframes bounce-up {
+  from {
+    transform: scale(1) translate(0px, 0px);
+    color: red;
+    opacity: 1;
+  }
+  to {
+    transform: scale(1) translate(0px, -20px);
+    color: red;
+    opacity: 1;
+  }
+}
+
+
 .grow-fade {
   animation: grow-fade 2s linear;
 }

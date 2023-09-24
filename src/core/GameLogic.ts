@@ -101,6 +101,7 @@ export function combat(game, hitter, receiver) {
     // remove hitpoints from the receiver
     receiver.stats.hp -= roll1;
 
+    // todo: actually calulate, fewer magic numbers
     let x_offset = 64 * (5 + receiver._x - game.player._x) + 4;
     let y_offset = 64 * (5 + receiver._y - game.player._y) - 24;
     console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);

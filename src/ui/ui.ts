@@ -214,7 +214,7 @@ export function damageNum(x,y,n) {
 
   const style = `left: ${x + canv.offsetLeft}px; top: ${y + canv.offsetTop}px`;
   // const num = el("div", {"className": "free float-up", "style": style});
-  const num = el("div", {"className": "free float-up", "style": style});
+  const num = el("div", {"className": "free bounce-up", "style": style});
 
   num.innerHTML = `<span>${n}</span>`
   num.onanimationend = function() { rmel(num); };
