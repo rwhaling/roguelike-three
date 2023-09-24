@@ -1,6 +1,6 @@
 import { sfx } from "../sound/sfx";
 import { RNG } from "rot-js/lib";
-import { battleMessage, createGhost, hideToast, removeListeners, renderStats, setEndScreenValues, showScreen, toast } from "../ui/ui";
+import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, setEndScreenValues, showScreen, toast } from "../ui/ui";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -100,6 +100,12 @@ export function combat(game, hitter, receiver) {
     msg.push(hitter.name + " hit " + receiver.name + ".");
     // remove hitpoints from the receiver
     receiver.stats.hp -= roll1;
+
+    let x_offset = 64 * (5 + receiver._x - game.player._x) + 4;
+    let y_offset = 64 * (5 + receiver._y - game.player._y) - 24;
+    console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);
+
+    damageNum(x_offset,y_offset,roll1);
     // play the hit sound
     sfx["hit"].play();
   } else {

@@ -67,7 +67,7 @@ function runGame(w,mydisplay) {
         "║": [368, 0], // room edge
         "o": [384, 0], // room corner
       },
-      width: 50, // TODO: this is making the window too wide
+      width: 20,
       height: 20
     }
   
@@ -153,7 +153,7 @@ function runGame(w,mydisplay) {
       game.display = new MyDisplay(tileOptions);
     //   game.display._backend = new MyDisplay();
       resetCanvas(game, game.display.getContainer());
-      let mapDisplay = new Display({width: tileOptions.width, height: 20, fontSize:6, });
+      let mapDisplay = new Display({width: 50, height: 20, fontSize:6, });
 
       $("#mapcanvas").innerHTML = "";
       $("#mapcanvas").appendChild(mapDisplay.getContainer());
@@ -161,7 +161,7 @@ function runGame(w,mydisplay) {
       // this is where we populate the map data structure
       // with all of the background tiles, items,
       // player and the monster positions
-      let [zeroCells, freeCells] = genMap(game, tileOptions, mapDisplay);
+      let [zeroCells, freeCells] = genMap(game, 50, 20, tileOptions, mapDisplay);
       game.player = createBeing(game, makePlayer, freeCells);
       game.display.setPlayerPos(game.player._x, game.player._y);
 

@@ -11,7 +11,7 @@ const walkable = [".", "*", "g"]
 const noreplace = walkable.concat(["M", "╔", "╗", "╚", "╝", "═", "║"]);
 
     // guess what, this generates the game map
-export function genMap(game:GameState, tileOptions, minimap?) {
+export function genMap(game:GameState, width, height, tileOptions, minimap?) {
     // we're using the ROT.js Digger tilemap
     // there are lots of interesting dungeon
     // generation algorithms here:
@@ -20,8 +20,8 @@ export function genMap(game:GameState, tileOptions, minimap?) {
     // http://ondras.github.io/rot.js/manual/#map/cellular
     // http://ondras.github.io/rot.js/manual/#map/dungeon    
     const digger = new Digger(
-            tileOptions.width,
-            tileOptions.height, {
+            width,
+            height, {
                 corridorLength: [3,12],
                 dugPercentage: 0.6,
             });

@@ -206,6 +206,20 @@ export function createGhost(w,h,pos) {
   ghost.onanimationend = function() { rmel(ghost); };
   return attach($("#canvas"), ghost);
 }
+
+export function damageNum(x,y,n) {
+  // HACK, need a stable id
+  let canv = document.getElementsByTagName("canvas")[0]
+  console.log("canvas position:",canv.offsetLeft, canv.offsetTop);
+
+  const style = `left: ${x + canv.offsetLeft}px; top: ${y + canv.offsetTop}px`;
+  // const num = el("div", {"className": "free float-up", "style": style});
+  const num = el("div", {"className": "free float-up", "style": style});
+
+  num.innerHTML = `<span>${n}</span>`
+  num.onanimationend = function() { rmel(num); };
+  return attach($("#canvas"), num);
+}
     
 // creates a battle message with highlighted outcomes
 // pass it an array of strings like:
