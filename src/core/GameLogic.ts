@@ -88,6 +88,7 @@ function removeMonster(game, m) {
 
 // this is how the player fights a monster
 export function combat(game, hitter, receiver) {
+
   const names = ["you", "the monster"];
   // a description of the combat to tell
   // the user what is happening
@@ -96,29 +97,34 @@ export function combat(game, hitter, receiver) {
   const roll1 = RNG.getItem([1,2,3,4,5,6])!;
   // a hit is a four or more
   if (roll1 > 3) {
-    // add to the combat message
-    msg.push(hitter.name + " hit " + receiver.name + ".");
-    // remove hitpoints from the receiver
-    receiver.stats.hp -= roll1;
+    damage(game, hitter, receiver, roll1);
 
-    // todo: actually calulate, fewer magic numbers
-    let x_offset = 64 * (5 + receiver._x - game.player._x) + 4;
-    let y_offset = 64 * (5 + receiver._y - game.player._y) - 24;
-    console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);
-
-    damageNum(x_offset,y_offset,roll1);
-    // play the hit sound
-    sfx["hit"].play();
   } else {
     sfx["miss"].play();
     msg.push(hitter.name + " missed " + receiver.name + ".");
-  }
-  // if there is a message to display do so
-  if (msg) {
     toast(game, battleMessage(msg));
+
   }
-  // check if the receiver has died
-  game.player.controls.dirty = true;
+}
+
+export function damage(game, hitter, receiver, amount) {
+  let msg: string[] = [];
+
+  // add to the combat message
+  msg.push(hitter.name + " hit " + receiver.name + " for " + amount + " hp");
+  // remove hitpoints from the receiver
+  receiver.stats.hp -= amount;
+
+  // todo: actually calulate, fewer magic numbers
+  let x_offset = 64 * (5 + receiver._x - game.player._x) + 4;
+  let y_offset = 64 * (5 + receiver._y - game.player._y) - 24;
+  console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);
+
+  damageNum(x_offset,y_offset,amount);
+  // play the hit sound
+  sfx["hit"].play();
+  
+  toast(game, battleMessage(msg));
   checkDeath(game,receiver);
 }
 

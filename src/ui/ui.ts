@@ -156,16 +156,16 @@ export function renderTargets(game:GameState) {
   targetStats.innerHTML = "";
 
   for (let m of game.monsters) {
-    console.log("targets rendering?", game.monsters);
+    // console.log("targets rendering?", game.monsters);
     if (m.awake && m.id == game.player.controls.currentTarget) {
-      console.log("monster rendering?", m);
+      // console.log("monster rendering?", m);
       let row = attach(st, el("tr", { "style": "text-decoration: underline;" }, [m.name]));
 
       attach(targetStats,el("tr",{},[m.name]))
       attach(targetStats,el("tr",{},[`HP: ${m.stats.hp}`]))
 
     } else if (m.awake) {
-      console.log("monster rendering?", m);
+      // console.log("monster rendering?", m);
       let row = attach(st, el("tr", { "style": "" }, [m.name]));
     }
   }

@@ -123,49 +123,7 @@ export function keyHandler(game,ev) {
   }
   if (code in actionMap) {
     console.log("ACTION!");
-    if (game.player.controls.currentTarget) {
-      let target = game.monsters.filter( (m) => m.id == game.player.controls.currentTarget )[0];
-      let angle = Math.atan2(  game.player._y - target._y,  game.player._x - target._x );
-//          let angle = Math.atan2(  target._y - Game.player._y,  target._x - Game.player._x );
-      let orientation = 0;
-      let frac = angle / Math.PI;
-      if (frac < 0) {
-        frac += 1
-      }
-
-      if (frac < 1/16) {
-        orientation = 0;
-      } else if (frac < 3/16) {
-        orientation = 1;
-      } else if (frac < 5/16) {
-        orientation = 2;
-      } else if (frac < 7/16) {
-        orientation = 3;
-      } else if (frac < 9/16) {
-        orientation = 4;
-      } else if (frac < 11/16) {
-        orientation = 5;
-      } else if (frac < 13/16) {
-        orientation = 6;
-      } else if (frac < 15/16) {
-        orientation = 7
-      }
-
-
-      console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,game.player._x, game.player._y, `target at`,target._x,target._y);
-      let id = uuidv4();
-
-      let particle = {
-        id: id,
-        char: "A",
-        orientation: orientation,
-        startPos: [game.player._x, game.player._y],
-        endPos: [target._x, target._y],
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 300
-      }
-      game.particles.push(particle);
-    }
+    game.player.controls.attemptMove(game, game.player);
     return;
   }
   if (!(code in keyMap)) { return; }
