@@ -122,6 +122,10 @@ export function renderStats(player:Player) {
   attach(playerStats, el("tr", {}, ["Player"]));
   attach(playerStats, el("tr", {}, ["CLASS: Warrior"]));
   attach(playerStats, el("tr", {}, [`HP: ${player.stats.hp}`]));
+  attach(playerStats, el("tr", {}, [`STR: ${player.stats.STR}`]));
+  attach(playerStats, el("tr", {}, [`DEF: ${player.stats.DEF}`]));
+  attach(playerStats, el("tr", {}, [`DEX: ${player.stats.DEX}`]));
+  attach(playerStats, el("tr", {}, [`AGI: ${player.stats.AGI}`]));
   attach(playerStats, el("tr", {}, [`XP: ${player.stats.xp}`]));
   attach(playerStats, el("tr", {}, [`GOLD: ${player.stats.gold}`]));
 

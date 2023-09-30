@@ -93,17 +93,16 @@ export function combat(game, hitter, receiver) {
   // a description of the combat to tell
   // the user what is happening
   let msg: string[] = [];
-  // roll a dice to see if the player hits
-  const roll1 = RNG.getItem([1,2,3,4,5,6])!;
-  // a hit is a four or more
-  if (roll1 > 3) {
-    damage(game, hitter, receiver, roll1);
 
+  let hitRoll = RNG.getUniformInt(1,14)
+  if (hitRoll + hitter.stats.DEX > receiver.stats.AGI) {
+    let damageRoll = RNG.getUniformInt(0,hitter.stats.varDAM);
+    let dam = hitter.stats.baseDAM + damageRoll + hitter.stats.STR - receiver.stats.DEF;
+    damage(game, hitter, receiver, dam);
   } else {
     sfx["miss"].play();
     msg.push(hitter.name + " missed " + receiver.name + ".");
     toast(game, battleMessage(msg));
-
   }
 }
 

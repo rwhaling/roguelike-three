@@ -16,9 +16,16 @@ import { Path } from "rot-js/lib"
           // which tile to draw the player with
           character: "M",
           // the name to display in combat
-          name: "the monster",
+          name: "a goblin",
           // the monster's stats
-          stats: {"hp": 14},
+          stats: {  "hp": 8,
+                    "baseDAM": 2,
+                    "varDAM": 4,
+                    "STR": 0,
+                    "DEF": 0,
+                    "AGI": 5,
+                    "DEX": 0,
+        },
           lastArrow: [1,0],
           // called by the ROT.js scheduler
           awake: false,

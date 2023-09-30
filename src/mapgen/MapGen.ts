@@ -22,8 +22,10 @@ export function genMap(game:GameState, width, height, tileOptions, minimap?) {
     const digger = new Digger(
             width,
             height, {
+                roomWidth: [8, 18],
+                roomHeight: [6, 15],
                 corridorLength: [3,12],
-                dugPercentage: 0.6,
+                dugPercentage: 0.35,
             });
     // list of floor tiles that can be walked on
     // but don't have anything on them yet

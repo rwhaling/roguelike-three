@@ -2,6 +2,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { RNG } from "rot-js/lib";
 import { combat, damage } from "../core/GameLogic";
 
+interface Buff {
+    duration: number,
+    displayName: string,
+    stats: { [key: string]: number }
+}
+
 export class Player {
     id: string
     _x: number
@@ -10,11 +16,42 @@ export class Player {
     character: string
     name: string
     inventory: [string, string][]
+    buffs: Buff[]
     stats: { [key: string]: number }
+    baseStats: { [key: string]: number }
     
     controls: PlayerControls
 
     act: any
+}
+
+export function applyBuff(player:Player, buff: Buff) {
+    player.buffs = [buff];
+    updateStats(player);
+}
+
+export function updateBuffs(player:Player) {
+    player.buffs.forEach( b => b.duration -= 1 );
+    let removeBuffs = player.buffs.filter( b => b.duration == 0 );
+    for (let b of removeBuffs) {
+        console.log("removing buff", b);
+    }
+
+    player.buffs = player.buffs.filter( b => b.duration > 0 );
+    updateStats(player);
+}
+
+function updateStats(player:Player) {
+    let temp_stats = { ...player.baseStats };
+    for (let buff of player.buffs ) {
+        for (let k in buff.stats) {
+            temp_stats[k] += buff.stats[k];
+        }
+    }
+    for (let k in temp_stats) {
+        player.stats[k] = temp_stats[k];
+    }
+    // player.stats = temp_stats;
 }
 
 export class PlayerControls {
@@ -56,8 +93,21 @@ export class PlayerControls {
             setTimeout(function() {
                 game.engine.unlock();
             }, 250);          
+        } else if (currentMove.name == "BASH") {
+            bashAction(game,player);
+            setTimeout(function() {
+                game.engine.unlock();
+            }, 250);        
         } else if (currentMove.name == "BOW") {
             bowAction(game,player);
+            setTimeout(function() {
+                game.engine.unlock();
+            }, 250);
+        } else if (currentMove.name == "AIM") {
+            //
+        
+        } else if (currentMove.name == "DFND") {
+            defendAction(game,player);
             setTimeout(function() {
                 game.engine.unlock();
             }, 250);
@@ -65,7 +115,39 @@ export class PlayerControls {
     }
 }
 
+function defendAction(game, player) {
+    console.log("applying DEFEND");
+    applyBuff(player, {
+        duration: 5,
+        displayName: "DFND",
+        stats: {
+            "DEF":1
+        }
+    });
+    return;
+}
 
+function bashAction(game, player) {
+    console.log("invoking BASH");
+    applyBuff(player, {
+        duration: 1,
+        displayName: "BASH",
+        stats: {
+            "STR":3
+        }
+    });
+
+    let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+    combat(game, player, target);
+
+    applyBuff(player, {
+        duration: 5,
+        displayName: "BASH",
+        stats: {
+            "STR":1
+        }
+    });
+}
 
 function bowAction(game, player) {
     if (player.controls.currentTarget) {
@@ -117,6 +199,19 @@ function bowAction(game, player) {
     return;  
 }
 
+function aimAction(game, player) {
+    console.log("applying AIM");
+    applyBuff(player, {
+        duration: 5,
+        displayName: "AIM",
+        stats: {
+            "DEX":4
+        }
+    });
+    return;
+}
+
+
 export class PlayerMove {
     name: string
     enabled: boolean
@@ -136,11 +231,30 @@ export function makePlayer(game, id:string, x:number, y:number):Player {
         name: "you",
         // what the player is carrying
         inventory: [
-        ["x", "Axe (+5)"],
-        ["p", "Potion"]
+        // ["x", "Axe (+5)"],
+        // ["p", "Potion"]
         ],
         // the player's stats
-        stats: {"hp": 10, "xp": 1, "gold": 0},
+        buffs: [],
+
+        stats: {"hp": 10, 
+                "maxHP": 10,
+                "baseDAM": 2,
+                "varDAM": 4,
+                "STR": 0,
+                "DEF": 0,
+                "AGI": 2,
+                "DEX": 0,
+                "xp": 1, 
+                "gold": 0},
+
+        baseStats: {"maxHP": 10, 
+                    "baseDAM": 2,
+                    "varDAM": 4,
+                    "STR": 0,
+                    "DEF": 0,
+                    "AGI": 2,
+                    "DEX": 0},
         // the ROT.js scheduler calls this method when it is time
         // for the player to act
         // what this does is lock the engine to take control
@@ -157,6 +271,7 @@ export function makePlayer(game, id:string, x:number, y:number):Player {
         ]),
         act: () => {
             game.engine.lock();
+            updateBuffs(game.player);
             game.player.controls.dirty = true;
             if (!game.arrowListener) {
                 game.arrowListener = true;

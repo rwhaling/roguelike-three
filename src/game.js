@@ -153,7 +153,7 @@ function runGame(w,mydisplay) {
       game.display = new MyDisplay(tileOptions);
     //   game.display._backend = new MyDisplay();
       resetCanvas(game, game.display.getContainer());
-      let mapDisplay = new Display({width: 50, height: 20, fontSize:6, });
+      let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
 
       $("#mapcanvas").innerHTML = "";
       $("#mapcanvas").appendChild(mapDisplay.getContainer());
@@ -161,7 +161,7 @@ function runGame(w,mydisplay) {
       // this is where we populate the map data structure
       // with all of the background tiles, items,
       // player and the monster positions
-      let [zeroCells, freeCells] = genMap(game, 50, 20, tileOptions, mapDisplay);
+      let [zeroCells, freeCells] = genMap(game, 80, 60, tileOptions, mapDisplay);
       game.player = createBeing(game, makePlayer, freeCells);
       game.display.setPlayerPos(game.player._x, game.player._y);
 
