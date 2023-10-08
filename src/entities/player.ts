@@ -237,8 +237,8 @@ export function makePlayer(game, id:string, x:number, y:number):Player {
         // the player's stats
         buffs: [],
 
-        stats: {"hp": 10, 
-                "maxHP": 10,
+        stats: {"hp": 30, 
+                "maxHP": 30,
                 "baseDAM": 2,
                 "varDAM": 4,
                 "STR": 0,
@@ -248,7 +248,7 @@ export function makePlayer(game, id:string, x:number, y:number):Player {
                 "xp": 1, 
                 "gold": 0},
 
-        baseStats: {"maxHP": 10, 
+        baseStats: {"maxHP": 30, 
                     "baseDAM": 2,
                     "varDAM": 4,
                     "STR": 0,

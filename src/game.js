@@ -10,6 +10,7 @@ import { Player, makePlayer } from "./entities/player";
 import { sfx } from "./sound/sfx";
 import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast, renderTargets } from "./ui/ui";
 import { movePlayer, keyHandler, resolvePointing } from "./ui/hid";
+import { spawnLevel } from "./mapgen/Spawner";
 
 function runGame(w,mydisplay) {
 
@@ -45,6 +46,8 @@ function runGame(w,mydisplay) {
         "M": [0, 96],  // monster
         "*": [288, 192], // treasure chest
         "g": [304, 192], // gold
+        "<": [464, 0], // stairs up
+        ">": [448, 0], // stairs down
 
         "x": [256, 192], // axe
         "p": [256, 192], // potion
@@ -161,19 +164,8 @@ function runGame(w,mydisplay) {
       // this is where we populate the map data structure
       // with all of the background tiles, items,
       // player and the monster positions
-      let [zeroCells, freeCells] = genMap(game, 80, 60, tileOptions, mapDisplay);
-      game.player = createBeing(game, makePlayer, freeCells);
-      game.display.setPlayerPos(game.player._x, game.player._y);
-
-      // game.monsters = [createBeing(game, makeMonster, freeCells)];
-      game.monsters = [
-        createBeing(game, makeMonster, freeCells),
-        createBeing(game, makeMonster, freeCells),
-        createBeing(game, makeMonster, freeCells)
-      ];
-
-
-      //   generateMap(game);
+      let [zeroCells, freeCells, digger] = genMap(game, 80, 60, tileOptions, mapDisplay);
+      spawnLevel(game, digger, freeCells);
   
       // let ROT.js schedule the player and monster entities
       game.scheduler = new ROT.Scheduler.Simple();

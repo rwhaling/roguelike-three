@@ -11,7 +11,7 @@ const walkable = [".", "*", "g"]
 const noreplace = walkable.concat(["M", "╔", "╗", "╚", "╝", "═", "║"]);
 
     // guess what, this generates the game map
-export function genMap(game:GameState, width, height, tileOptions, minimap?) {
+export function genMap(game:GameState, width, height, tileOptions, minimap?): [string[], string[], Digger] {
     // we're using the ROT.js Digger tilemap
     // there are lots of interesting dungeon
     // generation algorithms here:
@@ -61,7 +61,7 @@ export function genMap(game:GameState, width, height, tileOptions, minimap?) {
     // generateScenery(game.map, zeroCells);
     generateRooms(game.map, digger);
 
-    return [zeroCells, freeCells];
+    return [zeroCells, freeCells, digger];
 
     // // finally we put the player and one monster on their
     // // starting tiles, which must be from the walkable list
@@ -114,6 +114,7 @@ export function createBeing(game, what, freeCells) {
     // walls around the rooms
 function generateRooms(map, mapgen) {
     const rooms = mapgen.getRooms();
+    // return;
     for (let rm=0; rm<rooms.length; rm++) {
         const room = rooms[rm];
     

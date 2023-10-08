@@ -169,6 +169,10 @@ export function checkItem(game, entity) {
     toast(game, "This chest is empty.");
     sfx["empty"].play();
     delete game.items[key];
+  } else if (game.items[key] == "<") {
+    toast(game, "These are the stairs up");
+  } else if (game.items[key] == ">") {
+    toast(game, "These are the stairs down");
   }
 }
   
