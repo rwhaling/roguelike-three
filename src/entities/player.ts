@@ -56,12 +56,14 @@ function updateStats(player:Player) {
 
 export class PlayerControls {
     moves: PlayerMove[]
+    skills: PlayerMove[]
     selectedMove: number
     currentTarget: string;
     dirty: boolean;
 
-    constructor(moves: PlayerMove[]) {
+    constructor(moves: PlayerMove[], skills: PlayerMove[]) {
         this.moves = moves;
+        this.skills = skills; 
         this.selectedMove = 0;
         this.currentTarget = null;
         this.dirty = true;
@@ -72,7 +74,7 @@ export class PlayerControls {
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
         console.log(`current selected move: ${currentMove} at pos ${this.selectedMove}, increment: ${dir}`);
         let newPosition = this.selectedMove + dir;
-        let movesLen = this.moves.length;
+        let movesLen = this.moves.length + this.skills.length;
         if (newPosition < 0) {
             this.selectedMove = movesLen - 1;
         } else if (newPosition >= movesLen) {
@@ -215,6 +217,7 @@ function aimAction(game, player) {
 export class PlayerMove {
     name: string
     enabled: boolean
+    ready: boolean
 }
 
 // creates a player object with position, inventory, and stats
@@ -246,7 +249,9 @@ export function makePlayer(game, id:string, x:number, y:number):Player {
                 "AGI": 2,
                 "DEX": 0,
                 "xp": 1, 
-                "gold": 0},
+                "gold": 0,
+                "food": 2,
+                "maxFood": 2},
 
         baseStats: {"maxHP": 30, 
                     "baseDAM": 2,
@@ -254,20 +259,27 @@ export function makePlayer(game, id:string, x:number, y:number):Player {
                     "STR": 0,
                     "DEF": 0,
                     "AGI": 2,
-                    "DEX": 0},
+                    "DEX": 0,
+                    "maxFood": 2},
         // the ROT.js scheduler calls this method when it is time
         // for the player to act
         // what this does is lock the engine to take control
         // and then wait for input from the user
 
         controls: new PlayerControls([
-            {name: "ATK", enabled: true},
-            {name: "BASH", enabled: true},
-            {name: "BOW", enabled: true},
-            {name: "AIM", enabled: false},
-            {name: "DASH", enabled: false},
-            {name: "DFND", enabled: true},
-            {name: "RUN", enabled: true}
+            {name: "ATK", enabled: true, ready: true},
+            {name: "BASH", enabled: true, ready: true},
+            {name: "BOW", enabled: true, ready: true},
+            {name: "AIM", enabled: false, ready: false},
+            {name: "DASH", enabled: false, ready: false},
+            {name: "DFND", enabled: true, ready: true},
+        ], [ 
+            {name: "USE", enabled: true, ready: true},
+            {name: "SENSE", enabled: false, ready: false},
+            {name: "SNEAK", enabled: false, ready: false},
+            {name: "EAT", enabled: true, ready: true},
+            {name: "RUN", enabled: true, ready: true},
+            {name: "HELP", enabled: true, ready: true},
         ]),
         act: () => {
             game.engine.lock();

@@ -15,7 +15,7 @@ import { spawnLevel } from "./mapgen/Spawner";
 function runGame(w,mydisplay) {
 
     // Update this string to set the game title
-    const gametitle = "The 3";
+    const gametitle = "Barrow 2";
   
     /*****************
      *** resources ***

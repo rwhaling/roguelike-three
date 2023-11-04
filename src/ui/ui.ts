@@ -128,6 +128,7 @@ export function renderStats(player:Player) {
   attach(playerStats, el("tr", {}, [`AGI: ${player.stats.AGI}`]));
   attach(playerStats, el("tr", {}, [`XP: ${player.stats.xp}`]));
   attach(playerStats, el("tr", {}, [`GOLD: ${player.stats.gold}`]));
+  attach(playerStats, el("tr", {}, [`FOOD: ${player.stats.food}`]));
 
   const st = $("#hud");
   st.innerHTML = "";
@@ -147,6 +148,26 @@ export function renderStats(player:Player) {
         attach(st, el("span", { "style": "text-decoration: underline; color: grey" }, [s.name]));
       } else {
         attach(st, el("span", { "style": "text-decoration: none; color: grey" }, [s.name]));
+      }
+    }
+  });
+
+  const skills_st = $("#skillhud");
+  skills_st.innerHTML = "";
+  let skills = player.controls.skills;
+  skills.forEach((s,idx) => {
+    let real_idx = idx + moves.length;
+    if (s.enabled) {
+      if (real_idx === selected) {
+        attach(skills_st, el("span", { "style": "text-decoration: underline" }, [s.name]));
+      } else {
+        attach(skills_st, el("span", { "style": "text-decoration: none" }, [s.name]));
+      }
+    } else {
+      if (real_idx === selected) {
+        attach(skills_st, el("span", { "style": "text-decoration: underline; color: grey" }, [s.name]));
+      } else {
+        attach(skills_st, el("span", { "style": "text-decoration: none; color: grey" }, [s.name]));
       }
     }
   });

@@ -14,6 +14,11 @@ const keyMap = {
   35: 5,
   37: 6,
   36: 7,
+  // ASDW
+  87: 0, // W
+  68: 2, // D
+  83: 4,  // S
+  65: 6,
 };
 
 const tapMap = {
@@ -39,6 +44,23 @@ const arrowMap = {
   "btn-up": 0,
   "btn-down": 4,
 };
+
+const asdfMap = {
+
+}
+
+const numMap = {
+  49: 1,
+  50: 2,
+  51: 3,
+  52: 4,
+  53: 5,
+  54: 6,
+  55: 7,
+  56: 8,
+  57: 9,
+  48: 0
+}
 
 const actionMap = {
   186: 1, // semicolon
@@ -91,7 +113,9 @@ export function keyHandler(game,ev) {
     console.log("Full screen pressed.");
     return;
   }
-  if (code == 81) { destroy(game); return; }
+
+  // if (code == 81) { destroy(game); return; }
+
   // if (code == 73) { toggleInventory(ev, true); return; }
   // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
   if (code == 190) { game.engine.unlock(); return; } // skip turn
@@ -125,6 +149,10 @@ export function keyHandler(game,ev) {
     console.log("ACTION!");
     game.player.controls.attemptMove(game, game.player);
     return;
+  }
+  if (code in numMap) {
+    const num = numMap[code];
+    console.log(`pressed number ${num}`);
   }
   if (!(code in keyMap)) { return; }
   if (code in keyMap) {

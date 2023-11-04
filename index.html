@@ -15,30 +15,22 @@
   </head>
   <body>
 
-    <!-- boilerplate splash -->
-    <!-- <div class="screen" id="plate">
-      <div>
-        <img src="icon.png" id="logo">
-        <p>Roguelike<br/>Browser<br/>Boilerplate</p>
-      </div>
-    </div>
- -->
     <!-- title screen -->
     <div id="title" class="screen show">
       <div class="game-title-animation">
         <!-- The game title is set dynamically at the start of main.js -->
         <svg id="game-title" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <path id="curve" d="M 100 150 C 200 100 500 100 600 150"/>
+            <path id="curve" d="M 100 100 L 600 100"/>
           </defs>
           <text stroke-width="10px" stroke="white">
             <textPath xlink:href="#curve" text-anchor="middle" startOffset="50%">
-              <tspan class="game-title-text">Roguelike</tspan>
+              <tspan class="game-title-text">Barrow 2</tspan>
             </textPath>
           </text>
-          <text fill="#e33" stroke-width="10px">
+          <text fill="#000" stroke-width="10px">
             <textPath xlink:href="#curve" text-anchor="middle" startOffset="50%">
-              <tspan class="game-title-text">Roguelike</tspan>
+              <tspan class="game-title-text">Barrow 2</tspan>
             </textPath>
           </text>
         </svg>
@@ -149,6 +141,13 @@
     <div id="game" class="screen">
       <div id="canvas"></div>
       <div id="message" class="nes-container is-rounded is-dark hide"></div>
+      <div id="skillhud" class="nes-container is-rounded is-dark">
+        <span>1-SEARCH</span>
+        <span>2-SENSE</span>
+        <span>3-EAT</span>
+        <span>4-ASCEND</span>
+        <span>5-DESCEND</span>
+      </div>
       <div id="hud" class="nes-container is-rounded is-dark"></div>
       <div id="lefthud">
         <div id="map" class="nes-container is-rounded is-dark">

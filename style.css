@@ -25,7 +25,7 @@ body {
   height: 100%;
   margin: 0px auto;
   font-size: 1.5em;
-  background-color: #222323;
+  background-color: #000000;
   color: #eee;
 }
 
@@ -91,9 +91,9 @@ a:hover {
 }
 
 #title {
-  background-image: url(bg.png);
+  /* background-image: url(bg.png);
   background-size: cover;
-  animation: 20s para infinite ease;
+  animation: 20s para infinite ease; */
 }
 
 @keyframes para {
@@ -175,12 +175,12 @@ a:hover {
 
 @media (max-height: 600px) {
   #game-title {
-    width: 500px;
+    width: 600px;
   }
 }
 
 .game-title-animation {
-  animation: 1.0s zoomInDown;
+  animation: 0.0s zoomInDown;
 }
 
 /* https://github.com/animate-css/animate.css/blob/master/animate.css */
@@ -352,6 +352,17 @@ a:hover {
 
 /*** HUD ***/
 
+#skillhud {
+  position: absolute;
+  bottom: 60px;
+  width: 600px;
+  max-width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  padding: 12px;
+}
+
+
 #hud {
   position: absolute;
   bottom: 0px;
@@ -359,7 +370,7 @@ a:hover {
   max-width: 100%;
   display: flex;
   justify-content: space-evenly;
-  padding: 24px;
+  padding: 12px;
 }
 
 #lefthud {
