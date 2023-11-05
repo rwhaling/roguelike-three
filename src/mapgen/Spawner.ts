@@ -2,7 +2,7 @@ import { RNG } from "rot-js";
 import Digger from "rot-js/lib/map/digger";
 import { Room } from "rot-js/lib/map/features";
 import { makeMonster } from "../entities/monster";
-import { makePlayer } from "../entities/player";
+import { placePlayer } from "../entities/player";
 import GameState from "../gamestate";
 import { createBeing } from "./MapGen";
 
@@ -19,7 +19,7 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
     let middleRooms = shuffledRooms.slice(1,-1);
     let lastRoom = shuffledRooms[shuffledRooms.length - 1];
 
-    game.player = createBeing(game, makePlayer, makeFreeCells(firstRoom));
+    game.player = createBeing(game, placePlayer, makeFreeCells(firstRoom));
     generateItem(game, "<", makeFreeCells(firstRoom));
     game.display.setPlayerPos(game.player._x, game.player._y);
     game.monsters = [];

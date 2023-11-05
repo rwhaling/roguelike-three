@@ -1,6 +1,6 @@
 import MyDisplay from "./mydisplay";
 import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
-import { checkDeath, checkItem, combat, destroy, movePlayerTo, lose, win } from "./core/GameLogic";
+import { checkDeath, checkItem, combat, destroy, movePlayerTo, lose, win, init } from "./core/GameLogic";
 import { makeMonster } from "./entities/monster";
 import { Display } from "rot-js/lib/index";
 import { v4 as uuidv4 } from 'uuid';
@@ -144,45 +144,29 @@ function runGame(w,mydisplay) {
     // this Game object holds all of the game state
     // including the map, engine, entites, and items, etc.
     const Game = new GameState();
+    Game.tileOptions = tileOptions;
     Game.cleanup = cleanup;
   
     // this gets called by the menu system
     // to launch the actual game
-    function init(game) {
-      game.map = {};
-      game.items = {};
+    function setup(game) {
+      game.player = makePlayer(game);
       // first create a ROT.js display manager
       // TODO: picking up map width as display width, not ideal
       game.display = new MyDisplay(tileOptions);
-    //   game.display._backend = new MyDisplay();
+      game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
+
+      init(game)
+
+      // first create a ROT.js display manager
+      // TODO: picking up map width as display width, not ideal
+      // game.display = new MyDisplay(tileOptions);
       resetCanvas(game, game.display.getContainer());
-      let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
+      // let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
 
       $("#mapcanvas").innerHTML = "";
-      $("#mapcanvas").appendChild(mapDisplay.getContainer());
-
-      // this is where we populate the map data structure
-      // with all of the background tiles, items,
-      // player and the monster positions
-      let [zeroCells, freeCells, digger] = genMap(game, 80, 60, tileOptions, mapDisplay);
-      spawnLevel(game, digger, freeCells);
+      $("#mapcanvas").appendChild(game.mapDisplay.getContainer());
   
-      // let ROT.js schedule the player and monster entities
-      game.scheduler = new ROT.Scheduler.Simple();
-      game.scheduler.add(game.player, true);
-      game.monsters.map((m) => game.scheduler.add(m, true));
-  
-      // render some example items in the inventory
-      renderInventory(tileOptions, game.player.inventory);
-  
-      // render the stats hud at the bottom of the screen
-      renderStats(game.player);
-
-      renderTargets(game);
-  
-      // kick everything off
-      game.engine = new ROT.Engine(game.scheduler);
-      game.engine.start();
       requestAnimationFrame(drawScene);
     }
       
@@ -270,7 +254,7 @@ function runGame(w,mydisplay) {
         $("#arrows").style.display = "block";
         Game.touchScreen = true;
       }
-      init(Game);
+      setup(Game);
     }
   
     // this function gets called when the user selects

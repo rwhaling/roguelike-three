@@ -1,6 +1,11 @@
 import { sfx } from "../sound/sfx";
-import { RNG } from "rot-js/lib";
-import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, setEndScreenValues, showScreen, toast } from "../ui/ui";
+import { RNG, Scheduler, Engine } from "rot-js/lib";
+import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
+import MyDisplay from "../mydisplay";
+import { genMap, createBeing } from "../mapgen/MapGen";
+import { Display } from "rot-js/lib/index";
+import { makePlayer } from "../entities/player";
+import { spawnLevel } from "../mapgen/Spawner";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -8,6 +13,42 @@ export const walkable = [".", "*", "g"]
 // this gets called at the end of the game when we want
 // to exit back out and clean everything up to display
 // the menu and get ready for next round
+
+export function init(game) {
+  game.map = {};
+  game.mapDisplay.clear();
+  game.items = {};
+
+  // this is where we populate the map data structure
+  // with all of the background tiles, items,
+  // player and the monster positions
+  let [zeroCells, freeCells, digger] = genMap(game, 80, 60, game.tileOptions, game.mapDisplay);
+  console.log("spawning map, game state now:",game);
+  spawnLevel(game, digger, freeCells);
+
+  // let ROT.js schedule the player and monster entities
+  game.scheduler = new Scheduler.Simple();
+  game.scheduler.add(game.player, true);
+  game.monsters.map((m) => game.scheduler.add(m, true));
+
+  // kick everything off
+  game.engine = new Engine(game.scheduler);
+  game.engine.start();
+}
+
+export function unload(game) {
+  game.map = {};
+  game.items = {};
+  game.engine = null;
+  game.entities = {};
+  game.scheduler.clear();
+  game.scheduler = null;
+  game.monsters = null;
+  game.amulet = null;
+
+}
+
+
 export function destroy(game) {
   // remove all listening event handlers
   removeListeners(game);
@@ -17,17 +58,8 @@ export function destroy(game) {
   // to null as before init()
   // TODO: all new state
   if (game.engine) {
-    game.engine.lock();
-    game.display = null;
-    game.map = {};
-    game.items = {};
-    game.engine = null;
-    game.entities = {};
-    game.scheduler.clear();
-    game.scheduler = null;
+    unload(game);
     game.player = null;
-    game.monsters = null;
-    game.amulet = null;
   }
 
   // hide the toast message

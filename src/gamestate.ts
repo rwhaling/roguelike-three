@@ -5,7 +5,9 @@ import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";
 
 export default class GameState {
+    tileOptions: any
     display: Display
+    mapDisplay: any
     map: Object
     items: Object
     engine: Engine
@@ -25,6 +27,7 @@ export default class GameState {
     tick: Function
 
     constructor() {
+        this.tileOptions = null;
         this.display = null;
         this.map = {};
         this.items = {};

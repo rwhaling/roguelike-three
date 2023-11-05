@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RNG } from "rot-js/lib";
-import { combat, damage } from "../core/GameLogic";
+import { combat, damage, init, unload } from "../core/GameLogic";
 
 interface Buff {
     duration: number,
@@ -10,6 +10,7 @@ interface Buff {
 
 export class Player {
     id: string
+    in_map: boolean
     _x: number
     _y: number
     lastArrow: [number, number]
@@ -228,8 +229,12 @@ function useAction(game, player) {
         console.log(`item at ${locKey}: `, i)
         if (i == "<") {
             console.log("stairs up")
+            unload(game);
+            init(game);
         } else if (i == ">") {
             console.log("stairs down")
+            unload(game);
+            init(game);
         }
     }
 }
@@ -240,13 +245,21 @@ export class PlayerMove {
     ready: boolean
 }
 
+export function placePlayer(game, id, x, y):Player {
+    game.player._x = x;
+    game.player._y = y;
+    game.player.in_map = true;
+    return game.player;
+}
+
 // creates a player object with position, inventory, and stats
-export function makePlayer(game, id:string, x:number, y:number):Player {
+export function makePlayer(game):Player {
     return {
         // player's position
-        id: id,
-        _x: x,
-        _y: y,
+        id: uuidv4(),
+        in_map: false,
+        _x: null,
+        _y: null,
         lastArrow: [1,0],
         // which tile to draw the player with
         character: "@",
