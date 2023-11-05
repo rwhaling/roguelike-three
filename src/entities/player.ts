@@ -86,7 +86,7 @@ export class PlayerControls {
     }
 
     attemptMove(game, player) {
-        let currentMove = this.moves[this.selectedMove] 
+        let currentMove = this.moves.concat(...this.skills)[this.selectedMove];
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
         console.log(`attempting current selected move at pos ${this.selectedMove}`,currentMove);
         if (currentMove.name == "ATK") {
@@ -106,10 +106,17 @@ export class PlayerControls {
                 game.engine.unlock();
             }, 250);
         } else if (currentMove.name == "AIM") {
-            //
-        
+            aimAction(game,player);
+            setTimeout(function() {
+                game.engine.unlock();
+            }, 250);
         } else if (currentMove.name == "DFND") {
             defendAction(game,player);
+            setTimeout(function() {
+                game.engine.unlock();
+            }, 250);
+        } else if (currentMove.name == "USE") {
+            useAction(game,player);
             setTimeout(function() {
                 game.engine.unlock();
             }, 250);
@@ -213,6 +220,19 @@ function aimAction(game, player) {
     return;
 }
 
+function useAction(game, player) {
+    console.log("applying USE");
+    let locKey = `${game.player._x},${game.player._y}`
+    let items = game.items[locKey];
+    for (let i of items) {
+        console.log(`item at ${locKey}: `, i)
+        if (i == "<") {
+            console.log("stairs up")
+        } else if (i == ">") {
+            console.log("stairs down")
+        }
+    }
+}
 
 export class PlayerMove {
     name: string
