@@ -275,7 +275,17 @@ function runGame(w,mydisplay) {
       showScreen("title");
       sfx['hide'].play();
     }
-  
+
+        // this helper function hides any of the menu
+    // screens above, shows the title screen again,
+    // and plays a sound as it does so
+    function hideModalGame(ev) {
+      ev.preventDefault();
+      showScreen("game");
+      sfx['choice'].play();
+    }
+
+    
     function cleanup() {
       destroy(Game);
       $("#play").removeEventListener(clickevt, startGame);
@@ -318,7 +328,11 @@ function runGame(w,mydisplay) {
       // listen for "close modal" ok buttons
       document.querySelectorAll(".modal button.action")
       .forEach(function(el) {
-        el.addEventListener(clickevt, hideModal);
+        if (el.id == "return") {
+          el.addEventListener(clickevt, hideModalGame);
+        } else {
+          el.addEventListener(clickevt, hideModal);
+        }
       });
       // listen for back button navigation
       window.onpopstate = function(ev) {

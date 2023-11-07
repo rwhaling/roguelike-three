@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RNG } from "rot-js/lib";
 import { combat, damage, init, unload } from "../core/GameLogic";
+import { showScreen } from '../ui/ui';
 
 interface Buff {
     duration: number,
@@ -230,6 +231,7 @@ function useAction(game, player) {
         if (i == "<") {
             console.log("stairs up")
             unload(game);
+            showScreen("town", null);
             init(game);
         } else if (i == ">") {
             console.log("stairs down")
