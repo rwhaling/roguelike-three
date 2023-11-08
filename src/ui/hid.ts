@@ -147,7 +147,7 @@ export function keyHandler(game,ev) {
   }
   if (code in actionMap) {
     console.log("ACTION!");
-    game.player.controls.attemptMove(game, game.player);
+    game.player.controls.attemptAction(game, game.player);
     return;
   }
   if (code in numMap) {

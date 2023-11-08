@@ -23,7 +23,6 @@ export class Player {
     baseStats: { [key: string]: number }
     
     controls: PlayerControls
-
     act: any
 }
 
@@ -87,58 +86,79 @@ export class PlayerControls {
         this.dirty = true;
     }
 
-    attemptMove(game, player) {
+    selectMoveByName(name) {
+        let moveIndex = this.moves.concat(...this.skills).map( (m) => m.name ).indexOf(name);
+        this.selectedMove = moveIndex;
+    }
+
+    selectTargetById(game, player, id) {
+        let target = game.monsters.filter( (m) => m.id == id )[0];
+        console.log("selected new target: ",target)
+        this.currentTarget = id;
+    }
+
+    attemptMoveWithTarget(game, player, move, target) {
+        this.selectMoveByName(move);
+        this.selectTargetById(game, player, target);
+        this.attemptAction(game,player)
+    }
+
+    // findClosestTarget(game, player)
+
+    attemptAction(game, player) {
         let currentMove = this.moves.concat(...this.skills)[this.selectedMove];
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
         console.log(`attempting current selected move at pos ${this.selectedMove}`,currentMove);
-        if (currentMove.name == "ATK") {
-            let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
-            combat(game, player, target);
-            setTimeout(function() {
-                game.engine.unlock();
-            }, 250);          
-        } else if (currentMove.name == "BASH") {
-            bashAction(game,player);
-            setTimeout(function() {
-                game.engine.unlock();
-            }, 250);        
-        } else if (currentMove.name == "BOW") {
-            bowAction(game,player);
-            setTimeout(function() {
-                game.engine.unlock();
-            }, 250);
-        } else if (currentMove.name == "AIM") {
-            aimAction(game,player);
-            setTimeout(function() {
-                game.engine.unlock();
-            }, 250);
-        } else if (currentMove.name == "DFND") {
-            defendAction(game,player);
-            setTimeout(function() {
-                game.engine.unlock();
-            }, 250);
-        } else if (currentMove.name == "USE") {
-            useAction(game,player);
-            setTimeout(function() {
-                game.engine.unlock();
-            }, 250);
+        let actionRet = false;
+        if (currentMove.ready == false) {
+            return false;
         }
+        if (currentMove.name == "ATK") {
+            actionRet = attackAction(game,player);
+        } else if (currentMove.name == "BASH") {
+            actionRet = bashAction(game,player);
+        } else if (currentMove.name == "BOW") {
+            actionRet = bowAction(game,player);
+        } else if (currentMove.name == "AIM") {
+            actionRet = aimAction(game,player);
+        } else if (currentMove.name == "DASH") {
+            actionRet = dashAction(game,player);
+        } else if (currentMove.name == "DFND") {
+            actionRet = defendAction(game,player);
+        } else if (currentMove.name == "USE") {
+            actionRet = useAction(game,player);
+        } else if (currentMove.name == "EAT") {
+            actionRet = eatAction(game,player);
+        }
+        if (actionRet) {
+            setTimeout(function() {
+                game.engine.unlock();
+            }, 250);
+
+            for (let m of this.moves.concat(...this.skills)) {
+                if (m.stats.currentCooldown > 0) {
+                    m.stats.currentCooldown -= 1;
+                    if (m.stats.currentCooldown == 0) {
+                        m.ready = true; 
+                        // what about ammo/eat checks?
+                    }
+                }
+            }                
+        }
+        player.controls.dirty = true;
+        return actionRet;
+        // should check if move succeeded
     }
 }
 
-function defendAction(game, player) {
-    console.log("applying DEFEND");
-    applyBuff(player, {
-        duration: 5,
-        displayName: "DFND",
-        stats: {
-            "DEF":1
-        }
-    });
-    return;
+function attackAction(game, player):boolean {
+    console.log("invoking ATK");
+    let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+    combat(game, player, target);
+    return true;
 }
 
-function bashAction(game, player) {
+function bashAction(game, player:Player): boolean {
     console.log("invoking BASH");
     applyBuff(player, {
         duration: 1,
@@ -146,6 +166,7 @@ function bashAction(game, player) {
         stats: {
             "STR":3
         }
+    
     });
 
     let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
@@ -158,9 +179,13 @@ function bashAction(game, player) {
             "STR":1
         }
     });
+
+    player.controls.moves[1].ready = false;
+    player.controls.moves[1].stats.currentCooldown = player.controls.moves[1].stats.cooldown;
+    return true;
 }
 
-function bowAction(game, player) {
+function bowAction(game, player:Player): boolean {
     if (player.controls.currentTarget) {
         let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
         let angle = Math.atan2(  game.player._y - target._y,  game.player._x - target._x );
@@ -206,11 +231,18 @@ function bowAction(game, player) {
         let damageRoll = RNG.getItem([1,2,3,4,5,6])!;
         damage(game, player, target, damageRoll);
 
+        player.stats.arrows -= 1;
+        console.log("remaining arrows:", player.stats.arrows)
+        if (player.stats.arrows == 0) {
+            console.log("out of arrows");
+            player.controls.moves[2].ready = false;
+        }
+
     }
-    return;  
+    return true;  
 }
 
-function aimAction(game, player) {
+function aimAction(game, player): boolean {
     console.log("applying AIM");
     applyBuff(player, {
         duration: 5,
@@ -219,10 +251,46 @@ function aimAction(game, player) {
             "DEX":4
         }
     });
-    return;
+    player.controls.moves[3].ready = false;
+    player.controls.moves[3].stats.currentCooldown = player.controls.moves[3].stats.cooldown;
+
+    return true;
 }
 
-function useAction(game, player) {
+function dashAction(game, player):boolean {
+    console.log("invoking DASH");
+    applyBuff(player, {
+        duration: 5,
+        displayName: "DASH",
+        stats: {
+            "AGI":4
+        }
+    });
+    let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+    combat(game, player, target);
+    combat(game, player, target);
+
+    player.controls.moves[4].ready = false;
+    player.controls.moves[4].stats.currentCooldown = player.controls.moves[4].stats.cooldown;
+
+    return true;
+}
+
+function defendAction(game, player):boolean {
+    console.log("applying DEFEND");
+    applyBuff(player, {
+        duration: 5,
+        displayName: "DFND",
+        stats: {
+            "DEF":1
+        }
+    });
+    player.controls.moves[5].ready = false;
+    player.controls.moves[5].stats.currentCooldown = player.controls.moves[1].stats.cooldown;
+    return true;
+}
+
+function useAction(game, player): boolean {
     console.log("applying USE");
     let locKey = `${game.player._x},${game.player._y}`
     let items = game.items[locKey];
@@ -239,12 +307,24 @@ function useAction(game, player) {
             init(game);
         }
     }
+    return false;
 }
 
-export class PlayerMove {
+function eatAction(game, player:Player): boolean {
+    console.log("applying EAT");
+    player.stats.hp = player.stats.maxHP;
+    player.stats.food -= 1;
+    if (player.stats.food == 0) {
+        player.controls.skills[3].ready = false;
+    }
+    return 
+}
+
+export interface PlayerMove {
     name: string
     enabled: boolean
     ready: boolean
+    stats: { [key: string]: number }
 }
 
 export function placePlayer(game, id, x, y):Player {
@@ -285,6 +365,8 @@ export function makePlayer(game):Player {
                 "DEX": 0,
                 "xp": 1, 
                 "gold": 0,
+                "arrows": 5,
+                "maxArrows":5,
                 "food": 2,
                 "maxFood": 2},
 
@@ -295,6 +377,7 @@ export function makePlayer(game):Player {
                     "DEF": 0,
                     "AGI": 2,
                     "DEX": 0,
+                    "maxArrows":5,
                     "maxFood": 2},
         // the ROT.js scheduler calls this method when it is time
         // for the player to act
@@ -302,19 +385,19 @@ export function makePlayer(game):Player {
         // and then wait for input from the user
 
         controls: new PlayerControls([
-            {name: "ATK", enabled: true, ready: true},
-            {name: "BASH", enabled: true, ready: true},
-            {name: "BOW", enabled: true, ready: true},
-            {name: "AIM", enabled: false, ready: false},
-            {name: "DASH", enabled: false, ready: false},
-            {name: "DFND", enabled: true, ready: true},
+            {name: "ATK", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "BASH", enabled: true, ready: true, stats: { cooldown: 5, currentCooldown: 0 } },
+            {name: "BOW", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "AIM", enabled: false, ready: false, stats: { cooldown: 5, currentCooldown: 0 } },
+            {name: "DASH", enabled: true, ready: true, stats: { cooldown: 5, currentCooldown: 0 } },
+            {name: "DFND", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
         ], [ 
-            {name: "USE", enabled: true, ready: true},
-            {name: "SENSE", enabled: false, ready: false},
-            {name: "SNEAK", enabled: false, ready: false},
-            {name: "EAT", enabled: true, ready: true},
-            {name: "RUN", enabled: true, ready: true},
-            {name: "HELP", enabled: true, ready: true},
+            {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "SENSE", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "SNEAK", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "RUN", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),
         act: () => {
             game.engine.lock();

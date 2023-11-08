@@ -129,6 +129,7 @@ export function renderStats(player:Player) {
   attach(playerStats, el("tr", {}, [`XP: ${player.stats.xp}`]));
   attach(playerStats, el("tr", {}, [`GOLD: ${player.stats.gold}`]));
   attach(playerStats, el("tr", {}, [`FOOD: ${player.stats.food}`]));
+  attach(playerStats, el("tr", {}, [`AMMO: ${player.stats.arrows}`]));
 
   const st = $("#hud");
   st.innerHTML = "";
@@ -137,7 +138,7 @@ export function renderStats(player:Player) {
   console.log("selected move:", selected);
   // for (let s in stats) {
   moves.forEach((s,idx) => {
-    if (s.enabled) {
+    if (s.ready) {
       if (idx === selected) {
         attach(st, el("span", { "style": "text-decoration: underline" }, [s.name]));
       } else {
@@ -145,9 +146,9 @@ export function renderStats(player:Player) {
       }
     } else {
       if (idx === selected) {
-        attach(st, el("span", { "style": "text-decoration: underline; color: grey" }, [s.name]));
+        attach(st, el("span", { "style": "text-decoration: underline; color: darkgrey" }, [s.name]));
       } else {
-        attach(st, el("span", { "style": "text-decoration: none; color: grey" }, [s.name]));
+        attach(st, el("span", { "style": "text-decoration: none; color: darkgrey" }, [s.name]));
       }
     }
   });
@@ -157,7 +158,7 @@ export function renderStats(player:Player) {
   let skills = player.controls.skills;
   skills.forEach((s,idx) => {
     let real_idx = idx + moves.length;
-    if (s.enabled) {
+    if (s.ready) {
       if (real_idx === selected) {
         attach(skills_st, el("span", { "style": "text-decoration: underline" }, [s.name]));
       } else {
@@ -165,9 +166,9 @@ export function renderStats(player:Player) {
       }
     } else {
       if (real_idx === selected) {
-        attach(skills_st, el("span", { "style": "text-decoration: underline; color: grey" }, [s.name]));
+        attach(skills_st, el("span", { "style": "text-decoration: underline; color: darkgrey" }, [s.name]));
       } else {
-        attach(skills_st, el("span", { "style": "text-decoration: none; color: grey" }, [s.name]));
+        attach(skills_st, el("span", { "style": "text-decoration: none; color: darkgrey" }, [s.name]));
       }
     }
   });

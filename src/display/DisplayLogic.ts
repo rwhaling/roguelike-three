@@ -20,7 +20,7 @@ function lerp( a, b, alpha ) {
 export class Animation {
     id: string
     startPos: [number, number]
-    newPos: [number, number]
+    endPos: [number, number]
     startTime: number
     endTime: number
 }

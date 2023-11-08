@@ -3,6 +3,7 @@ import { Animation, Particle } from "./display/DisplayLogic"
 import { Engine } from "rot-js/lib/index"
 import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";
+import { Monster } from "./entities/monster";
 
 export default class GameState {
     tileOptions: any
@@ -13,7 +14,7 @@ export default class GameState {
     engine: Engine
     scheduler: Simple
     player: Player
-    monsters: Array<any>
+    monsters: Array<Monster>
     entities: {[key:string]: any}
     animatingEntities: {[key:string]: Animation}
     particles: Particle[]
@@ -46,7 +47,5 @@ export default class GameState {
         this.listening = false;
         this.cleanup = null;
         this.tick = null;
-    }
-
-    
+    }   
 }

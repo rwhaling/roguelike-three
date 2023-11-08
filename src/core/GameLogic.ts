@@ -225,13 +225,14 @@ export function movePlayerTo(game, x, y) {
   // and if we have initiate combat
   const hitMonster = monsterAt(game, x, y);
   if (hitMonster) {
-    p.controls.currentTarget = hitMonster.id;
+    // p.controls.currentTarget = hitMonster.id;
     // we enter a combat situation
-    combat(game, p, hitMonster);
-    // pass the turn on to the next entity
-    setTimeout(function() {
-      game.engine.unlock();
-    }, 250);
+    p.controls.attemptMoveWithTarget(game,p,"ATK",hitMonster.id)
+    // combat(game, p, hitMonster);
+    // // pass the turn on to the next entity
+    // setTimeout(function() {
+    //   game.engine.unlock();
+    // }, 250);
   } else {
     // we're taking a step
 
