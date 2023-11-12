@@ -183,7 +183,10 @@ export function checkItem(game, entity) {
   const key = entity._x + "," + entity._y;
   if (key == game.amulet) {
     // the amulet is hit initiate the win flow below
-    win(game);
+    toast(game, "You found THE AMULET");
+    sfx["win"].play();
+    delete game.items[key];
+    // win(game);
   } else if (game.items[key] == "g") {
     // if the player stepped on gold
     // increment their gold stat,

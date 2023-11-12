@@ -1,7 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RNG } from "rot-js/lib";
 import { combat, damage, init, unload } from "../core/GameLogic";
-import { showScreen } from '../ui/ui';
+import { renderTown, showScreen } from '../ui/ui';
+import { getTownState } from "../core/TownLogic";
 
 interface Buff {
     duration: number,
@@ -101,6 +102,13 @@ export class PlayerControls {
         this.selectMoveByName(move);
         this.selectTargetById(game, player, target);
         this.attemptAction(game,player)
+    }
+
+    tempAttemptSkillByName(game,player,name) {
+        let prevMove = this.selectedMove;
+        this.selectMoveByName(name);
+        this.attemptAction(game,player);
+        this.selectedMove = prevMove;
     }
 
     // findClosestTarget(game, player)
@@ -299,6 +307,7 @@ function useAction(game, player): boolean {
         if (i == "<") {
             console.log("stairs up")
             unload(game);
+            renderTown(game, getTownState(game, "town"));
             showScreen("town", null);
             init(game);
         } else if (i == ">") {
@@ -315,7 +324,7 @@ function eatAction(game, player:Player): boolean {
     player.stats.hp = player.stats.maxHP;
     player.stats.food -= 1;
     if (player.stats.food == 0) {
-        player.controls.skills[3].ready = false;
+        player.controls.skills[1].ready = false;
     }
     return 
 }
@@ -393,9 +402,9 @@ export function makePlayer(game):Player {
             {name: "DFND", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
         ], [ 
             {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "SENSE", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "SNEAK", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "SEARCH", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "WAIT", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "RUN", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),

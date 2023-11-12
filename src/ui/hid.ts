@@ -29,13 +29,17 @@ const tapMap = {
 };
 
 const moveSelectMap = {
-  74: -1,
-  76: 1
+  74: -1, // J
+  219: -1, // [
+  76: 1, // L
+  221: 1 // ]
 }
 
 const targetSelectMap = {
-  73: -1,
-  75: 1
+  73: -1, // I
+  188: -1, // <
+  75: 1, // K
+  190: 1 // >
 }
 
 const arrowMap = {
@@ -66,6 +70,12 @@ const actionMap = {
   186: 1, // semicolon
   222: 2, // quote
   13: 3 // enter
+}
+
+const skillMap = {
+  220: "USE", // | 
+  189: "RUN", // -
+  187: "EAT" // +
 }
 
 const touchOffsetY = -20; // move the center by this much
@@ -105,7 +115,7 @@ export function keyHandler(game,ev) {
   // prevent zoom
   if (code == 187 || code == 189) {
     ev.preventDefault();
-    return;
+    // return;
   }
   // full screen
   if (code == 70 && ev.altKey && ev.ctrlKey && ev.shiftKey) {
@@ -114,11 +124,19 @@ export function keyHandler(game,ev) {
     return;
   }
 
+  if (code == 13) {
+    ev.preventDefault();
+  }
+
   // if (code == 81) { destroy(game); return; }
 
   // if (code == 73) { toggleInventory(ev, true); return; }
   // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
-  if (code == 190) { game.engine.unlock(); return; } // skip turn
+
+  if (code == 222) { // ' single quote - skip turn
+    game.engine.unlock(); 
+    return; 
+  }
   /* one of numpad directions? */
   if (code in moveSelectMap) {
     console.log("move selector: ",code, moveSelectMap[code]);
@@ -150,6 +168,12 @@ export function keyHandler(game,ev) {
     game.player.controls.attemptAction(game, game.player);
     return;
   }
+  if (code in skillMap) {
+    console.log("SKILL!", skillMap[code]);    
+    game.player.controls.tempAttemptSkillByName(game, game.player, skillMap[code]);
+    return;
+  }
+
   if (code in numMap) {
     const num = numMap[code];
     console.log(`pressed number ${num}`);

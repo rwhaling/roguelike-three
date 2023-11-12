@@ -271,6 +271,7 @@ function runGame(w,mydisplay) {
     // screens above, shows the title screen again,
     // and plays a sound as it does so
     function hideModal(ev) {
+      console.log("hiding modal, returning to title", ev);
       ev.preventDefault();
       showScreen("title");
       sfx['hide'].play();
@@ -280,6 +281,7 @@ function runGame(w,mydisplay) {
     // screens above, shows the title screen again,
     // and plays a sound as it does so
     function hideModalGame(ev) {
+      console.log("hiding modal and returning to game", ev);
       ev.preventDefault();
       showScreen("game");
       sfx['choice'].play();
@@ -328,12 +330,14 @@ function runGame(w,mydisplay) {
       // listen for "close modal" ok buttons
       document.querySelectorAll(".modal button.action")
       .forEach(function(el) {
+        console.log("action button",el);
         if (el.id == "return") {
           el.addEventListener(clickevt, hideModalGame);
         } else {
           el.addEventListener(clickevt, hideModal);
         }
       });
+
       // listen for back button navigation
       window.onpopstate = function(ev) {
         //console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));

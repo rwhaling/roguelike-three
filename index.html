@@ -130,7 +130,6 @@
       <p>Lose!</p>
       <div class="nes-container is-rounded is-dark">
         <div class="sprite tomb"></div>
-        <p>Oh no, The Monster got you.</p>
         <p>You're dead.</p>
         <p>You had <span class="gold-stat"></span> gold and <span class="xp-stat"></span> XP.</p>
       </div>
@@ -141,11 +140,14 @@
     <div id="town" class="screen modal">
       <p>Town</p>
       <div class="nes-container is-rounded is-dark">
-        <div class="sprite tomb"></div>
+        <div class="sprite town"></div>
         <p>You visit town to restock.</p>
         <p>You have <span class="gold-stat"></span> gold and <span class="xp-stat"></span> XP.</p>
       </div>
-      <button class="nes-btn is-success action" id="return">Return</button>
+      <button class="nes-btn townaction" id="inn">Inn</button>
+      <button class="nes-btn townaction" id="shop">Shop</button>
+      <button class="nes-btn townaction" id="train">Train</button>
+      <button class="nes-btn is-success townaction" id="return">Return</button>
     </div>
 
 

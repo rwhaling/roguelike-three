@@ -1,5 +1,7 @@
+import { handleTownAction } from "../core/TownLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
+import { sfx } from "../sound/sfx";
 
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
 
@@ -93,7 +95,43 @@ export function renderInventory(tileOptions,items) {
                   }), words]));
     });
 }
+
+export function renderTown(game:GameState, town:[string, string][]) {
+  const town_el = $("#town");
+  town_el.innerHTML = "";
+  let xp = game.player.stats.xp;
+  let gold = game.player.stats.gold;
+  let content = `<p>Town</p>
+  <div class="nes-container is-rounded is-dark">
+    <div class="sprite town"></div>
+    <p>You visit town to restock.</p>
+    <p>You have <span class="gold-stat">${gold}</span> gold and <span class="xp-stat">${xp}</span> XP.</p>
+  </div>`
+
+  for (let b of town) {
+    console.log("populating town",b);
+    content += `<button class="nes-btn townaction" id="${b[0]}">${b[1]}</button>`;
+  }
+  town_el.innerHTML = content;
+
+  document.querySelectorAll(".modal button.townaction")
+  .forEach(function(el) {
+    el.addEventListener(clickevt, ev => { 
+      console.log("click", ev.target['id'], ev);
+      handleTownAction(game, ev);
+    });
+    // el.addEventListener(clickevt, hideModalGame);
+  });
+}
     
+export function hideModalGame(ev) {
+  console.log("hiding modal and returning to game", ev);
+  ev.preventDefault();
+  showScreen("game", ev);
+  sfx['choice'].play();
+}
+
+
 // called when an inventory item is selected
 export function selectedInventory(which, index, items, ev) {
   // this function is called when an inventory item is clicked
