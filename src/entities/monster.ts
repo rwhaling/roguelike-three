@@ -5,7 +5,7 @@ import { Path } from "rot-js/lib"
      *** The monster ***
      *******************/
 
-enum BehaviorState {
+export enum BehaviorState {
   INACTIVE, ENGAGED, RETURNING
 }
 
@@ -60,16 +60,16 @@ export function makeMonster(game:GameState, id, x, y): Monster {
         minChaseRadius: 15,
         aggroOnSight: 18,
         currentAggro: 0,
-        act: () => monsterAct(game, id),
+        act: () => null
     }
 }
     
 // the ROT.js scheduler calls this method when it is time
 // for the monster to act
-function monsterAct(game:GameState, id:string) {
+export function monsterAct(game:GameState, m:Monster, player_path:any[], activeMonsters:{ [key:string]:Monster }) {
   // reference to the monster itself
   //HACK
-  const m = game.monsters.filter( (i) => i.id == id)[0];
+  // const m = game.monsters.filter( (i) => i.id == id)[0];
   // the monster wants to know where the player is
   const p = game.player;
   // reference to the game map
@@ -92,25 +92,17 @@ function monsterAct(game:GameState, id:string) {
       // move there
   // check distance to spawn point
 
-  const passableCallback = function(x, y) {
-    return (walkable.indexOf(map[x + "," + y]) != -1);
-  }
-  const monster_astar = new Path.AStar(m._x, m._y, passableCallback, {topology:4});
-  const player_path: any[] = [];
-  const player_path_callback = (x,y) => {
-    player_path.push([x, y]);
-  }
-  monster_astar.compute(p._x, p._y, player_path_callback);
-  player_path.pop();
-  player_path.reverse();
-
-  const spawn_path: any[] = [];
-  const spawn_path_callback = (x,y) => {
-    spawn_path.push([x,y]);
-  }
-  monster_astar.compute(m.spawnPointX, m.spawnPointY, spawn_path_callback);
-  spawn_path.pop();
-  spawn_path.reverse();
+  // const passableCallback = function(x, y) {
+  //   return (walkable.indexOf(map[x + "," + y]) != -1);
+  // }
+  // const monster_astar = new Path.AStar(m._x, m._y, passableCallback, {topology:4});
+  // const player_path: any[] = [];
+  // const player_path_callback = (x,y) => {
+  //   player_path.push([x, y]);
+  // }
+  // monster_astar.compute(p._x, p._y, player_path_callback);
+  // player_path.pop();
+  // player_path.reverse();
 
   if (m.behaviorState == BehaviorState.INACTIVE) {
     // this should happen before pathfinding
@@ -120,18 +112,22 @@ function monsterAct(game:GameState, id:string) {
       console.log("INACTIVE: should activate");
       m.behaviorState = BehaviorState.ENGAGED;
       m.awake = true;
-
     }
   }
 
   if (m.behaviorState == BehaviorState.ENGAGED) {
-    if (spawn_path.length >= m.minChaseRadius && m.currentAggro == 0) {
+    let spawn_dist = Math.abs(m.spawnPointX - m._x) + Math.abs(m.spawnPointY - m._y);
+    if (spawn_dist >= m.minChaseRadius && m.currentAggro == 0) {
       console.log("ACTIVE: will RETURN");
       m.behaviorState = BehaviorState.RETURNING;
     } else if (player_path.length > 1) {
       // draw whatever was on the last tile the monster was one
       // let oldKey = m._x + "," + m._y;
       let oldPos: [number, number] = [m._x, m._y];
+      let newKey = `${player_path[0][0]},${player_path[0][1]}`
+      if (newKey in activeMonsters) { 
+        return
+      }
       // the player is safe for now so update the monster position
       // to the first step on the path and redraw
       let delta: [number, number] = [player_path[0][0] - m._x, player_path[0][1] - m._y ];
@@ -152,13 +148,31 @@ function monsterAct(game:GameState, id:string) {
       }
       game.animatingEntities[m.id] = animation;
 
-    } else {
+    } else if (player_path.length == 1) {
       combat(game, m, p);
       return
     }
   }
 
   if (m.behaviorState == BehaviorState.RETURNING) {
+    // TODO: inefficient, should bound
+    let spawn_path_i = 0;
+    const passableCallback = function(x, y) {
+      spawn_path_i += 1;
+      return (walkable.indexOf(map[x + "," + y]) != -1);
+    }
+  
+    const monster_astar = new Path.AStar(m._x, m._y, passableCallback, {topology:4});
+ 
+    const spawn_path: any[] = [];
+    const spawn_path_callback = (x,y) => {
+      spawn_path.push([x,y]);
+    }
+    monster_astar.compute(m.spawnPointX, m.spawnPointY, spawn_path_callback);
+    console.log("computed spawn path in ",spawn_path_i," cycles");
+    spawn_path.pop();
+    spawn_path.reverse();  
+
     if (spawn_path.length == 0) {
       console.log("RETURNING: will inactivate");
       m.behaviorState = BehaviorState.INACTIVE;
@@ -201,7 +215,6 @@ function monsterAct(game:GameState, id:string) {
 
   // // ignore the first move on the path as it is the starting point
   // path.shift();
-
 
   // if the distance from the monster to the player is less than one
   // square then initiate combat

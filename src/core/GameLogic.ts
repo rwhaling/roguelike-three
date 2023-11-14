@@ -2,6 +2,7 @@ import { sfx } from "../sound/sfx";
 import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
 import MyDisplay from "../mydisplay";
+import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap, createBeing } from "../mapgen/MapGen";
 import { Display } from "rot-js/lib/index";
 import { makePlayer } from "../entities/player";
@@ -28,8 +29,10 @@ export function init(game) {
 
   // let ROT.js schedule the player and monster entities
   game.scheduler = new Scheduler.Simple();
+  let turnLogic = mkTurnLogic(game);
   game.scheduler.add(game.player, true);
-  game.monsters.map((m) => game.scheduler.add(m, true));
+  game.scheduler.add(turnLogic, true);
+  // game.monsters.map((m) => game.scheduler.add(m, true));
 
   // kick everything off
   game.engine = new Engine(game.scheduler);

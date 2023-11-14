@@ -76,8 +76,9 @@ export function genMap(game:GameState, width, height, tileOptions, minimap?): [s
   
 
 // here we are creating the treasure chest items
+// TODO: remove
 function generateItems(game, freeCells) {
-    for (let i=0; i<21; i++) {
+    for (let i=0; i<5; i++) {
         const key = takeFreeCell(freeCells);
         // the first chest contains the amulet
         if (!i) {
