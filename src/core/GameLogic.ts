@@ -192,11 +192,31 @@ export function checkItem(game, entity) {
     // increment their gold stat,
     // show a message, re-render the stats
     // then play the pickup/win sound
-    game.player.stats.gold += 1;
+    let goldAmount = RNG.getUniformInt(1,4);
+    game.player.stats.gold += goldAmount;
     renderStats(game.player);
-    toast(game, "You found gold!");
+    toast(game, `You found ${goldAmount} gold!`);
     sfx["win"].play();
     delete game.items[key];
+  } else if (game.items[key] == "f") {
+    toast(game, `You found food!`);
+    if (game.player.stats.food < game.player.stats.maxFood) {
+      game.player.stats.food += 1;
+      // re-enable EAT
+      sfx["win"].play();
+      delete game.items[key];
+    }
+  } else if (game.items[key] == "r") {
+    toast(game, `You found arrows!`);
+    if (game.player.stats.arrows < game.player.stats.maxArrows) {
+      game.player.stats.arrows += 2;
+      // re-enable BOW
+      if (game.player.stats.arrows > game.player.stats.maxArrows) {
+        game.player.stats.arrows = game.player.stats.maxArrows
+      }
+      sfx["win"].play();
+      delete game.items[key];  
+    }
   } else if (game.items[key] == "*") {
     // if an empty box is opened
     // by replacing with a floor tile, show the user

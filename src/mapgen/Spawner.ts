@@ -9,39 +9,88 @@ import { createBeing } from "./MapGen";
 export function spawnLevel(game:GameState, digger:Digger, freeCells) {
 
     let rooms = digger.getRooms();
+    // hack
+    game.monsters = [];
 
     let shuffledRooms = rooms
         .map(value => ({ value, sort: Math.random() }))
         .sort((a, b) => a.sort - b.sort)
         .map(({ value }) => value)
+
+    let lastRoomI = shuffledRooms.length - 1;
+
+    for (let [i,room] of shuffledRooms.entries()) {
+        var cells = makeFreeCells(room);
+        if (i == 0) {
+            game.player = createBeing(game, placePlayer, cells);
+            generateItem(game, "<", cells);
+            generateItem(game, "g", cells);
+            generateItem(game, "*", cells);
+            generateItem(game, "r", cells); // arrow
+        } else if (i == 1) {
+            game.monsters.push(
+                createBeing(game, makeMonster, cells),
+                createBeing(game, makeMonster, cells)
+            )
+            generateItem(game, "g", cells);
+            generateItem(game, "*", cells);
+            generateItem(game, "f", cells); // food
     
-    let firstRoom = shuffledRooms[0];
-    let middleRooms = shuffledRooms.slice(1,-1);
-    let lastRoom = shuffledRooms[shuffledRooms.length - 1];
+        } else if (i < lastRoomI) {
+            game.monsters.push(
+                createBeing(game, makeMonster, cells),
+                createBeing(game, makeMonster, cells)
+            )
+            generateItem(game, "g", cells);
+            generateItem(game, "*", cells);
+            generateItem(game, "r", cells); // arrow
 
-    game.player = createBeing(game, placePlayer, makeFreeCells(firstRoom));
-    generateItem(game, "<", makeFreeCells(firstRoom));
-    game.display.setPlayerPos(game.player._x, game.player._y);
-    game.monsters = [];
+        } else if (i == lastRoomI) {
+            game.monsters.push(
+                createBeing(game, makeMonster, cells),
+                createBeing(game, makeMonster, cells),
+                createBeing(game, makeMonster, cells)
+            )
+            generateItem(game, "g", cells);
+            generateItem(game, "g", cells); 
+            generateItem(game, "f", cells); // food
+            generateItem(game, ">", cells);
 
-    for (let room of middleRooms) {
-        let cells = makeFreeCells(room);
-        game.monsters.push(
-            createBeing(game, makeMonster, cells),
-            createBeing(game, makeMonster, cells)
-        )
+        }
     }
+    
+    // let firstRoom = shuffledRooms[0];
+    // let middleRooms = shuffledRooms.slice(1,-1);
+    // let lastRoom = shuffledRooms[shuffledRooms.length - 1];
 
-    let lastRoomCells = makeFreeCells(lastRoom);
+    // game.player = createBeing(game, placePlayer, makeFreeCells(firstRoom));
+    // generateItem(game, "<", makeFreeCells(firstRoom));
+    // // first room - 1 gold, 1 arrows, 1 empty
 
-    game.monsters.push(
-        createBeing(game, makeMonster, lastRoomCells),
-        createBeing(game, makeMonster, lastRoomCells),
-        createBeing(game, makeMonster, lastRoomCells),
-        createBeing(game, makeMonster, lastRoomCells)
-    )
+    // game.display.setPlayerPos(game.player._x, game.player._y);
+    // game.monsters = [];
 
-    generateItem(game, ">", lastRoomCells);
+    // let foodRoom = RNG.getUniformInt(0,middleRooms.length - 1);
+
+    // for (let [i,room] of middleRooms.entries()) {
+    //     let cells = makeFreeCells(room);
+    //     game.monsters.push(
+    //         createBeing(game, makeMonster, cells),
+    //         createBeing(game, makeMonster, cells)
+    //     )
+    //     // middle rooms: gold, arrows, 1 food
+    // }
+
+    // let lastRoomCells = makeFreeCells(lastRoom);
+
+    // game.monsters.push(
+    //     createBeing(game, makeMonster, lastRoomCells),
+    //     createBeing(game, makeMonster, lastRoomCells),
+    //     createBeing(game, makeMonster, lastRoomCells)
+    // )
+    // // last room: gold, food, empty
+
+    // generateItem(game, ">", lastRoomCells);
 
 }
 

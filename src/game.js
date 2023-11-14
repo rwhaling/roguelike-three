@@ -51,6 +51,8 @@ function runGame(w,mydisplay) {
 
         "x": [256, 192], // axe
         "p": [256, 192], // potion
+        "f": [288, 192], // food (chest)
+        "r": [288, 192], // ammo (chest)
 
         "a": [336, 256], // tree 1
         "b": [336, 256], // tree 2
