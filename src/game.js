@@ -1,16 +1,12 @@
 import MyDisplay from "./mydisplay";
-import { drawTile, drawPlayer, drawMonster, render } from "./display/DisplayLogic";
-import { checkDeath, checkItem, combat, destroy, movePlayerTo, lose, win, init } from "./core/GameLogic";
-import { makeMonster } from "./entities/monster";
+import { render } from "./display/DisplayLogic";
+import { destroy, init } from "./core/GameLogic";
 import { Display } from "rot-js/lib/index";
-import { v4 as uuidv4 } from 'uuid';
 import GameState from "./gamestate"
-import { genMap, createBeing } from "./mapgen/MapGen";
-import { Player, makePlayer } from "./entities/player";
+import { makePlayer } from "./entities/player";
 import { sfx } from "./sound/sfx";
-import { showScreen, setEndScreenValues, renderInventory, selectedInventory, inventoryRemove, renderStats, toggleInventory, createGhost, toast, battleMessage, hideToast, renderTargets } from "./ui/ui";
-import { movePlayer, keyHandler, resolvePointing } from "./ui/hid";
-import { spawnLevel } from "./mapgen/Spawner";
+import { showScreen, renderStats, toggleInventory, renderTargets } from "./ui/ui";
+import { keyHandler, resolvePointing } from "./ui/hid";
 
 function runGame(w,mydisplay) {
 
@@ -214,7 +210,7 @@ function runGame(w,mydisplay) {
         if (game.touchScreen) { return; }
         if (!game.listening) { return; }
         let dir = resolvePointing(game,ev);
-        movePlayer(game, dir);
+        game.player.controls.movePlayer(game, dir);
       }); };
       if (useArrows) {
         document.ontouchstart = handleArrowTouch;
@@ -332,7 +328,6 @@ function runGame(w,mydisplay) {
       // listen for "close modal" ok buttons
       document.querySelectorAll(".modal button.action")
       .forEach(function(el) {
-        console.log("action button",el);
         if (el.id == "return") {
           el.addEventListener(clickevt, hideModalGame);
         } else {

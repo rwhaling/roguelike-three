@@ -1,7 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { DIRS } from "rot-js/lib";
-import { destroy, movePlayerTo } from "../core/GameLogic";
-
 // these are lookup tables mapping keycodes and
 // click/tap directions to game direction vectors
 
@@ -112,6 +110,7 @@ export function resolvePointing(game, ev) {
 // and the position of the player is updated
 export function keyHandler(game,ev) {
   const code = ev.keyCode;
+  game.player.controls.dirty = true;
   // prevent zoom
   if (code == 187 || code == 189) {
     ev.preventDefault();
@@ -128,11 +127,6 @@ export function keyHandler(game,ev) {
     ev.preventDefault();
   }
 
-  // if (code == 81) { destroy(game); return; }
-
-  // if (code == 73) { toggleInventory(ev, true); return; }
-  // if (code == 27) { toggleInventory(ev, true, true); return; } ; escape button should only close
-
   if (code == 222) { // ' single quote - skip turn
     game.engine.unlock(); 
     return; 
@@ -141,26 +135,13 @@ export function keyHandler(game,ev) {
   if (code in moveSelectMap) {
     console.log("move selector: ",code, moveSelectMap[code]);
     game.player.controls.selectMove(moveSelectMap[code]);
-    game.player.controls.dirty = true;
     return;
   }
   if (code in targetSelectMap) {
     console.log("target selector:", code, targetSelectMap[code]);
     console.log("player:", game.player);
     console.log("current target:", game.player.controls.currentTarget);
-    let currentTarget = game.player.controls.currentTarget
-    let awakeTargets = game.monsters.filter( (m) => m.awake).map( (m) => m.id);
-    let currentTargetIndex = awakeTargets.indexOf(currentTarget);
-    console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
-    let newTargetIndex = currentTargetIndex + targetSelectMap[code];
-    if (newTargetIndex < 0) { 
-      game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
-    } else if (newTargetIndex >= awakeTargets.length) {
-      game.player.controls.currentTarget = awakeTargets[0];
-    } else {
-      game.player.controls.currentTarget = awakeTargets[newTargetIndex];
-    }
-    game.player.controls.dirty = true;
+    game.player.controls.cycleTarget(game, game.player, targetSelectMap[code]);
     return;
   }
   if (code in actionMap) {
@@ -178,14 +159,12 @@ export function keyHandler(game,ev) {
     const num = numMap[code];
     console.log(`pressed number ${num}`);
   }
-  if (!(code in keyMap)) { return; }
   if (code in keyMap) {
     const dir = DIRS[8][keyMap[code]];
     if (game.display) {
       ev.preventDefault();
     }
     arrowStart(game, dir);  
-    game.player.controls.dirty = true;
   }
 }
 
@@ -197,19 +176,7 @@ function arrowStart(game, dir) {
   console.log("arrowHeld:");
   console.log(game.arrowHeld);
   if (!last) {
-    movePlayer(game,dir)
+    game.player.controls.movePlayer(game,dir)
     // document.dispatchEvent(new Event("arrow"));
   }
-}
-
-// move the player according to a direction vector
-// called from the keyboard event handler below
-// `keyHandler()`
-// and also from the click/tap handler `handlePointing()` below
-export function movePlayer(game,dir) {
-  const p = game.player;
-  game.player.lastArrow = dir;
-  console.log("moving player");
-  console.log(dir);
-  return movePlayerTo(game, p._x + dir[0], p._y + dir[1]);
 }

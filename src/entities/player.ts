@@ -1,8 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
 import { RNG } from "rot-js/lib";
-import { combat, damage, init, unload } from "../core/GameLogic";
-import { renderTown, showScreen } from '../ui/ui';
+import { combat, damage, init, checkItem, unload, walkable } from "../core/GameLogic";
+import GameState from '../gamestate';
+import { sfx } from "../sound/sfx";
+import { hideToast, renderTown, showScreen } from '../ui/ui';
 import { getTownState } from "../core/TownLogic";
+import { Monster } from "./monster";
 
 interface Buff {
     duration: number,
@@ -56,6 +59,14 @@ function updateStats(player:Player) {
     // player.stats = temp_stats;
 }
 
+function monsterAt(game:GameState, x:number, y:number):Monster {
+    for (let m of game.monsters) {
+        if (m._x == x && m._y == y) {
+            return m
+        }
+    }
+}
+
 export class PlayerControls {
     moves: PlayerMove[]
     skills: PlayerMove[]
@@ -70,6 +81,60 @@ export class PlayerControls {
         this.currentTarget = null;
         this.dirty = true;
     }
+
+    movePlayer(game,dir):boolean {
+        const p = game.player;
+        game.player.lastArrow = dir;
+        console.log(dir);
+        let target_x = p._x + dir[0];
+        let target_y = p._y + dir[1];
+        console.log(`dir: ${dir} moving player from ${p._x},${p._y} to ${target_x},${target_y}`);
+
+        hideToast(false);
+
+        const targetKey = `${target_x},${target_y}`;
+
+        if (walkable.indexOf(game.map[targetKey]) == -1) { 
+            console.log("can't move to ", targetKey, " WAITing instead");
+            return this.tempAttemptSkillByName(game, game.player, "WAIT");
+        }
+
+        let contains_monster = monsterAt(game, target_x, target_y);
+        console.log("tile monster check returned: ", contains_monster);
+        if (contains_monster != null) {
+            console.log("bumping ATK ", contains_monster);
+            return this.attemptMoveWithTarget(game, game.player, "ATK", contains_monster.id);
+        }
+      
+        // movePlayerTo(game, p._x + dir[0], p._y + dir[1]);
+
+        let oldPos = [p._x, p._y]
+
+        p._x = target_x;
+        p._y = target_y;
+      
+        let newPos = [p._x, p._y]
+        let animation = {
+            id: p.id,
+            startPos: oldPos,
+            endPos: newPos,
+            startTime: game.lastFrame,
+            endTime: game.lastFrame + 200
+        }
+        // Game.animating[newKey] = animation;
+        game.animatingEntities[p.id] = animation;
+      
+        game.engine.unlock();
+        // play the "step" sound
+        sfx["step"].play();
+        // check if the player stepped on an item
+        checkItem(game,p);
+      
+
+
+        return true;
+    }
+      
 
     selectMove(dir:number) {
         let currentMove = this.moves[this.selectedMove] 
@@ -92,28 +157,45 @@ export class PlayerControls {
         this.selectedMove = moveIndex;
     }
 
+    cycleTarget(game:GameState, player:Player, dir:number) {
+        let currentTarget = game.player.controls.currentTarget
+        let awakeTargets = game.monsters.filter( (m) => m.awake).map( (m) => m.id);
+        let currentTargetIndex = awakeTargets.indexOf(currentTarget);
+        console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
+        let newTargetIndex = currentTargetIndex + dir;
+        if (newTargetIndex < 0) { 
+          game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
+        } else if (newTargetIndex >= awakeTargets.length) {
+          game.player.controls.currentTarget = awakeTargets[0];
+        } else {
+          game.player.controls.currentTarget = awakeTargets[newTargetIndex];
+        }
+    
+    }
+
     selectTargetById(game, player, id) {
         let target = game.monsters.filter( (m) => m.id == id )[0];
         console.log("selected new target: ",target)
         this.currentTarget = id;
     }
 
-    attemptMoveWithTarget(game, player, move, target) {
+    attemptMoveWithTarget(game, player, move, target):boolean {
         this.selectMoveByName(move);
         this.selectTargetById(game, player, target);
-        this.attemptAction(game,player)
+        return this.attemptAction(game,player)
     }
 
-    tempAttemptSkillByName(game,player,name) {
+    tempAttemptSkillByName(game,player,name):boolean {
         let prevMove = this.selectedMove;
         this.selectMoveByName(name);
-        this.attemptAction(game,player);
+        let ret = this.attemptAction(game,player);
         this.selectedMove = prevMove;
+        return ret;
     }
 
     // findClosestTarget(game, player)
 
-    attemptAction(game, player) {
+    attemptAction(game, player):boolean {
         let currentMove = this.moves.concat(...this.skills)[this.selectedMove];
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
         console.log(`attempting current selected move at pos ${this.selectedMove}`,currentMove);
@@ -137,6 +219,8 @@ export class PlayerControls {
             actionRet = useAction(game,player);
         } else if (currentMove.name == "EAT") {
             actionRet = eatAction(game,player);
+        } else if (currentMove.name == "WAIT") {
+            actionRet = waitAction(game, player);
         }
         if (actionRet) {
             setTimeout(function() {
@@ -150,6 +234,12 @@ export class PlayerControls {
                         m.ready = true; 
                         // what about ammo/eat checks?
                     }
+                } else if (m.name == "EAT" && player.stats.food > 0) {
+                    // hack, only takes affect after an action
+                    // should do at start of turn
+                    m.ready = true;
+                } else if (m.name == "BOW" && player.stats.arrows > 0) {
+                    m.ready = true;
                 }
             }                
         }
@@ -319,6 +409,11 @@ function useAction(game, player): boolean {
     return false;
 }
 
+function waitAction(game, player): boolean {
+    console.log("WAITing");
+    return true
+}
+
 function eatAction(game, player:Player): boolean {
     console.log("applying EAT");
     player.stats.hp = player.stats.maxHP;
@@ -326,7 +421,7 @@ function eatAction(game, player:Player): boolean {
     if (player.stats.food == 0) {
         player.controls.skills[1].ready = false;
     }
-    return 
+    return false
 }
 
 export interface PlayerMove {
@@ -404,7 +499,7 @@ export function makePlayer(game):Player {
             {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "SEARCH", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "WAIT", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "WAIT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "RUN", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),

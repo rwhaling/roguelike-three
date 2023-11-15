@@ -1,11 +1,8 @@
 import { sfx } from "../sound/sfx";
 import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
-import MyDisplay from "../mydisplay";
 import { mkTurnLogic } from "../core/TurnLogic";
-import { genMap, createBeing } from "../mapgen/MapGen";
-import { Display } from "rot-js/lib/index";
-import { makePlayer } from "../entities/player";
+import { genMap } from "../mapgen/MapGen";
 import { spawnLevel } from "../mapgen/Spawner";
 
 // these map tiles are walkable
@@ -231,72 +228,5 @@ export function checkItem(game, entity) {
     toast(game, "These are the stairs up");
   } else if (game.items[key] == ">") {
     toast(game, "These are the stairs down");
-  }
-}
-  
-// move the player on the tilemap to a particular position
-export function movePlayerTo(game, x, y) {
-  // get a reference to our global player object
-  // this is needed when called from the tap/click handler
-  const p = game.player;
-  // does this go here or somewhere else?
-  p.controls.dirty = true;
-
-  // map lookup - if we're not moving onto a floor tile
-  // or a treasure chest, then we should abort this move
-  const newKey = x + "," + y;
-  if (walkable.indexOf(game.map[newKey]) == -1) { return; }
-
-  // check if we've hit the monster
-  // and if we have initiate combat
-  const hitMonster = monsterAt(game, x, y);
-  if (hitMonster) {
-    // p.controls.currentTarget = hitMonster.id;
-    // we enter a combat situation
-    p.controls.attemptMoveWithTarget(game,p,"ATK",hitMonster.id)
-    // combat(game, p, hitMonster);
-    // // pass the turn on to the next entity
-    // setTimeout(function() {
-    //   game.engine.unlock();
-    // }, 250);
-  } else {
-    // we're taking a step
-
-    // hide the toast message when the player moves
-    hideToast(false);
-
-    let oldPos = [p._x, p._y]
-
-    // update the player's coordinates
-    p._x = x;
-    p._y = y;
-
-    let newPos = [p._x, p._y]
-    let animation = {
-        id: p.id,
-        startPos: oldPos,
-        endPos: newPos,
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 200
-    }
-    // Game.animating[newKey] = animation;
-    game.animatingEntities[p.id] = animation;
-
-    game.engine.unlock();
-    // play the "step" sound
-    sfx["step"].play();
-    // check if the player stepped on an item
-    checkItem(game,p);
-  }
-}
-
-function monsterAt(game, x, y) {
-  if (game.monsters && game.monsters.length) {
-    for (let mi=0; mi<game.monsters.length; mi++) {
-      const m = game.monsters[mi];
-      if (m && m._x == x && m._y == y) {
-        return m;
-      }
-    }
   }
 }
