@@ -48,16 +48,16 @@ const arrowMap = {
 };
 
 const numMap = {
-  49: 1,
-  50: 2,
-  51: 3,
-  52: 4,
-  53: 5,
-  54: 6,
-  55: 7,
-  56: 8,
-  57: 9,
-  48: 0
+  49: "USE", // 1
+  50: "EAT", // 2
+  51: "SEARCH", // 3
+  52: "WAIT", // 4
+  53: "RUN", // 5 
+  54: "HELP", // 6
+  55: "", // 7
+  56: "", // 8
+  57: "", // 9
+  48: "", // 10
 }
 
 const qwertyMap = {
@@ -166,8 +166,10 @@ export function keyHandler(game,ev) {
   }
 
   if (code in numMap) {
-    const num = numMap[code];
-    console.log(`pressed number ${num}`);
+    const move = numMap[code];
+    console.log(`pressed number ${code} for ${move}`);
+    game.player.controls.tempAttemptSkillByName(game, game.player, move);
+
   }
   if (code in keyMap) {
     const dir = DIRS[8][keyMap[code]];
