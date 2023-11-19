@@ -3,9 +3,10 @@ import { RNG } from "rot-js/lib";
 import { combat, damage, init, checkItem, unload, walkable } from "../core/GameLogic";
 import GameState from '../gamestate';
 import { sfx } from "../sound/sfx";
-import { hideToast, renderTown, showScreen } from '../ui/ui';
+import { hideToast, renderTown, showScreen, toast } from '../ui/ui';
 import { getTownState } from "../core/TownLogic";
 import { Monster } from "./monster";
+import { dijkstraMap, Entity, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 
 interface Buff {
     duration: number,
@@ -203,16 +204,51 @@ export class PlayerControls {
         if (currentMove.ready == false) {
             return false;
         }
+        let tmpTarget = null;
+
+
+        // new algo
+        // get active monsters
+        // get bounding box
+        // get dijkstra map
+        
+        let activeMonsters = getActiveMonsters(game, 16);
+        let entities: Entity[] = [game.player];
+        for (let [pos,m] of Object.entries(activeMonsters)) {
+            entities.push(m);
+        }
+        let boundingBox = getBoundingBox(entities,3);
+        let paths = dijkstraMap(game, [game.player],[], boundingBox);
+        console.log("dijkstra map:", paths);
+        for (let [pos,m] of Object.entries(activeMonsters)) {
+            console.log("distance to monster at ",pos, paths[pos]);
+        }
+        let target;
+        if (player.controls.currentTarget == null) {
+            console.log("auto targeting");
+            let targets = Object.values(activeMonsters).sort( (a,b) => {
+                let k_a = `${a._x},${a._y}`;
+                let k_b = `${b._x},${b._y}`;
+                return paths[k_a] - paths[k_b]
+            })
+            console.log("candidate targets:", targets)
+            target = targets[0];
+        } else {
+            target = Object.values(activeMonsters).filter( (m) => m.id == player.controls.currentTarget )[0];
+        }
+
+        console.log("targeting",target);
+
         if (currentMove.name == "ATK") {
-            actionRet = attackAction(game,player);
+            actionRet = attackAction(game,player,target);
         } else if (currentMove.name == "BASH") {
-            actionRet = bashAction(game,player);
+            actionRet = bashAction(game,player,target);
         } else if (currentMove.name == "BOW") {
-            actionRet = bowAction(game,player);
+            actionRet = bowAction(game,player, target);
         } else if (currentMove.name == "AIM") {
             actionRet = aimAction(game,player);
         } else if (currentMove.name == "DASH") {
-            actionRet = dashAction(game,player);
+            actionRet = dashAction(game,player, target, paths);
         } else if (currentMove.name == "DFND") {
             actionRet = defendAction(game,player);
         } else if (currentMove.name == "USE") {
@@ -249,25 +285,32 @@ export class PlayerControls {
     }
 }
 
-function attackAction(game, player):boolean {
+function attackAction(game, player, target):boolean {
     console.log("invoking ATK");
-    let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+    if (manhattan(player,target) > 1) {
+        toast(game, "out of range");
+        return false;
+    }
+    // let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
     combat(game, player, target);
     return true;
 }
 
-function bashAction(game, player:Player): boolean {
+function bashAction(game, player:Player, target): boolean {
     console.log("invoking BASH");
+    if (manhattan(player,target) > 1) {
+        toast(game, "out of range");
+        return false;
+    }
     applyBuff(player, {
         duration: 1,
         displayName: "BASH",
         stats: {
             "STR":3
         }
-    
     });
 
-    let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+    // let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
     combat(game, player, target);
 
     applyBuff(player, {
@@ -283,9 +326,13 @@ function bashAction(game, player:Player): boolean {
     return true;
 }
 
-function bowAction(game, player:Player): boolean {
-    if (player.controls.currentTarget) {
-        let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+function bowAction(game, player:Player, target): boolean {
+    if (manhattan(player,target) > 5) {
+        toast(game, "out of range");
+        return false;
+    }
+
+    if (target) {
         let angle = Math.atan2(  game.player._y - target._y,  game.player._x - target._x );
   //          let angle = Math.atan2(  target._y - Game.player._y,  target._x - Game.player._x );
         let orientation = 0;
@@ -355,8 +402,33 @@ function aimAction(game, player): boolean {
     return true;
 }
 
-function dashAction(game, player):boolean {
+function dashAction(game, player, target, paths):boolean {
     console.log("invoking DASH");
+    let activeMonsters = getActiveMonsters(game, 16)
+    let obstacles = Object.values(activeMonsters).map( m =>
+        `${m._x},${m._y}`
+    );
+    let neighbors = get_neighbors([target._x,target._y]);
+    let min_dist = 99
+    let move_to: [number, number] = null;
+
+    for (let [nx, ny] of neighbors) {
+        let k_n = `${nx},${ny}`
+        let path = paths[k_n]
+        if (k_n in obstacles) {
+            continue
+        } else if (move_to != null && min_dist < path) {
+            continue
+        } else {
+            move_to = [nx, ny]
+            min_dist = path
+        }
+    }
+    if (min_dist > 4) {
+        toast(game, "out of range");
+        return false;
+    }
+
     applyBuff(player, {
         duration: 5,
         displayName: "DASH",
@@ -364,9 +436,25 @@ function dashAction(game, player):boolean {
             "AGI":4
         }
     });
-    let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
+    // let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
     combat(game, player, target);
     combat(game, player, target);
+
+
+    let oldPos = [player._x, player._y]
+
+    player._x = move_to[0];
+    player._y = move_to[1];
+  
+    let animation = {
+        id: player.id,
+        startPos: oldPos,
+        endPos: move_to,
+        startTime: game.lastFrame,
+        endTime: game.lastFrame + 100
+    }
+    // Game.animating[newKey] = animation;
+    game.animatingEntities[player.id] = animation;
 
     player.controls.moves[4].ready = false;
     player.controls.moves[4].stats.currentCooldown = player.controls.moves[4].stats.cooldown;

@@ -12,11 +12,11 @@ const keyMap = {
   35: 5,
   37: 6,
   36: 7,
-  // ASDW
-  87: 0, // W
-  68: 2, // D
-  83: 4,  // S
-  65: 6,
+  // // ASDW
+  // 87: 0, // W
+  // 68: 2, // D
+  // 83: 4,  // S
+  // 65: 6,
 };
 
 const tapMap = {
@@ -47,10 +47,6 @@ const arrowMap = {
   "btn-down": 4,
 };
 
-const asdfMap = {
-
-}
-
 const numMap = {
   49: 1,
   50: 2,
@@ -62,6 +58,15 @@ const numMap = {
   56: 8,
   57: 9,
   48: 0
+}
+
+const qwertyMap = {
+  81: "ATK", // q
+  87: "BASH", // w
+  69: "BOW", // e
+  82: "AIM", // r
+  84: "DASH", // t
+  89: "DFND", // y
 }
 
 const actionMap = {
@@ -153,6 +158,11 @@ export function keyHandler(game,ev) {
     console.log("SKILL!", skillMap[code]);    
     game.player.controls.tempAttemptSkillByName(game, game.player, skillMap[code]);
     return;
+  }
+  if (code in qwertyMap) {
+    const move = qwertyMap[code]
+    console.log("pressed qwerty key", code, move);
+    game.player.controls.tempAttemptSkillByName(game, game.player, move);
   }
 
   if (code in numMap) {

@@ -1,6 +1,7 @@
 import GameState from "../gamestate";
 import { combat, walkable } from "../core/GameLogic"
 import { Path } from "rot-js/lib"
+import { Entity } from "../core/Pathfinding";
 /*******************
      *** The monster ***
      *******************/
@@ -66,7 +67,7 @@ export function makeMonster(game:GameState, id, x, y): Monster {
     
 // the ROT.js scheduler calls this method when it is time
 // for the monster to act
-export function monsterAct(game:GameState, m:Monster, player_path:any[], activeMonsters:{ [key:string]:Monster }) {
+export function monsterAct(game:GameState, m:Monster, player_path:any[], activeMonsters:{ [key:string]:Entity }) {
   // reference to the monster itself
   //HACK
   // const m = game.monsters.filter( (i) => i.id == id)[0];
