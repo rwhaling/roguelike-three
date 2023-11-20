@@ -70,7 +70,7 @@ export function handleTownAction(game, zone, ev) {
     let nextState = getTownState(game, choice);
     renderTown(game, nextState);
   } else if (choice == "inn") {
-    let nextState = handleInn(game, ev);
+    let nextState = handleInn(game, choice);
     renderTown(game, nextState);
   } else if (choice == "train" || zone == "train") {
     let nextState = handleTrain(game, choice)
@@ -79,10 +79,10 @@ export function handleTownAction(game, zone, ev) {
     let nextState = handleShop(game, choice)
     renderTown(game, nextState);  
   } else if (choice == "food") { 
-    let nextState = handleShop(game, ev);
+    let nextState = handleShop(game, choice);
     renderTown(game, nextState);
   } else if (choice == "ammo") {
-    let nextState = handleShop(game, ev);
+    let nextState = handleShop(game, choice);
     renderTown(game, nextState);
   } else {
     let state = getTownState(game, choice);
@@ -95,7 +95,7 @@ export function handleTownAction(game, zone, ev) {
   }
 }
 
-export function handleInn(game, ev):TownState {
+export function handleInn(game, choice):TownState {
   let p = game.player;
   if (p.stats.gold >= 5) {
     p.stats.gold -= 5;
@@ -106,9 +106,57 @@ export function handleInn(game, ev):TownState {
   return getTownState(game, "town");
 }
 
-export function handleShop(game, ev):TownState {
-  let choice = ev.target['id'];
-  console.log("shop action", ev, choice, ev.target.classList);
+export function handleShop(game, choice):TownState {
+  // let choice = ev.target['id'];
+  console.log("shop action", choice);
+
+  let maxFoodCosts = {
+    2: 30,
+    3: 50,
+    4: 100,
+    5: 200
+  }
+
+  let maxArrowCosts = {
+    8: 30,
+    12: 50,
+    15: 150
+  }
+
+  let next_max_food = game.player.stats.maxFood + 1
+  let next_max_food_cost = maxFoodCosts[next_max_food]
+
+  let next_max_arrows = undefined
+  let next_max_arrows_cost = undefined
+  switch(game.player.stats.maxArrows) {
+    case 5: 
+      next_max_arrows = 8
+      next_max_arrows_cost = maxArrowCosts[next_max_arrows]
+      break;
+    case 8:
+      next_max_arrows = 12
+      next_max_arrows_cost = maxArrowCosts[next_max_arrows]
+      break;
+    case 12:
+      next_max_arrows = 15;
+      next_max_arrows_cost = maxArrowCosts[next_max_arrows]
+      break
+    default:
+      break
+  }
+  
+  let options: [string, string][] = [["food","buy food [10 GP]"]]
+  if (next_max_food_cost) {
+    options.push(["maxfood",`max food ${game.player.stats.maxFood} -> ${next_max_food} (${next_max_food_cost} GP)`])
+  }
+  options.push(["morearrows", "buy more arrows [5GP]"])
+  if (next_max_arrows) {
+    options.push(["maxarrows", `max arrows ${game.player.stats.maxArrows} -> ${next_max_arrows} (${next_max_arrows_cost} GP)`])
+  }
+  options.push(["town","return"])
+   
+
+
 
   let p = game.player;
 
@@ -116,14 +164,41 @@ export function handleShop(game, ev):TownState {
     if (choice == "food" && p.stats.food < p.stats.maxFood) {
       p.stats.gold -= 5; // maybe bump to 10?
       p.stats.food = p.stats.maxFood;
-    } else if (choice == "arrows" && p.stats.arrows < p.stats.maxArrows) {
+    } else if (choice == "morearrows" && p.stats.arrows < p.stats.maxArrows) {
       p.stats.gold -= 5;
       p.stats.food = p.stats.maxArrows;
     }
   } else {
 
   }
-  return getTownState(game, "shop");
+
+  if (choice == "maxfood") {
+    game.player.stats.maxFood = next_max_food;
+    game.player.baseStats.maxFood = next_max_food;
+    return handleShop(game, "shop");
+  } else if (choice == "maxarrows") {
+    game.player.stats.maxArrows = next_max_arrows;
+    game.player.baseStats.maxArrows = next_max_arrows;
+    return handleShop(game, "shop");
+  } else if (choice == "return") {
+    return getTownState(game, "town");
+  }
+
+
+  let i = "town";
+  let d = `<p>zone: train</p>
+  <p>Spend GP to improve your gear.</p>
+  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
+  <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
+  <p>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
+
+  return {
+    zone: "shop",
+    icon: i,
+    description: d,
+    choices: options
+
+  }
 }
 
 export function handleTrain(game, choice): TownState {
