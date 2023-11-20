@@ -1,4 +1,5 @@
 import { sfx } from "../sound/sfx";
+import { v4 as uuidv4 } from 'uuid';
 import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
 import { mkTurnLogic } from "../core/TurnLogic";
@@ -99,8 +100,10 @@ export function checkDeath(game,m) {
       toast(game, "You died!");
       lose(game);
     } else {
+      let xp = m.stats["xpValue"];
+      game.player.stats.xp += xp;
       const key = m._x + "," + m._y;
-      removeMonster(game,m);
+      removeMonster(game,m);      
       sfx["kill"].play();
       return true;
     }
@@ -135,6 +138,18 @@ export function combat(game, hitter, receiver) {
     sfx["miss"].play();
     msg.push(hitter.name + " missed " + receiver.name + ".");
     toast(game, battleMessage(msg));
+    let id = uuidv4();
+    let particle = {
+        id: id,
+        char: "F",
+        startPos: [receiver._x, receiver._y],
+        endPos: [receiver._x, receiver._y],
+        startTime: game.lastFrame,
+        endTime: game.lastFrame + 100
+    }
+    game.particles.push(particle);
+  
+
   }
 }
 
@@ -150,6 +165,18 @@ export function damage(game, hitter, receiver, amount) {
   let x_offset = 64 * (5 + receiver._x - game.player._x) + 4;
   let y_offset = 64 * (5 + receiver._y - game.player._y) - 24;
   console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);
+
+  let id = uuidv4();
+  let particle = {
+      id: id,
+      char: "G",
+      startPos: [receiver._x, receiver._y],
+      endPos: [receiver._x, receiver._y],
+      startTime: game.lastFrame,
+      endTime: game.lastFrame + 100
+  }
+  game.particles.push(particle);
+
 
   damageNum(x_offset,y_offset,amount);
   // play the hit sound
@@ -198,15 +225,17 @@ export function checkItem(game, entity) {
     toast(game, `You found ${goldAmount} gold!`);
     sfx["win"].play();
     delete game.items[key];
-  } else if (game.items[key] == "f") {
+  } else if (game.items[key] == "f" || game.items[key] == "h") {
     toast(game, `You found food!`);
     if (game.player.stats.food < game.player.stats.maxFood) {
       game.player.stats.food += 1;
       // re-enable EAT
       sfx["win"].play();
       delete game.items[key];
+    } else {
+      game.items[key] = "h"
     }
-  } else if (game.items[key] == "r") {
+  } else if (game.items[key] == "r" || game.items[key] == "s") {
     toast(game, `You found arrows!`);
     if (game.player.stats.arrows < game.player.stats.maxArrows) {
       game.player.stats.arrows += 2;
@@ -216,6 +245,8 @@ export function checkItem(game, entity) {
       }
       sfx["win"].play();
       delete game.items[key];  
+    } else {
+      game.items[key] = "s";
     }
   } else if (game.items[key] == "*") {
     // if an empty box is opened

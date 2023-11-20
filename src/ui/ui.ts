@@ -1,4 +1,4 @@
-import { handleTownAction } from "../core/TownLogic";
+import { handleTownAction, TownState } from "../core/TownLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
 import { sfx } from "../sound/sfx";
@@ -96,19 +96,16 @@ export function renderInventory(tileOptions,items) {
     });
 }
 
-export function renderTown(game:GameState, town:[string, string][]) {
+export function renderTown(game:GameState, town:TownState) {
   const town_el = $("#town");
   town_el.innerHTML = "";
-  let xp = game.player.stats.xp;
-  let gold = game.player.stats.gold;
   let content = `<p>Town</p>
   <div class="nes-container is-rounded is-dark">
-    <div class="sprite town"></div>
-    <p>You visit town to restock.</p>
-    <p>You have <span class="gold-stat">${gold}</span> gold and <span class="xp-stat">${xp}</span> XP.</p>
+    <div class="sprite ${town.icon}"></div>
+    ${town.description}
   </div>`
 
-  for (let b of town) {
+  for (let b of town.choices) {
     console.log("populating town",b);
     content += `<button class="nes-btn townaction" id="${b[0]}">${b[1]}</button>`;
   }
@@ -118,7 +115,7 @@ export function renderTown(game:GameState, town:[string, string][]) {
   .forEach(function(el) {
     el.addEventListener(clickevt, ev => { 
       console.log("click", ev.target['id'], ev);
-      handleTownAction(game, ev);
+      handleTownAction(game, town.zone, ev);
     });
     // el.addEventListener(clickevt, hideModalGame);
   });

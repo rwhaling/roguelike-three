@@ -53,6 +53,7 @@ export function makeMonster(game:GameState, id, x, y): Monster {
                 "DEF": 0,
                 "AGI": 5,
                 "DEX": 0,
+                "xpValue": 2
         },
         lastArrow: [1,0],
         // called by the ROT.js scheduler

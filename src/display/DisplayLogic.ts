@@ -84,6 +84,9 @@ export function drawPlayer(game:GameState) {
 function updateAnimation(game, animation):AnimationResult {
     let animDuration = animation.endTime - animation.startTime;
     let animElapsed = game.lastFrame - animation.startTime;
+    if (animElapsed < 0) {
+        return [animation.startPos[0], animation.startPos[1], false]
+    }
     let animProgress = animElapsed / animDuration;
     if (animProgress > 1.0) { animProgress = 1.0 };
 
@@ -126,6 +129,9 @@ export function drawMonster(game:GameState,m) {
             // game.display.draw(animX, animY, ["@"], null, null);
             console.log
             game.display.draw_immediate(posX, posY, "M",pose,orientation);
+            if (m.id == game.player.controls.currentTarget) {
+                game.display.draw_immediate(posX, posY, "t",0,0);
+            }
             if (isDone) {
                 delete game.animatingEntities[m.id];
             }
@@ -134,11 +140,19 @@ export function drawMonster(game:GameState,m) {
             drawTile(game, monsterPos);
             // game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"], null, null);
             game.display.draw_immediate(m._x, m._y, "M",pose,orientation);
+            if (m.id == game.player.controls.currentTarget) {
+                game.display.draw_immediate(m._x, m._y, "t",0,0);
+            }
+
         }
     }
 }
 
 export function drawParticle(game, particle) {
+    if (particle.startTime > game.lastFrame) {
+        console.log(`particle ${particle.id} delayed starttime ${particle.startTime} > ${game.lastFrame}`, );
+        return
+    }
     let [posX, posY, isDone] = updateAnimation(game, particle);
     game.display.draw_immediate(posX, posY, particle.char, 0, particle.orientation);
     if (isDone) {
@@ -166,6 +180,7 @@ export function render(game,timestamp) {
         }
         drawPlayer(game);
         for (let particle of game.particles) {
+            console.log("drawing particle", particle);
             drawParticle(game, particle);
         }
     }

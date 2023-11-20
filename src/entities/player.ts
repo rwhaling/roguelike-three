@@ -509,6 +509,19 @@ function eatAction(game, player:Player): boolean {
     if (player.stats.food == 0) {
         player.controls.skills[1].ready = false;
     }
+
+    console.log("spawning green tile flash at ", [player._x, player._y])
+    let id = uuidv4();
+    let particle = {
+        id: id,
+        char: "H",
+        startPos: [player._x, player._y],
+        endPos: [player._x, player._y],
+        startTime: game.lastFrame,
+        endTime: game.lastFrame + 100
+    }
+    game.particles.push(particle);
+
     return false
 }
 
@@ -555,7 +568,7 @@ export function makePlayer(game):Player {
                 "DEF": 0,
                 "AGI": 2,
                 "DEX": 0,
-                "xp": 1, 
+                "xp": 0, 
                 "gold": 0,
                 "arrows": 5,
                 "maxArrows":5,

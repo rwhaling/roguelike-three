@@ -21,7 +21,7 @@ function runGame(w,mydisplay) {
     // It's the "microrogue" tileset
   
     const tileSet = document.createElement("img");
-    tileSet.src = "tiny_dungeon_sprites_2.png"
+    tileSet.src = "tiny_dungeon_world_3.png"
     // tileSet.src = "colored_tilemap_packed.png";
   
     // This is where you specify which tile
@@ -48,7 +48,10 @@ function runGame(w,mydisplay) {
         "x": [256, 192], // axe
         "p": [256, 192], // potion
         "f": [288, 192], // food (chest)
+        "h": [464, 432], // food (opened)
         "r": [288, 192], // ammo (chest)
+        "s": [400, 480], // ammo (opened)
+        "t": [224, 672], // reticle
 
         "a": [336, 256], // tree 1
         "b": [336, 256], // tree 2
@@ -57,6 +60,9 @@ function runGame(w,mydisplay) {
         "e": [336, 256], // tree 5
 
         "A": [256, 368], // arrow particle
+        "F": [224, 640], // white flash
+        "G": [192, 672], // red flash
+        "H": [144, 672], // green flash
 
         "T": [400, 192], // tombstone
 
