@@ -5,7 +5,7 @@ import GameState from '../gamestate';
 import { sfx } from "../sound/sfx";
 import { hideToast, renderTown, showScreen, toast } from '../ui/ui';
 import { getTownState } from "../core/TownLogic";
-import { Monster } from "./monster";
+import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 
 interface Buff {
@@ -263,6 +263,8 @@ export class PlayerControls {
             actionRet = waitAction(game, player);
         } else if (currentMove.name == "SEARCH") {
             actionRet = searchAction(game, player);
+        } else if (currentMove.name == "FLEE") {
+            actionRet = fleeAction(game, player);
         }
         if (actionRet) {
             setTimeout(function() {
@@ -533,15 +535,25 @@ function eatAction(game, player:Player): boolean {
 
 function searchAction(game:GameState, player:Player): boolean {
     console.log("applying SEARCH");
+    console.log("checking if in combat")
+    let targets = []
+
+    for (let m of game.monsters) {
+        if (m.behaviorState == BehaviorState.ENGAGED)
+        targets.push (m)
+    }
+
     console.log("tile to explore:", game.exploreMap);
-    let targets = Object.keys(game.exploreMap).map( k => {
-        let matches = k.match(/\d+/g);
-        if (matches.length == 2) {
-            let x = parseInt(matches[0].toString())
-            let y = parseInt(matches[1].toString())
-            return {_x: x, _y: y}
-        }
-    })
+    if (targets.length == 0) {
+        targets = Object.keys(game.exploreMap).map( k => {
+            let matches = k.match(/\d+/g);
+            if (matches.length == 2) {
+                let x = parseInt(matches[0].toString())
+                let y = parseInt(matches[1].toString())
+                return {_x: x, _y: y}
+            }
+        })
+    }
     let paths = dijkstraMap(game, targets, [], fullMap(game) );
 
     let current_pos = `${player._x},${player._y}`
@@ -570,6 +582,54 @@ function searchAction(game:GameState, player:Player): boolean {
         return false;
     }
     return false;
+}
+
+function fleeAction(game, player) {
+    console.log("applying SEARCH");
+    console.log("scanning items:", game.items);
+    let exit: string = null
+    for (let [k,o] of Object.entries(game.items)) {
+        if (o == "<") {
+            console.log("found stairs up ", o, " at ", k);
+            exit = k
+            break
+        }
+    }
+    let matches = exit.match(/\d+/g);
+    let exit_pos = null;
+    if (matches.length == 2) {
+        let x = parseInt(matches[0].toString())
+        let y = parseInt(matches[1].toString())
+        exit_pos = {_x:x,_y:y}    
+    }
+
+    let paths = dijkstraMap(game, [exit_pos], [], fullMap(game));
+    let current_pos = `${player._x},${player._y}`
+    let current_cost = paths[current_pos];
+
+    let neighbors = get_neighbors([game.player._x, game.player._y])
+    let best_neighbor = null
+    for (let n of neighbors) {
+        console.log("checking neighbor", n);
+        let n_key = `${n[0]},${n[1]}`
+        if (walkable.indexOf(game.map[n_key]) != -1) {
+            let n_cost = paths[n_key]
+            console.log("cost for ", n_key, n_cost)
+            if (n_cost < current_cost) {
+                best_neighbor = n
+            }
+        } else {
+            console.log('not walkable')
+        }
+    }
+    if (best_neighbor) {
+        let dir = [best_neighbor[0] - game.player._x, best_neighbor[1] - game.player._y];
+        game.player.controls.movePlayer(game, dir)
+        // weird here
+        return false;
+    }
+    return false
+
 }
 
 function updateVisibility(game,player) {
@@ -699,7 +759,7 @@ export function makePlayer(game):Player {
             {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "SEARCH", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "WAIT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "RUN", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "FLEE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),
         act: () => {
