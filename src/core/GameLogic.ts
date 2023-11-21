@@ -35,10 +35,15 @@ export function init(game) {
   // kick everything off
   game.engine = new Engine(game.scheduler);
   game.engine.start();
+  game.running = true;
 }
 
 export function unload(game) {
   game.map = {};
+  game.visibleMap = {};
+  game.exploreMap = {};
+  game.mapDisplay.clear();
+
   game.items = {};
   game.engine = null;
   game.entities = {};
@@ -46,6 +51,7 @@ export function unload(game) {
   game.scheduler = null;
   game.monsters = null;
   game.amulet = null;
+  game.running = false;
 
 }
 

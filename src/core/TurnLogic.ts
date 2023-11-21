@@ -3,6 +3,7 @@ import { Monster,  BehaviorState, monsterAct } from "../entities/monster";
 import { Path } from "rot-js/lib"
 import { walkable } from "../core/GameLogic"
 import { getActiveMonsters, targetPath, fullMap} from "./Pathfinding"
+import { updateBuffs } from "../entities/player";
 
 function distance(a,b):number {
     return Math.abs(a._x - b._x) + Math.abs(a._y - b._y);
@@ -12,8 +13,16 @@ export function mkTurnLogic(game:GameState) {
     return { 
       act: () => {
         monsterTurn(game)
+        // playerTurnStart(game)
     }
   }
+}
+
+function playerTurnStart(game:GameState) {
+  game.engine.lock();
+  updateBuffs(game.player);
+  game.player.controls.dirty = true;
+
 }
 
 function monsterTurn(game:GameState) {

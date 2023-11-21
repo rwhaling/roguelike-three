@@ -6,6 +6,7 @@ import { Player } from "./entities/player";
 import { Monster } from "./entities/monster";
 
 export default class GameState {
+    running: boolean
     tileOptions: any
     display: Display
     mapDisplay: any
@@ -18,6 +19,8 @@ export default class GameState {
     entities: {[key:string]: any}
     animatingEntities: {[key:string]: Animation}
     particles: Particle[]
+    visibleMap: {[key:string]: boolean}
+    exploreMap: {[key:string]: boolean}
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -28,6 +31,7 @@ export default class GameState {
     tick: Function
 
     constructor() {
+        this.running = false;
         this.tileOptions = null;
         this.display = null;
         this.map = {};
@@ -39,6 +43,8 @@ export default class GameState {
         this.entities = {};
         this.animatingEntities = {};
         this.particles = [];
+        this.visibleMap = {};
+        this.exploreMap = {};
         this.amulet = null;
         this.arrowHeld = null;
         this.lastFrame = 0.0;

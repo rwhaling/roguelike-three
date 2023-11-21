@@ -1,12 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { RNG } from "rot-js/lib";
+import { Path, RNG } from "rot-js/lib";
 import { combat, damage, init, checkItem, unload, walkable } from "../core/GameLogic";
 import GameState from '../gamestate';
 import { sfx } from "../sound/sfx";
 import { hideToast, renderTown, showScreen, toast } from '../ui/ui';
 import { getTownState } from "../core/TownLogic";
 import { Monster } from "./monster";
-import { dijkstraMap, Entity, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
+import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 
 interface Buff {
     duration: number,
@@ -124,7 +124,11 @@ export class PlayerControls {
         }
         // Game.animating[newKey] = animation;
         game.animatingEntities[p.id] = animation;
-      
+
+        // hack
+        game.mapDisplay.draw(oldPos[0],oldPos[1],"","","white");
+
+
         game.engine.unlock();
         // play the "step" sound
         sfx["step"].play();
@@ -257,6 +261,8 @@ export class PlayerControls {
             actionRet = eatAction(game,player);
         } else if (currentMove.name == "WAIT") {
             actionRet = waitAction(game, player);
+        } else if (currentMove.name == "SEARCH") {
+            actionRet = searchAction(game, player);
         }
         if (actionRet) {
             setTimeout(function() {
@@ -525,6 +531,98 @@ function eatAction(game, player:Player): boolean {
     return false
 }
 
+function searchAction(game:GameState, player:Player): boolean {
+    console.log("applying SEARCH");
+    console.log("tile to explore:", game.exploreMap);
+    let targets = Object.keys(game.exploreMap).map( k => {
+        let matches = k.match(/\d+/g);
+        if (matches.length == 2) {
+            let x = parseInt(matches[0].toString())
+            let y = parseInt(matches[1].toString())
+            return {_x: x, _y: y}
+        }
+    })
+    let paths = dijkstraMap(game, targets, [], fullMap(game) );
+
+    let current_pos = `${player._x},${player._y}`
+    let current_cost = paths[current_pos];
+    console.log("current pos distance from frontier", current_cost);
+    
+    let neighbors = get_neighbors([game.player._x, game.player._y])
+    let best_neighbor = null
+    for (let n of neighbors) {
+        console.log("checking neighbor", n);
+        let n_key = `${n[0]},${n[1]}`
+        if (walkable.indexOf(game.map[n_key]) != -1) {
+            let n_cost = paths[n_key]
+            console.log("cost for ", n_key, n_cost)
+            if (n_cost < current_cost) {
+                best_neighbor = n
+            }
+        } else {
+            console.log('not walkable')
+        }
+    }
+    if (best_neighbor) {
+        let dir = [best_neighbor[0] - game.player._x, best_neighbor[1] - game.player._y];
+        game.player.controls.movePlayer(game, dir)
+        // weird here
+        return false;
+    }
+    return false;
+}
+
+function updateVisibility(game,player) {
+
+    let frontier: [number, number][] = [];
+    let seen: {[key:string]:boolean} = {};
+    let init_pos: [number, number] = [player._x, player._y];
+    game.mapDisplay.draw(player._x,player._y,"","","limegreen");
+    let init_k = `${player._x},${player._y}`
+    seen[init_k] = true;
+    frontier.push(init_pos)
+    while (frontier.length > 0) {
+        let current = frontier.shift()
+        let current_k = `${current[0]},${current[1]}`
+        if (!(current_k in game.visibleMap)) {
+            game.visibleMap[current_k] = true;
+            game.mapDisplay.draw(current[0],current[1],"","","white");
+        }
+        if (current_k in game.exploreMap) {
+            delete game.exploreMap[current_k];
+        }
+
+
+        let neighbors = get_neighbors(current);
+        for (let next of neighbors) {            
+            let next_k = `${next[0]},${next[1]}`
+
+            let tile = game.map[next_k]
+            if (walkable.indexOf(tile) == -1) {
+                seen[next_k] = true
+                continue
+            }
+            else if (next_k in seen) {
+                continue
+            } else {
+                seen[next_k] = true
+                let d = manhattan(player, {_x:next[0], _y:next[1]})
+                if (d <= 6) {
+                    frontier.push(next)
+                } else if (!(next_k in game.visibleMap)) {
+                    game.exploreMap[next_k] = true;
+                    game.mapDisplay.draw(next[0],next[1],"","","gray");
+                }
+            }
+        }
+    }
+}
+
+function updateActions(game,player) {
+
+}
+
+
 export interface PlayerMove {
     name: string
     enabled: boolean
@@ -599,7 +697,7 @@ export function makePlayer(game):Player {
         ], [ 
             {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "SEARCH", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "SEARCH", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "WAIT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "RUN", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
@@ -607,10 +705,12 @@ export function makePlayer(game):Player {
         act: () => {
             game.engine.lock();
             updateBuffs(game.player);
+            updateVisibility(game,game.player);
+            updateActions(game,game.player);
             game.player.controls.dirty = true;
-            if (!game.arrowListener) {
-                game.arrowListener = true;
-            }
+            // if (!game.arrowListener) {
+            //     game.arrowListener = true;
+            // }
         },
     }
 }

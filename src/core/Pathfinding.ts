@@ -70,11 +70,11 @@ export function targetPath(game: GameState, entity: Entity, target: Entity, obst
         let k = `${x},${y}`
         if (k != e_pos && k != target_key && k in obstacle_keys) {
           console.log("tile occupied", k, obstacle_keys);
-          return false
+          return false;
         }
         else if (x < box[0] || y < box[1] || x > box[2] || y > box[3]) {
           console.log("point ", [x,y], " outside of bounding box ",box);
-          return false
+          return false;
         }
         return (walkable.indexOf(game.map[x + "," + y]) != -1);
     }
@@ -107,7 +107,7 @@ export function get_neighbors(i:[number, number]): [number,number][] {
 //   }
 // }
 
-export function dijkstraMap(game:GameState, targets: Entity[], obstacles:[], box: BoundingBox) {
+export function dijkstraMap(game:GameState, targets: any[], obstacles:[], box: BoundingBox) {
   console.log("constructing dijkstra map in bounding box:", box, "targets:", targets);
   let frontier: [number, number][] = [];
   let cost_so_far: {[key:string]:number} = {}
@@ -123,10 +123,13 @@ export function dijkstraMap(game:GameState, targets: Entity[], obstacles:[], box
     let current_k = `${current[0]},${current[1]}`
     let neighbors = get_neighbors(current);
     for (let next of neighbors) {
+      let next_k = `${next[0]},${next[1]}`;
+      if ( walkable.indexOf(game.map[next_k]) == -1) {
+         continue
+      }
       if ( next[0] < box[0] || next[1] < box[1] || next[0] > box[2] || next[1] > box[3]) {
         continue
       } else {
-        let next_k = `${next[0]},${next[1]}`;
         if (!(next_k in cost_so_far)) {
           cost_so_far[next_k] = cost_so_far[current_k] + 1;
           frontier.push(next);

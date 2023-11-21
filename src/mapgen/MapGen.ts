@@ -46,7 +46,10 @@ export function genMap(game:GameState, width, height, tileOptions, minimap?): [s
             // on our map we want to draw a "walkable" tile
             // here which is represented by a dot
             game.map[key] = ".";
-            minimap.draw(x,y,"","","white");
+
+            // draw the minimap
+            // minimap.draw(x,y,"","","white");
+
             // store this in the walkable cells list
             freeCells.push(key);
         }
