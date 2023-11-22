@@ -34,6 +34,85 @@ export class Monster {
   act: () => void
 }
 
+type MonsterType = "mook_1" | "mook_2" | "mook_3" | "critter_1" | "critter_2" | "critter_3"
+
+function _monsterStats(typ: MonsterType): { [key:string]:number} {
+  switch (typ) {
+    case "mook_1": { 
+      return {  
+        "hp": 8,
+        "baseDAM": 2,
+        "varDAM": 4,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 5,
+        "DEX": 0,
+        "xpValue": 2
+      }
+    }
+    case "mook_2": {
+      return {
+        "hp": 9,
+        "baseDAM": 2,
+        "varDAM": 5,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 6,
+        "DEX": 0,
+        "xpValue": 3
+      }
+    }
+    case "mook_3": {
+      return {
+        "hp": 10,
+        "baseDAM": 3,
+        "varDAM": 6,
+        "STR": 0,
+        "DEF": 1,
+        "AGI": 7,
+        "DEX": 0,
+        "xpValue": 4
+      }
+    }
+    case "critter_1": {
+      return {
+        "hp": 2,
+        "baseDAM": 1,
+        "varDAM": 3,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 2,
+        "DEX": 0,
+        "xpValue": 1
+      }
+    }
+    case "critter_2": {
+      return {
+        "hp": 4,
+        "baseDAM": 1,
+        "varDAM": 4,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 3,
+        "DEX": 0,
+        "xpValue": 1
+      }
+    }
+    case "critter_3": {
+      return {
+        "hp": 6,
+        "baseDAM": 2,
+        "varDAM": 5,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 4,
+        "DEX": 0,
+        "xpValue": 3
+      }
+    }
+  }
+}
+
 let tiles: { [key:string]:[number, number]} = {
   "a goblin":[0, 96],
   "a rat":[64, 256],
@@ -43,6 +122,27 @@ let tiles: { [key:string]:[number, number]} = {
   "a skeleton warrior":[64, 128],
   "a spider":[0, 256],
   "a bat":[128, 224]
+}
+
+function monsterStats(monsterName:string): { [key:string]:number} {
+  switch (monsterName) {
+    case "a goblin": 
+      return _monsterStats("mook_1")
+    case "a rat":
+      return _monsterStats("critter_1")
+    case "a snake":
+      return _monsterStats("critter_2")
+    case "a goblin peltast":
+      return _monsterStats("mook_2")
+    case "a skeleton":
+      return _monsterStats("mook_2")
+    case "a skeleton warrior":
+      return _monsterStats("mook_3")
+    case "a spider":
+      return _monsterStats("critter_3")    
+    case "a bat":
+      return _monsterStats("critter_2")
+  }
 }
   
 // basic ROT.js entity with position and stats
@@ -60,15 +160,7 @@ export function makeMonster(game:GameState, name, x, y): Monster {
         name: name,
         baseTile: tiles[name],
         // the monster's stats
-        stats: {  "hp": 8,
-                "baseDAM": 2,
-                "varDAM": 4,
-                "STR": 0,
-                "DEF": 0,
-                "AGI": 5,
-                "DEX": 0,
-                "xpValue": 2
-        },
+        stats: monsterStats(name),
         lastArrow: [1,0],
         // called by the ROT.js scheduler
         awake: false,
