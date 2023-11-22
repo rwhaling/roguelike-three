@@ -690,13 +690,6 @@ export interface PlayerMove {
     stats: { [key: string]: number }
 }
 
-export function placePlayer(game, id, x, y):Player {
-    game.player._x = x;
-    game.player._y = y;
-    game.player.in_map = true;
-    return game.player;
-}
-
 // creates a player object with position, inventory, and stats
 export function makePlayer(game):Player {
     return {

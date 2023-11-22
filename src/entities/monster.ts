@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import GameState from "../gamestate";
 import { combat, walkable } from "../core/GameLogic"
 import { Path } from "rot-js/lib"
@@ -33,10 +34,10 @@ export class Monster {
 }
   
 // basic ROT.js entity with position and stats
-export function makeMonster(game:GameState, id, x, y): Monster {
+export function makeMonster(game:GameState, name, x, y): Monster {
     return {
         // monster position
-        id: id,
+        id: uuidv4(),
         spawnPointX: x,
         spawnPointY: y,
         _x: x,
@@ -44,7 +45,7 @@ export function makeMonster(game:GameState, id, x, y): Monster {
         // which tile to draw the player with
         character: "M",
         // the name to display in combat
-        name: "a goblin",
+        name: name,
         // the monster's stats
         stats: {  "hp": 8,
                 "baseDAM": 2,

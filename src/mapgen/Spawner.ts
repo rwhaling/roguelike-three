@@ -2,9 +2,24 @@ import { RNG } from "rot-js";
 import Digger from "rot-js/lib/map/digger";
 import { Room } from "rot-js/lib/map/features";
 import { makeMonster } from "../entities/monster";
-import { placePlayer } from "../entities/player";
 import GameState from "../gamestate";
-import { createBeing } from "./MapGen";
+import { posFromKey } from "../utils"
+
+function placePlayer(game, freeCells) {
+    const key = takeFreeCell(freeCells);
+    const pos = posFromKey(key);
+    game.player._x = pos[0];
+    game.player._y = pos[1];
+    game.player.in_map = true;
+    return game.player;
+}
+
+function placeMonster(game, name, freeCells) {
+    const key = takeFreeCell(freeCells);
+    const pos = posFromKey(key);
+    let m = makeMonster(game, name, pos[0], pos[1]);
+    return m;
+}
 
 export function spawnLevel(game:GameState, digger:Digger, freeCells) {
 
@@ -22,15 +37,15 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
     for (let [i,room] of shuffledRooms.entries()) {
         var cells = makeFreeCells(room);
         if (i == 0) {
-            game.player = createBeing(game, placePlayer, cells);
+            game.player = placePlayer(game,freeCells);
             generateItem(game, "<", cells);
             generateItem(game, "g", cells);
             generateItem(game, "*", cells);
             generateItem(game, "r", cells); // arrow
         } else if (i == 1) {
             game.monsters.push(
-                createBeing(game, makeMonster, cells),
-                createBeing(game, makeMonster, cells)
+                placeMonster(game, "a goblin", cells),
+                placeMonster(game, "a goblin", cells)
             )
             generateItem(game, "g", cells);
             generateItem(game, "*", cells);
@@ -38,8 +53,8 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
     
         } else if (i < lastRoomI) {
             game.monsters.push(
-                createBeing(game, makeMonster, cells),
-                createBeing(game, makeMonster, cells)
+                placeMonster(game, "a goblin", cells),
+                placeMonster(game, "a goblin", cells)
             )
             generateItem(game, "g", cells);
             generateItem(game, "*", cells);
@@ -47,9 +62,9 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
 
         } else if (i == lastRoomI) {
             game.monsters.push(
-                createBeing(game, makeMonster, cells),
-                createBeing(game, makeMonster, cells),
-                createBeing(game, makeMonster, cells)
+                placeMonster(game, "a goblin", cells),
+                placeMonster(game, "a goblin", cells),
+                placeMonster(game, "a goblin", cells)
             )
             generateItem(game, "g", cells);
             generateItem(game, "g", cells); 
