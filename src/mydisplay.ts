@@ -183,6 +183,12 @@ export default class Display {
     draw_immediate(x:number,y:number,c:string,pose:number,orientation:number) {
         this._backend.draw_immediate(x,y,this._player_pos[0], this._player_pos[1],c, pose, orientation);
     }
+
+	draw_monster(x:number,y:number,baseTile:[number, number], pose:number, orientation:number) {
+		let tile_x = baseTile[0] + orientation * 16
+		let tile_y = baseTile[1] + pose * 16
+		this._backend.draw_tile_immediate(x,y,this._player_pos[0], this._player_pos[1], tile_x, tile_y)
+	}
 }
 
 export class Glyph {

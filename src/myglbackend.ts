@@ -107,6 +107,30 @@ import { Glyph } from "./mydisplay";
 		}
 	}
 
+	draw_tile_immediate(
+		x: number, 
+		y: number, 
+		player_x: number,
+		player_y: number,
+		tile_x: number,
+		tile_y: number
+	) {
+		const gl = this._gl;
+		const opts = this._options;
+
+		gl.uniform2fv(this._uniforms["targetPosRel"], [x, y]);
+		gl.uniform2fv(this._uniforms["playerPosAbs"], [player_x, player_y]);
+		gl.uniform1f(this._uniforms["t"], this._t);
+
+		// for (let i=0;i<glyphs.length;i++) {
+		let tile = [tile_x,tile_y];
+
+		gl.uniform1f(this._uniforms["colorize"], opts.tileColorize ? 1 : 0);
+		gl.uniform2fv(this._uniforms["tilesetPosAbs"], tile);
+
+		gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+	}
+
 	draw_immediate(
 		x: number, 
 		y: number, 

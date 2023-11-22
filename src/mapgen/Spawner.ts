@@ -37,7 +37,7 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
     for (let [i,room] of shuffledRooms.entries()) {
         var cells = makeFreeCells(room);
         if (i == 0) {
-            game.player = placePlayer(game,freeCells);
+            game.player = placePlayer(game,cells);
             generateItem(game, "<", cells);
             generateItem(game, "g", cells);
             generateItem(game, "*", cells);
@@ -45,7 +45,7 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
         } else if (i == 1) {
             game.monsters.push(
                 placeMonster(game, "a goblin", cells),
-                placeMonster(game, "a goblin", cells)
+                placeMonster(game, "a rat", cells)
             )
             generateItem(game, "g", cells);
             generateItem(game, "*", cells);
@@ -54,7 +54,7 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
         } else if (i < lastRoomI) {
             game.monsters.push(
                 placeMonster(game, "a goblin", cells),
-                placeMonster(game, "a goblin", cells)
+                placeMonster(game, "a snake", cells)
             )
             generateItem(game, "g", cells);
             generateItem(game, "*", cells);
@@ -63,7 +63,7 @@ export function spawnLevel(game:GameState, digger:Digger, freeCells) {
         } else if (i == lastRoomI) {
             game.monsters.push(
                 placeMonster(game, "a goblin", cells),
-                placeMonster(game, "a goblin", cells),
+                placeMonster(game, "a goblin peltast", cells),
                 placeMonster(game, "a goblin", cells)
             )
             generateItem(game, "g", cells);

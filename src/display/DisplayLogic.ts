@@ -128,7 +128,7 @@ export function drawMonster(game:GameState,m) {
             let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[m.id])
             // game.display.draw(animX, animY, ["@"], null, null);
             console.log
-            game.display.draw_immediate(posX, posY, "M",pose,orientation);
+            game.display.draw_monster(posX, posY, m.baseTile,pose,orientation);
             if (m.id == game.player.controls.currentTarget) {
                 game.display.draw_immediate(posX, posY, "t",0,0);
             }
@@ -139,7 +139,7 @@ export function drawMonster(game:GameState,m) {
             // console.log(`monster at ${monsterPos}`);
             drawTile(game, monsterPos);
             // game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"], null, null);
-            game.display.draw_immediate(m._x, m._y, "M",pose,orientation);
+            game.display.draw_monster(m._x, m._y, m.baseTile,pose,orientation);
             if (m.id == game.player.controls.currentTarget) {
                 game.display.draw_immediate(m._x, m._y, "t",0,0);
             }

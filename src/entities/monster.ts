@@ -20,6 +20,7 @@ export class Monster {
   _y: number
   character: string
   name: string
+  baseTile: [number, number]
   stats: { [key: string]: number }
   lastArrow: [number, number]
   awake: boolean
@@ -31,6 +32,17 @@ export class Monster {
   // aggroOnSight
   // currentAggro
   act: () => void
+}
+
+let tiles: { [key:string]:[number, number]} = {
+  "a goblin":[0, 96],
+  "a rat":[64, 256],
+  "a snake":[190, 224],
+  "a goblin peltast":[128, 96],
+  "a skeleton":[0, 128],
+  "a skeleton warrior":[64, 128],
+  "a spider":[0, 256],
+  "a bat":[128, 224]
 }
   
 // basic ROT.js entity with position and stats
@@ -46,6 +58,7 @@ export function makeMonster(game:GameState, name, x, y): Monster {
         character: "M",
         // the name to display in combat
         name: name,
+        baseTile: tiles[name],
         // the monster's stats
         stats: {  "hp": 8,
                 "baseDAM": 2,
