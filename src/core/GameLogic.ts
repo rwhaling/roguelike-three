@@ -4,7 +4,7 @@ import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
 import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
-import { spawnLevel } from "../mapgen/Spawner";
+import { level1, spawnLevel, spawnLevelFrom } from "../mapgen/Spawner";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -23,7 +23,8 @@ export function init(game) {
   // player and the monster positions
   let [zeroCells, freeCells, digger] = genMap(game, 80, 60, game.tileOptions, game.mapDisplay);
   console.log("spawning map, game state now:",game);
-  spawnLevel(game, digger, freeCells);
+  // spawnLevel(game, digger, freeCells);
+  spawnLevelFrom(game, digger, level1);
 
   // let ROT.js schedule the player and monster entities
   game.scheduler = new Scheduler.Simple();
