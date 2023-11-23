@@ -495,11 +495,11 @@ function useAction(game, player): boolean {
             unload(game);
             renderTown(game, getTownState(game, "town"));
             showScreen("town", null);
-            init(game);
+            // init(game);
         } else if (i == ">") {
             console.log("stairs down")
             unload(game);
-            init(game);
+            init(game, game.currentLevel + 1);
         }
     }
     return false;

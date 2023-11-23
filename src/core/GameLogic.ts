@@ -4,7 +4,9 @@ import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
 import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
-import { level1, spawnLevel, spawnLevelFrom } from "../mapgen/Spawner";
+import { spawnLevelFrom } from "../mapgen/Spawner";
+import { levels } from "../mapgen/Levels"
+import { render } from "../display/DisplayLogic";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -13,10 +15,16 @@ export const walkable = [".", "*", "g"]
 // to exit back out and clean everything up to display
 // the menu and get ready for next round
 
-export function init(game) {
+export function init(game, n) {
   game.map = {};
   game.mapDisplay.clear();
   game.items = {};
+  game.running = true;
+  game.currentLevel = n;
+  if (game.maxLevel < n) {
+    game.maxLevel = n;
+  }
+  game.player.in_map = true;
 
   // this is where we populate the map data structure
   // with all of the background tiles, items,
@@ -24,7 +32,11 @@ export function init(game) {
   let [zeroCells, freeCells, digger] = genMap(game, 80, 60, game.tileOptions, game.mapDisplay);
   console.log("spawning map, game state now:",game);
   // spawnLevel(game, digger, freeCells);
-  spawnLevelFrom(game, digger, level1);
+  if (n <= 3) {
+    spawnLevelFrom(game, digger, levels[n]);
+  } else {
+    spawnLevelFrom(game, digger, levels[3]);
+  }
 
   // let ROT.js schedule the player and monster entities
   game.scheduler = new Scheduler.Simple();
@@ -36,7 +48,23 @@ export function init(game) {
   // kick everything off
   game.engine = new Engine(game.scheduler);
   game.engine.start();
-  game.running = true;
+
+  function drawScene(timestamp) {
+    if (game.running == false) {
+      return;
+    }
+    requestAnimationFrame(drawScene);
+    if (game.player && game.player.controls.dirty && game.monsters) {
+      console.log("ui dirty");
+      renderStats(game.player);
+      renderTargets(game);
+    }
+    // TODO: check if key held and not animating player
+    render(game,timestamp);
+  }
+
+  requestAnimationFrame(drawScene);
+
 }
 
 export function unload(game) {
@@ -53,6 +81,7 @@ export function unload(game) {
   game.monsters = null;
   game.amulet = null;
   game.running = false;
+  game.player.in_map = false;
 
 }
 

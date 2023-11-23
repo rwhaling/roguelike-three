@@ -207,6 +207,8 @@ export function renderStats(player:Player) {
       }
     }
   });
+
+  
 }
 
 export function renderTargets(game:GameState) {
@@ -231,6 +233,10 @@ export function renderTargets(game:GameState) {
     }
   }
 
+  const map_st = $("#mapdata")
+  map_st.innerHTML = `<table><tr><td>Level: ${game.currentLevel}</td></tr>
+  <tr><td>Enemies: ${game.monsters.length}</td></tr>
+  <tr><td>Items: ${Object.values(game.items).length - 2}</td></tr></table>`
 }
     
 // toggles the inventory UI open or closed

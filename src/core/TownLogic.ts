@@ -1,4 +1,5 @@
 import { hideModalGame, renderTown } from "../ui/ui";
+import { init } from "./GameLogic";
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
 
 // type TownState = [string, string][]
@@ -65,6 +66,7 @@ export function handleTownAction(game, zone, ev) {
   let choice = ev.target['id'];
   console.log("town action in zone", zone, ev, choice, ev.target.classList);
   if (choice == "return") {
+    init(game, 1);
     hideModalGame(ev);
   } else if (choice == "town") {
     let nextState = getTownState(game, choice);

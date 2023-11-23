@@ -7,6 +7,8 @@ import { Monster } from "./entities/monster";
 
 export default class GameState {
     running: boolean
+    currentLevel: number
+    maxLevel: number
     tileOptions: any
     display: Display
     mapDisplay: any
@@ -32,6 +34,8 @@ export default class GameState {
 
     constructor() {
         this.running = false;
+        this.currentLevel = null;
+        this.maxLevel = null;
         this.tileOptions = null;
         this.display = null;
         this.map = {};

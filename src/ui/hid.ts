@@ -187,8 +187,8 @@ function arrowStart(game, dir) {
   // Game.player.lastArrow = dir;
   console.log("arrowHeld:");
   console.log(game.arrowHeld);
-  if (!last) {
-    game.player.controls.movePlayer(game,dir)
+  // if (!last) {
+  game.player.controls.movePlayer(game,dir)
     // document.dispatchEvent(new Event("arrow"));
-  }
+  // }
 }

@@ -5,125 +5,28 @@ import { makeMonster } from "../entities/monster";
 import GameState from "../gamestate";
 import { posFromKey } from "../utils"
 
-interface LevelSpawner {
+export interface LevelSpawner {
     level: number
-    default: RoomSpawner
-    last: RoomSpawner
-    rooms: RoomSpawner[]
+    default: RoomContents[]
+    last: RoomContents[]
+    rooms: RoomContents[][]
 }
 
-interface RoomSpawner {
-    position: number | "default" | "last"
-    contents: RoomContents[]
-}
+// export type RoomContents = MonsterSpawner | ItemSpawner
 
-type RoomContents = MonsterSpawner | ItemSpawner
+export type RoomContents = ["item" | "monster", string, number]
 
-interface MonsterSpawner {
-    kind: "MonsterSpawner"
-    name: string
-    weight: number
-}
+// export interface MonsterSpawner {
+//     kind: "MonsterSpawner"
+//     name: string
+//     weight: number
+// }
 
-interface ItemSpawner {
-    kind: "ItemSpawner"
-    name: string
-    weight: number
-}
-
-export let level1: LevelSpawner = {
-    level: 1,
-    default: {
-        position: "default",
-        contents: [
-            {
-                kind: "MonsterSpawner",
-                name: "a goblin",
-                weight: 0.5
-            },
-            {
-                kind: "MonsterSpawner",
-                name: "a rat",
-                weight: 0.75
-            },
-            {
-                kind: "MonsterSpawner",
-                name: "a snake",
-                weight: 0.75
-            },
-            {
-                kind: "ItemSpawner",
-                name: "g",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "*",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "r",
-                weight: 1.0
-            },
-        ]
-    },
-    last: {
-        position: "last",
-        contents: [
-            {
-                kind: "MonsterSpawner",
-                name: "a goblin",
-                weight: 1.0
-            },
-            {
-                kind: "MonsterSpawner",
-                name: "a goblin",
-                weight: 1.0
-            },
-            {
-                kind: "MonsterSpawner",
-                name: "a goblin peltast",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "g",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "g",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "r",
-                weight: 1.0
-            }
-        ]
-    },
-    rooms: [{
-        position: 1,
-        contents: [
-            {
-                kind: "ItemSpawner",
-                name: "g",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "*",
-                weight: 1.0
-            },
-            {
-                kind: "ItemSpawner",
-                name: "r",
-                weight: 1.0
-            }
-        ]
-    }]
-}
+// export interface ItemSpawner {
+//     kind: "ItemSpawner"
+//     name: string
+//     weight: number
+// }
 
 function placePlayer(game, freeCells) {
     const key = takeFreeCell(freeCells);
@@ -160,8 +63,7 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
             spawnRoomFrom(game, cells, spawner.rooms[i])
             game.player = placePlayer(game,cells);
             generateItem(game, "<", cells);
-        }
-        if (i < spawner.rooms.length) {
+        } else if (i < spawner.rooms.length) {
             spawnRoomFrom(game, cells, spawner.rooms[i])
         } else if (i == lastRoomI) {
             spawnRoomFrom(game, cells, spawner.last)
@@ -172,12 +74,17 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
     }
 }
 
-export function spawnRoomFrom(game:GameState, cells, spawner: RoomSpawner) {
-    for (let s of spawner.contents) {
-        if (s.kind == "MonsterSpawner") {
-            placeMonster(game, s.name, cells)
-        } else if (s.kind == "ItemSpawner") {
-            generateItem(game, s.name, cells)
+export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[]) {
+    for (let s of contents) {
+        let roll = RNG.getUniform()
+        if (s[0] == "monster") {
+            if (roll < s[2]) {
+                placeMonster(game, s[1], cells)
+            }
+        } else if (s[0] == "item") {
+            if (roll < s[2]) {
+                generateItem(game, s[1], cells)
+            }
         }
     }
 }

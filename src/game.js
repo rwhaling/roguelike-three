@@ -160,7 +160,7 @@ function runGame(w,mydisplay) {
       game.display = new MyDisplay(tileOptions);
       game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
 
-      init(game)
+      init(game,1)
 
       // first create a ROT.js display manager
       // TODO: picking up map width as display width, not ideal
@@ -169,24 +169,9 @@ function runGame(w,mydisplay) {
       // let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
 
       $("#mapcanvas").innerHTML = "";
-      $("#mapcanvas").appendChild(game.mapDisplay.getContainer());
-  
-      requestAnimationFrame(drawScene);
+      $("#mapcanvas").appendChild(game.mapDisplay.getContainer());  
     }
-      
-    function drawScene(timestamp) {
-        if (Game.display === null) {
-            return;
-        }
-        if (Game.player && Game.player.controls.dirty) {
-          console.log("ui dirty");
-          renderStats(Game.player);
-          renderTargets(Game);
-        }
-        // TODO: check if key held and not animating player
-        requestAnimationFrame(drawScene);
-        render(Game,timestamp);
-    }
+
 
       
     /************************************

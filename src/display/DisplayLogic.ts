@@ -165,6 +165,9 @@ export function render(game,timestamp) {
     if (game.running == false) {
         return;
     }
+    if (game.player.in_map == false) {
+        return;
+    }
     let elapsed = timestamp - game.lastFrame;
 
     if (elapsed > 30) {
