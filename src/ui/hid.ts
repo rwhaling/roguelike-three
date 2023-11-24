@@ -48,11 +48,11 @@ const arrowMap = {
 };
 
 const numMap = {
-  49: "USE", // 1
-  50: "EAT", // 2
-  51: "SEARCH", // 3
-  52: "WAIT", // 4
-  53: "FLEE", // 5 
+  49: "EAT", // 1
+  50: "WAIT", // 2
+  51: "FLEE", // 3
+  52: "SEARCH", // 4
+  53: "USE", // 5 
   54: "HELP", // 6
   55: "", // 7
   56: "", // 8

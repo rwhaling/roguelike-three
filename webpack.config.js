@@ -1,4 +1,5 @@
 const path = require('path');
+var webpack = require('webpack');
 
 module.exports = {
 entry: './src/main.ts',
@@ -16,5 +17,6 @@ output: {
     filename: 'app.js',
     path: path.resolve(__dirname, 'dist')
 },
-mode: 'development'
+mode: 'development',
+plugins: [new webpack.EnvironmentPlugin(['ASSET_KEY'])]
 };

@@ -7,6 +7,8 @@ import { makePlayer } from "./entities/player";
 import { sfx } from "./sound/sfx";
 import { showScreen, renderStats, toggleInventory, renderTargets } from "./ui/ui";
 import { keyHandler, resolvePointing } from "./ui/hid";
+// import Crypto from "cryptojs";
+import * as Crypto from "crypto-js";
 
 function runGame(w,mydisplay) {
 
@@ -21,7 +23,8 @@ function runGame(w,mydisplay) {
     // It's the "microrogue" tileset
   
     const tileSet = document.createElement("img");
-    tileSet.src = "tiny_dungeon_world_3.png"
+
+    tileSet.src = ""
     // tileSet.src = "colored_tilemap_packed.png";
   
     // This is where you specify which tile
@@ -155,21 +158,40 @@ function runGame(w,mydisplay) {
     // to launch the actual game
     function setup(game) {
       game.player = makePlayer(game);
-      // first create a ROT.js display manager
-      // TODO: picking up map width as display width, not ideal
-      game.display = new MyDisplay(tileOptions);
-      game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
 
-      init(game,1)
+      console.log("about to retrieve encrypted image")
 
-      // first create a ROT.js display manager
-      // TODO: picking up map width as display width, not ideal
-      // game.display = new MyDisplay(tileOptions);
-      resetCanvas(game, game.display.getContainer());
-      // let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
+      // var picture = document.getElementById("picture");
+      var data = new XMLHttpRequest();
+      data.open('GET', 'tiny_dungeon_world_3.png.enc.b64', true);
+      data.onreadystatechange = function(){
+          if(this.readyState == 4 && this.status==200){
+              console.log("got back data", data.responseText.length, "bytes")
+              console.log("Crypto:",Crypto);
+              var dec = Crypto.AES.decrypt(data.responseText, process.env.ASSET_KEY);
+              var plain = Crypto.enc.Base64.stringify( dec );
+              tileSet.src = "data:image/png;base64,"+plain;
 
-      $("#mapcanvas").innerHTML = "";
-      $("#mapcanvas").appendChild(game.mapDisplay.getContainer());  
+              // first create a ROT.js display manager
+              // TODO: picking up map width as display width, not ideal
+              game.display = new MyDisplay(tileOptions);
+              game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
+
+              init(game,1)
+
+              // first create a ROT.js display manager
+              // TODO: picking up map width as display width, not ideal
+              // game.display = new MyDisplay(tileOptions);
+              resetCanvas(game, game.display.getContainer());
+              // let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
+
+              $("#mapcanvas").innerHTML = "";
+              $("#mapcanvas").appendChild(game.mapDisplay.getContainer());  
+        } else {
+            console.log("bad response: ", this)
+          }
+      };
+      data.send(null);
     }
 
 

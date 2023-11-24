@@ -293,15 +293,43 @@ export class PlayerControls {
     }
 }
 
-function attackAction(game, player, target):boolean {
+function attackAction(game, player, target:Monster):boolean {
     console.log("invoking ATK");
-    if (manhattan(player,target) > 1) {
-        toast(game, "out of range");
-        return false;
+    if (manhattan(player,target) <= 1) {
+        combat(game, player, target);
+        return true;    
+    } else if (target.behaviorState == BehaviorState.ENGAGED) {
+        let paths = dijkstraMap(game, [target], [], fullMap(game) );
+
+        let current_pos = `${player._x},${player._y}`
+        let current_cost = paths[current_pos];
+        console.log("current pos distance from frontier", current_cost);
+        
+        let neighbors = get_neighbors([game.player._x, game.player._y])
+        let best_neighbor = null
+        for (let n of neighbors) {
+            console.log("checking neighbor", n);
+            let n_key = `${n[0]},${n[1]}`
+            if (walkable.indexOf(game.map[n_key]) != -1) {
+                let n_cost = paths[n_key]
+                console.log("cost for ", n_key, n_cost)
+                if (n_cost < current_cost) {
+                    best_neighbor = n
+                }
+            } else {
+                console.log('not walkable')
+            }
+        }
+        if (best_neighbor) {
+            let dir = [best_neighbor[0] - game.player._x, best_neighbor[1] - game.player._y];
+            game.player.controls.movePlayer(game, dir)
+            // weird here
+            return false;
+        }      
     }
     // let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
-    combat(game, player, target);
-    return true;
+    toast(game, "out of range");
+    return false;
 }
 
 function bashAction(game, player:Player, target): boolean {
@@ -540,7 +568,7 @@ function searchAction(game:GameState, player:Player): boolean {
 
     for (let m of game.monsters) {
         if (m.behaviorState == BehaviorState.ENGAGED)
-        targets.push (m)
+        targets.push(m)
     }
 
     console.log("tile to explore:", game.exploreMap);
@@ -553,6 +581,25 @@ function searchAction(game:GameState, player:Player): boolean {
                 return {_x: x, _y: y}
             }
         })
+    }
+
+    if (targets.length == 0) {
+        let exit = null;
+        for (let [k,o] of Object.entries(game.items)) {
+            if (o == ">") {
+                console.log("found stairs up ", o, " at ", k);
+                exit = k
+                break
+            }
+        }
+        let matches = exit.match(/\d+/g);
+        let exit_pos = null;
+        if (matches.length == 2) {
+            let x = parseInt(matches[0].toString())
+            let y = parseInt(matches[1].toString())
+            exit_pos = {_x:x,_y:y}
+            targets.push(exit_pos)
+        }    
     }
     let paths = dijkstraMap(game, targets, [], fullMap(game) );
 
@@ -748,11 +795,11 @@ export function makePlayer(game):Player {
             {name: "DASH", enabled: true, ready: true, stats: { cooldown: 5, currentCooldown: 0 } },
             {name: "DFND", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
         ], [ 
-            {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "SEARCH", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "WAIT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "FLEE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "SEARCH", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),
         act: () => {
