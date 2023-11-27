@@ -9,6 +9,7 @@ import { goldAmountTable, levels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
+import { initLevel } from "../mapgen/Level";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -17,11 +18,15 @@ export const walkable = [".", "*", "g"]
 // to exit back out and clean everything up to display
 // the menu and get ready for next round
 
-export function init(game, n) {
+export function init(game:GameState, n: number) {
+  let width = 80
+  let height = 60
   game.map = {};
   game.mapDisplay.clear();
   game.items = {};
   game.running = true;
+  game.level = initLevel(n, width, height);
+
   game.currentLevel = n;
   if (game.maxLevel < n) {
     game.maxLevel = n;
@@ -31,7 +36,7 @@ export function init(game, n) {
   // this is where we populate the map data structure
   // with all of the background tiles, items,
   // player and the monster positions
-  let [zeroCells, freeCells, digger] = genMap(game, 80, 60, game.tileOptions, game.mapDisplay);
+  let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
   console.log("spawning map, game state now:",game);
   // spawnLevel(game, digger, freeCells);
   if (n <= 3) {
@@ -74,6 +79,7 @@ export function unload(game) {
   game.visibleMap = {};
   game.exploreMap = {};
   game.mapDisplay.clear();
+  game.level = null;
 
   game.items = {};
   game.engine = null;

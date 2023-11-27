@@ -7,6 +7,7 @@ import { hideToast, renderTown, showScreen, toast } from '../ui/ui';
 import { getTownState } from "../core/TownLogic";
 import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
+import { getCell, getRoomItems } from '../mapgen/Level';
 
 interface Buff {
     duration: number,
@@ -113,6 +114,10 @@ export class PlayerControls {
 
         p._x = target_x;
         p._y = target_y;
+
+        let cell = getCell(game.level, p._x, p._y)
+        cell.visited = true
+        cell.discovered = true;
       
         let newPos = [p._x, p._y]
         let animation = {
@@ -571,7 +576,12 @@ function searchAction(game:GameState, player:Player): boolean {
         targets.push(m)
     }
 
-    console.log("tile to explore:", game.exploreMap);
+    if (targets.length == 0) {
+        let loot = getRoomItems(game.level, game.player)
+        console.log("searching room items", loot, "nearest ", [player._x, player._y]);
+        targets = loot.map( i => { return { _x: i[0], _y:i[1]}})
+    }
+
     if (targets.length == 0) {
         targets = Object.keys(game.exploreMap).map( k => {
             let matches = k.match(/\d+/g);
@@ -582,6 +592,7 @@ function searchAction(game:GameState, player:Player): boolean {
             }
         })
     }
+    console.log("tile to explore:", targets);
 
     if (targets.length == 0) {
         let exit = null;
@@ -601,6 +612,8 @@ function searchAction(game:GameState, player:Player): boolean {
             targets.push(exit_pos)
         }    
     }
+    console.log("tile to explore:", targets);
+
     let paths = dijkstraMap(game, targets, [], fullMap(game) );
 
     let current_pos = `${player._x},${player._y}`

@@ -4,9 +4,11 @@ import { Engine } from "rot-js/lib/index"
 import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";
 import { Monster } from "./entities/monster";
+import { Level } from "./mapgen/Level"
 
 export default class GameState {
     running: boolean
+    level: Level
     currentLevel: number
     maxLevel: number
     tileOptions: any
@@ -34,6 +36,7 @@ export default class GameState {
 
     constructor() {
         this.running = false;
+        this.level = null;
         this.currentLevel = null;
         this.maxLevel = null;
         this.tileOptions = null;

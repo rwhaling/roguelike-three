@@ -4,6 +4,7 @@ import { Room } from "rot-js/lib/map/features";
 import { makeMonster } from "../entities/monster";
 import GameState from "../gamestate";
 import { posFromKey } from "../utils"
+import { getCell, ItemContent } from "./Level";
 
 export interface LevelSpawner {
     level: number
@@ -59,22 +60,25 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
 
     for (let [i,room] of shuffledRooms.entries()) {
         var cells = makeFreeCells(room);
+        game.level.roomItems[i] = [];
         if (i == 0) {
-            spawnRoomFrom(game, cells, spawner.rooms[i])
+            spawnRoomFrom(game, cells, spawner.rooms[i], game.level.roomItems[i] )
             game.player = placePlayer(game,cells);
             generateItem(game, "<", cells);
         } else if (i < spawner.rooms.length) {
-            spawnRoomFrom(game, cells, spawner.rooms[i])
+            spawnRoomFrom(game, cells, spawner.rooms[i], game.level.roomItems[i])
         } else if (i == lastRoomI) {
-            spawnRoomFrom(game, cells, spawner.last)
+            spawnRoomFrom(game, cells, spawner.last, game.level.roomItems[i])
             generateItem(game, ">", cells)
         } else {
-            spawnRoomFrom(game, cells, spawner.default)
+            spawnRoomFrom(game, cells, spawner.default, game.level.roomItems[i])
         }
+        console.log("spawned room", room, i, game.level.roomItems[i])
     }
+    game.level.rooms = shuffledRooms;
 }
 
-export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[]) {
+export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[], roomItems: [number,number][]) {
     for (let s of contents) {
         let roll = RNG.getUniform()
         if (s[0] == "monster") {
@@ -83,7 +87,8 @@ export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[]) {
             }
         } else if (s[0] == "item") {
             if (roll < s[2]) {
-                generateItem(game, s[1], cells)
+                let i = generateItem(game, s[1], cells)
+                roomItems.push([i.x,i.y]);
             }
         } else if (s[0] == "questitem") {
             if (roll < s[2]) {
@@ -92,60 +97,6 @@ export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[]) {
         }
     }
 }
-
-// export function spawnLevel(game:GameState, digger:Digger, freeCells) {
-
-//     let rooms = digger.getRooms();
-//     // hack
-//     game.monsters = [];
-
-//     let shuffledRooms = rooms
-//         .map(value => ({ value, sort: Math.random() }))
-//         .sort((a, b) => a.sort - b.sort)
-//         .map(({ value }) => value)
-
-//     let lastRoomI = shuffledRooms.length - 1;
-
-//     for (let [i,room] of shuffledRooms.entries()) {
-//         var cells = makeFreeCells(room);
-//         if (i == 0) {
-//             game.player = placePlayer(game,cells);
-//             generateItem(game, "<", cells);
-//             generateItem(game, "g", cells);
-//             generateItem(game, "*", cells);
-//             generateItem(game, "r", cells); // arrow
-//         } else if (i == 1) {
-//             game.monsters.push(
-//                 placeMonster(game, "a goblin", cells),
-//                 placeMonster(game, "a rat", cells)
-//             )
-//             generateItem(game, "g", cells);
-//             generateItem(game, "*", cells);
-//             generateItem(game, "f", cells); // food
-    
-//         } else if (i < lastRoomI) {
-//             game.monsters.push(
-//                 placeMonster(game, "a goblin", cells),
-//                 placeMonster(game, "a snake", cells)
-//             )
-//             generateItem(game, "g", cells);
-//             generateItem(game, "*", cells);
-//             generateItem(game, "r", cells); // arrow
-
-//         } else if (i == lastRoomI) {
-//             game.monsters.push(
-//                 placeMonster(game, "a goblin", cells),
-//                 placeMonster(game, "a goblin peltast", cells),
-//                 placeMonster(game, "a goblin", cells)
-//             )
-//             generateItem(game, "g", cells);
-//             generateItem(game, "g", cells); 
-//             generateItem(game, "f", cells); // food
-//             generateItem(game, ">", cells);
-
-//         }
-//     }
-// }
 
 function makeFreeCells(room:Room): string[] {
     let roomCells: string[] = []
@@ -164,10 +115,20 @@ function takeFreeCell(freeCells) {
     return key;
 }
 
-function generateItem(game, item, freeCells) {
+function generateItem(game, item, freeCells): ItemContent {
     const key = takeFreeCell(freeCells);
+    const pos = posFromKey(key);
+    let cell = getCell(game.level, pos[0], pos[1])
+    let i:ItemContent = { 
+        kind: "ItemContent",
+        x: pos[0],
+        y: pos[1],
+        item: item
+    }
+    cell.contents.push(i)
     // the first chest contains the amulet
     // add either a treasure chest
     // or a piece of gold to the map
     game.items[key] = item;
+    return i;
 }
