@@ -66,7 +66,7 @@ function runGame(w,mydisplay) {
         "F": [224, 640], // white flash
         "G": [192, 672], // red flash
         "H": [144, 672], // green flash
-
+        "Q": [496, 462], // quest item (unopened)
         "T": [400, 192], // tombstone
 
         "╔": [352, 0],  // room corner

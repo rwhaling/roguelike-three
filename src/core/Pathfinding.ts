@@ -61,7 +61,7 @@ export function getBoundingBox(entities: Entity[], buffer: number):BoundingBox {
     return [min_x - buffer, min_y - buffer, max_x + buffer, max_y + buffer];
 }
 
-export function targetPath(game: GameState, entity: Entity, target: Entity, obstacles: Entity[], box:BoundingBox) {
+export function targetPath(game: GameState, entity: Entity, target: Entity, obstacles: Entity[], box:BoundingBox): [number,number][] {
     let target_key = `${target._x},${target._y}`
     let e_pos = `${entity._x},${entity._y}`
     let obstacle_keys = obstacles.map( e => `${`${e._x},${e._y}`}`)
@@ -133,7 +133,7 @@ export function dijkstraMap(game:GameState, targets: any[], obstacles:[], box: B
         if (!(next_k in cost_so_far)) {
           cost_so_far[next_k] = cost_so_far[current_k] + 1;
           frontier.push(next);
-        }  
+        }
       }
     }
   }

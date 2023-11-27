@@ -58,7 +58,7 @@ export function genMap(game:GameState, width, height, tileOptions, minimap?): [s
 
     // now we spawn generators for populating other stuff
     // in the map - you can read each of these below
-    generateItems(game, freeCells);
+    // generateItems(game, freeCells);
     // generateScenery(game.map, zeroCells);
     generateRooms(game.map, digger);
 

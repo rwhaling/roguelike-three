@@ -287,6 +287,10 @@ a:hover {
   background-position: -40px -56px;
 }
 
+.castle {
+  background-position: -48px -56px;
+}
+
 .ghost {
   background-position: -72px -8px;
   margin: 0px;

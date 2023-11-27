@@ -24,6 +24,7 @@ export function getTownState(game,zone):TownState {
       ["inn", "Inn [Restore HP] (5 GP)"],
       ["shop", "Shop"],
       ["train", "Train"],
+      ["castle", "The Castle"],
       ["return", "Return"]
     ]}
   } else if (zone == "shop") {
@@ -80,12 +81,9 @@ export function handleTownAction(game, zone, ev) {
   } else if (choice == "shop" || zone == "shop") {
     let nextState = handleShop(game, choice)
     renderTown(game, nextState);  
-  } else if (choice == "food") { 
-    let nextState = handleShop(game, choice);
-    renderTown(game, nextState);
-  } else if (choice == "ammo") {
-    let nextState = handleShop(game, choice);
-    renderTown(game, nextState);
+  } else if (choice == "castle" || zone == "castle") {
+    let nextState = handleCastle(game, choice)
+    renderTown(game, nextState)
   } else {
     let state = getTownState(game, choice);
     if (state) {
@@ -200,6 +198,55 @@ export function handleShop(game, choice):TownState {
     description: d,
     choices: options
 
+  }
+}
+
+export function handleCastle(game, choice): TownState {
+  let hasAmulet = game.player.inventory.map( i => i[0]).indexOf("amulet") != -1;
+  console.log("loading town, has amulet:", hasAmulet, "inventory:", game.player.inventory);
+  let options: [string, string][] = [["town","return"]]
+  let i = "castle"  
+
+  if (choice == "castle" && hasAmulet == false) {
+    let d = `<p>zone: castle</p>
+    <p>Bring me the amulet of Yendor!</p>`
+    return {
+      zone: "castle",
+      icon: i,
+      description: d,
+      choices: options
+    }  
+  }
+
+  if (choice == "castle" && hasAmulet == true) {
+    let d = `<p>zone: castle</p>
+    <p>Give me the amulet of Yendor!</p>`
+    options.unshift(["turnin", "Hand over the amulet"])
+    return {
+      zone: "castle",
+      icon: i,
+      description: d,
+      choices: options
+    }
+  }
+
+  if (choice == "turnin" && hasAmulet == true) {
+    console.log("inventory before:", game.player.inventory)
+    game.player.inventory = game.player.inventory.filter( i => i[0] == "amulet")
+    console.log("inventory after:", game.player.inventory)
+    let d = `<p>zone: castle</p>
+    <p>Here are some coins. Please leave now.</p>`
+    options = [["return", "You won?"]]
+    return {
+      zone: "castle",
+      icon: i,
+      description: d,
+      choices: options
+    }
+  }
+
+  if (choice == "return") {
+    return getTownState(game, "town");
   }
 }
 

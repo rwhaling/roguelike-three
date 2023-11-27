@@ -5,8 +5,10 @@ import { battleMessage, createGhost, damageNum, hideToast, removeListeners, rend
 import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
 import { spawnLevelFrom } from "../mapgen/Spawner";
-import { levels } from "../mapgen/Levels"
+import { goldAmountTable, levels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
+import { Player } from "../entities/player";
+import GameState from "../gamestate";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -184,8 +186,6 @@ export function combat(game, hitter, receiver) {
         endTime: game.lastFrame + 100
     }
     game.particles.push(particle);
-  
-
   }
 }
 
@@ -242,11 +242,12 @@ export function win(game) {
 // this method gets called by the `movePlayer` function
 // in order to check whether they hit an empty box
 // or The Amulet
-export function checkItem(game, entity) {
+export function checkItem(game:GameState, entity) {
   const key = entity._x + "," + entity._y;
-  if (key == game.amulet) {
+  if (game.items[key] == "Q") {
     // the amulet is hit initiate the win flow below
     toast(game, "You found THE AMULET");
+    game.player.inventory.push(["amulet","the cursed amulet"])
     sfx["win"].play();
     delete game.items[key];
     // win(game);
@@ -255,7 +256,8 @@ export function checkItem(game, entity) {
     // increment their gold stat,
     // show a message, re-render the stats
     // then play the pickup/win sound
-    let goldAmount = RNG.getUniformInt(1,4);
+    let [lower, upper, bonus] = goldAmountTable[game.currentLevel];
+    let goldAmount = RNG.getUniformInt(lower, upper);
     game.player.stats.gold += goldAmount;
     renderStats(game.player);
     toast(game, `You found ${goldAmount} gold!`);

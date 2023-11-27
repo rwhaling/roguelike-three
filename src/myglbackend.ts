@@ -454,7 +454,10 @@ void main() {
 			// float dist = distance(vec2(808, 296), gl_FragCoord.xy);
 
 			// this is for 20 x 20 screen
-			float dist = distance(vec2(328, 296), gl_FragCoord.xy);
+			// float dist = distance(vec2(328, 296), gl_FragCoord.xy);
+			float dist = distance(vec2(288,296), vec2(floor(gl_FragCoord.x / 32.0) * 32.0, floor(gl_FragCoord.y / 32.0) * 32.0));
+
+
 //			float r = cnoise(vec3(floor(gl_FragCoord.x / 4.0),floor(gl_FragCoord.y / 4.0), int(t)/2));
 			float r = noise(vec3(floor(gl_FragCoord.x / 8.0), floor(gl_FragCoord.y / 8.0), int(t)/2));
 			// fragColor = mix(texel, vec4(0,0,0,1), r * 0.3);

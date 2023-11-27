@@ -14,7 +14,7 @@ export interface LevelSpawner {
 
 // export type RoomContents = MonsterSpawner | ItemSpawner
 
-export type RoomContents = ["item" | "monster", string, number]
+export type RoomContents = ["item" | "monster" | "questitem", string, number]
 
 // export interface MonsterSpawner {
 //     kind: "MonsterSpawner"
@@ -84,6 +84,10 @@ export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[]) {
         } else if (s[0] == "item") {
             if (roll < s[2]) {
                 generateItem(game, s[1], cells)
+            }
+        } else if (s[0] == "questitem") {
+            if (roll < s[2]) {
+                generateItem(game, "Q", cells)
             }
         }
     }

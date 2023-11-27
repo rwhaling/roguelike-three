@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 import GameState from "../gamestate";
-import { combat, walkable } from "../core/GameLogic"
-import { Path } from "rot-js/lib"
-import { Entity } from "../core/Pathfinding";
+import { combat, damage, walkable } from "../core/GameLogic"
+import { RNG } from "rot-js/lib"
+import { Entity, fullMap, targetPath } from "../core/Pathfinding";
+import { Particle } from '../display/DisplayLogic';
 /*******************
      *** The monster ***
      *******************/
@@ -10,6 +11,12 @@ import { Entity } from "../core/Pathfinding";
 export enum BehaviorState {
   INACTIVE, ENGAGED, RETURNING
 }
+
+export enum MonsterAI {
+  MELEE, RANGED
+}
+
+type MonsterData = [[number, number], MonsterType, MonsterAI]
 
 export class Monster {
   id: string
@@ -23,6 +30,7 @@ export class Monster {
   baseTile: [number, number]
   stats: { [key: string]: number }
   lastArrow: [number, number]
+  ai: MonsterAI
   awake: boolean
   behaviorState: BehaviorState
   minChaseRadius: number
@@ -34,11 +42,11 @@ export class Monster {
   act: () => void
 }
 
-type MonsterType = "mook_1" | "mook_2" | "mook_3" | "critter_1" | "critter_2" | "critter_3"
+type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2"
 
 function _monsterStats(typ: MonsterType): { [key:string]:number} {
   switch (typ) {
-    case "mook_1": { 
+    case "melee_1": { 
       return {  
         "hp": 8,
         "baseDAM": 2,
@@ -50,7 +58,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "xpValue": 2
       }
     }
-    case "mook_2": {
+    case "melee_2": {
       return {
         "hp": 9,
         "baseDAM": 2,
@@ -62,7 +70,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "xpValue": 3
       }
     }
-    case "mook_3": {
+    case "melee_3": {
       return {
         "hp": 10,
         "baseDAM": 3,
@@ -70,8 +78,20 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "STR": 0,
         "DEF": 1,
         "AGI": 7,
-        "DEX": 0,
+        "DEX": 1,
         "xpValue": 4
+      }
+    }
+    case "melee_4": {
+      return {
+        "hp": 15,
+        "baseDAM": 3,
+        "varDAM": 6,
+        "STR": 0,
+        "DEF": 1,
+        "AGI": 7,
+        "DEX": 2,
+        "xpValue": 6
       }
     }
     case "critter_1": {
@@ -110,43 +130,70 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "xpValue": 3
       }
     }
+    case "ranged_1": {
+      return {
+        "hp": 5,
+        "baseDAM": 1,
+        "varDAM": 3,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 2,
+        "DEX": 0,
+        "xpValue": 2,
+        "ammo": 1
+      }
+    }
+    case "ranged_2": {
+      return {
+        "hp": 7,
+        "baseDAM": 2,
+        "varDAM": 4,
+        "STR": 0,
+        "DEF": 0,
+        "AGI": 4,
+        "DEX": 0,
+        "xpValue": 4,
+        "ammo": 1
+      }
+    }
   }
 }
 
-let tiles: { [key:string]:[number, number]} = {
-  "a goblin":[0, 96],
-  "a rat":[64, 256],
-  "a snake":[190, 224],
-  "a goblin peltast":[128, 96],
-  "a skeleton":[0, 128],
-  "a skeleton warrior":[64, 128],
-  "a spider":[0, 256],
-  "a bat":[128, 224]
-}
-
-function monsterStats(monsterName:string): { [key:string]:number} {
+function getMonsterData(monsterName:string):MonsterData {
   switch (monsterName) {
     case "a goblin": 
-      return _monsterStats("mook_1")
+      return [[0, 96], "melee_1", MonsterAI.MELEE]
     case "a rat":
-      return _monsterStats("critter_1")
+      return [[64, 256], "critter_1", MonsterAI.MELEE]
     case "a snake":
-      return _monsterStats("critter_2")
+      return [[192,224], "critter_2", MonsterAI.MELEE]
     case "a goblin peltast":
-      return _monsterStats("mook_2")
+      return [[128,96], "melee_2", MonsterAI.MELEE]
     case "a skeleton":
-      return _monsterStats("mook_2")
+      return [[0, 128], "melee_2", MonsterAI.MELEE]
     case "a skeleton warrior":
-      return _monsterStats("mook_3")
+      return [[64,128], "melee_3", MonsterAI.MELEE]
     case "a spider":
-      return _monsterStats("critter_3")    
+      return [[0,256], "critter_3", MonsterAI.MELEE]
     case "a bat":
-      return _monsterStats("critter_2")
+      return [[128,224], "critter_2", MonsterAI.MELEE]
+    case "a goblin mage":
+      return [[64, 96], "ranged_1", MonsterAI.RANGED]
+    case "a zombie":
+      return [[64, 160], "melee_1", MonsterAI.MELEE]
+    case "a skeleton mage":
+      return [[128, 128], "ranged_2", MonsterAI.RANGED]
+    case "a death knight":
+      return [[192, 160], "melee_4", MonsterAI.MELEE]
+    case "a reaper":
+      return [[128, 320], "melee_4", MonsterAI.MELEE]
   }
 }
   
 // basic ROT.js entity with position and stats
 export function makeMonster(game:GameState, name, x, y): Monster {
+    let [tile, monsterType, ai] = getMonsterData(name)
+    let stats = _monsterStats(monsterType)
     return {
         // monster position
         id: uuidv4(),
@@ -158,11 +205,12 @@ export function makeMonster(game:GameState, name, x, y): Monster {
         character: "M",
         // the name to display in combat
         name: name,
-        baseTile: tiles[name],
+        baseTile: tile,
         // the monster's stats
-        stats: monsterStats(name),
+        stats: stats,
         lastArrow: [1,0],
         // called by the ROT.js scheduler
+        ai: ai,
         awake: false,
         behaviorState: BehaviorState.INACTIVE,
         minChaseRadius: 15,
@@ -175,42 +223,6 @@ export function makeMonster(game:GameState, name, x, y): Monster {
 // the ROT.js scheduler calls this method when it is time
 // for the monster to act
 export function monsterAct(game:GameState, m:Monster, player_path:any[], activeMonsters:{ [key:string]:Entity }) {
-  // reference to the monster itself
-  //HACK
-  // const m = game.monsters.filter( (i) => i.id == id)[0];
-  // the monster wants to know where the player is
-  const p = game.player;
-  // reference to the game map
-  const map = game.map;
-  // reference to ROT.js display
-  const display = game.display;
-
-  // new algorithm
-  // if inactive:
-      // check distance to player
-      // activate
-  // if active:
-      // check aggro
-      // check distance from spawn point
-      // possibly flip to returning
-      // else get distance from player
-      // pursue or attack
-  // if returning:
-      // get path to spawn point
-      // move there
-  // check distance to spawn point
-
-  // const passableCallback = function(x, y) {
-  //   return (walkable.indexOf(map[x + "," + y]) != -1);
-  // }
-  // const monster_astar = new Path.AStar(m._x, m._y, passableCallback, {topology:4});
-  // const player_path: any[] = [];
-  // const player_path_callback = (x,y) => {
-  //   player_path.push([x, y]);
-  // }
-  // monster_astar.compute(p._x, p._y, player_path_callback);
-  // player_path.pop();
-  // player_path.reverse();
 
   if (m.behaviorState == BehaviorState.INACTIVE) {
     // this should happen before pathfinding
@@ -224,79 +236,41 @@ export function monsterAct(game:GameState, m:Monster, player_path:any[], activeM
   }
 
   if (m.behaviorState == BehaviorState.ENGAGED) {
-    let spawn_dist = Math.abs(m.spawnPointX - m._x) + Math.abs(m.spawnPointY - m._y);
-    if (spawn_dist >= m.minChaseRadius && m.currentAggro == 0) {
-      console.log("ACTIVE: will RETURN");
-      m.behaviorState = BehaviorState.RETURNING;
-    } else if (player_path.length > 1) {
-      // draw whatever was on the last tile the monster was one
-      // let oldKey = m._x + "," + m._y;
-      let oldPos: [number, number] = [m._x, m._y];
-      let newKey = `${player_path[0][0]},${player_path[0][1]}`
-      if (newKey in activeMonsters) { 
-        return
-      }
-      // the player is safe for now so update the monster position
-      // to the first step on the path and redraw
-      let delta: [number, number] = [player_path[0][0] - m._x, player_path[0][1] - m._y ];
-      console.log("moving monster");
-      console.log(delta);
-      m.lastArrow = delta;
-
-      m._x = player_path[0][0];
-      m._y = player_path[0][1];
-      // let newKey = m._x + "," + m._y;
-      let newPos: [number, number] = [m._x, m._y];
-      let animation = {
-          id: m.id,
-          startPos: oldPos,
-          endPos: newPos,
-          startTime: game.lastFrame,
-          endTime: game.lastFrame + 250
-      }
-      game.animatingEntities[m.id] = animation;
-
-    } else if (player_path.length == 1) {
-      combat(game, m, p);
-      return
+    if (m.ai == MonsterAI.RANGED) {
+      return ranged_engaged_behavior(game, m, player_path, activeMonsters)
+    } else {
+      return melee_engaged_behavior(game, m, player_path, activeMonsters)
     }
   }
 
   if (m.behaviorState == BehaviorState.RETURNING) {
     // TODO: inefficient, should bound
-    let spawn_path_i = 0;
-    const passableCallback = function(x, y) {
-      spawn_path_i += 1;
-      return (walkable.indexOf(map[x + "," + y]) != -1);
-    }
-  
-    const monster_astar = new Path.AStar(m._x, m._y, passableCallback, {topology:4});
- 
-    const spawn_path: any[] = [];
-    const spawn_path_callback = (x,y) => {
-      spawn_path.push([x,y]);
-    }
-    monster_astar.compute(m.spawnPointX, m.spawnPointY, spawn_path_callback);
-    console.log("computed spawn path in ",spawn_path_i," cycles");
-    spawn_path.pop();
-    spawn_path.reverse();  
+    return return_behavior(game, m)
+  }
+}
 
-    if (spawn_path.length == 0) {
-      console.log("RETURNING: will inactivate");
-      m.behaviorState = BehaviorState.INACTIVE;
+function ranged_engaged_behavior(game: GameState, m:Monster, player_path:any[], activeMonsters:{ [key:string]:Entity }) {
+  let p = game.player;
+
+  let spawn_dist = Math.abs(m.spawnPointX - m._x) + Math.abs(m.spawnPointY - m._y);
+  if (spawn_dist >= m.minChaseRadius && m.currentAggro == 0) {
+    console.log("ACTIVE: will RETURN");
+    m.behaviorState = BehaviorState.RETURNING;
+  } else if (player_path.length > 3) {
+    let oldPos: [number, number] = [m._x, m._y];
+    let newKey = `${player_path[0][0]},${player_path[0][1]}`
+    if (newKey in activeMonsters) { 
       return
     }
-
-    let oldPos: [number, number] = [m._x, m._y];
     // the player is safe for now so update the monster position
     // to the first step on the path and redraw
-    let delta: [number, number] = [spawn_path[0][0] - m._x, spawn_path[0][1] - m._y ];
+    let delta: [number, number] = [player_path[0][0] - m._x, player_path[0][1] - m._y ];
     console.log("moving monster");
     console.log(delta);
     m.lastArrow = delta;
 
-    m._x = spawn_path[0][0];
-    m._y = spawn_path[0][1];
+    m._x = player_path[0][0];
+    m._y = player_path[0][1];
     // let newKey = m._x + "," + m._y;
     let newPos: [number, number] = [m._x, m._y];
     let animation = {
@@ -307,23 +281,130 @@ export function monsterAct(game:GameState, m:Monster, player_path:any[], activeM
         endTime: game.lastFrame + 250
     }
     game.animatingEntities[m.id] = animation;
+  } else if (player_path.length <= 3) {
+
+    // either attack or reload
+    if (m.stats["ammo"] == 0) {
+      m.stats["ammo"] = 1
+      return
+    }
+    
+    let angle = Math.atan2(  m._y - p._y,  m._x - p._x );
+    let orientation = 0;
+    let frac = angle / Math.PI;
+    if (frac < 0) {
+      frac += 1
+    }
+
+    if (frac < 1/16) {
+      orientation = 0;
+    } else if (frac < 3/16) {
+      orientation = 1;
+    } else if (frac < 5/16) {
+      orientation = 2;
+    } else if (frac < 7/16) {
+      orientation = 3;
+    } else if (frac < 9/16) {
+      orientation = 4;
+    } else if (frac < 11/16) {
+      orientation = 5;
+    } else if (frac < 13/16) {
+      orientation = 6;
+    } else if (frac < 15/16) {
+      orientation = 7
+    }
+
+    console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from monster at`,m._x, m._y, `target at`,p._x,p._y);
+    let id = uuidv4();
+    
+    let particle:Particle = {
+      id: id,
+      char: "A",
+      orientation: orientation,
+      startPos: [m._x, m._y],
+      endPos: [p._x, p._y],
+      startTime: game.lastFrame,
+      endTime: game.lastFrame + 300
+    }
+    game.particles.push(particle);
+    let damageRoll = RNG.getUniformInt(m.stats.baseDAM, m.stats.baseDAM + m.stats.varDAM);
+    damage(game, m, p, damageRoll);
+    m.stats["ammo"] -= 1;
+
+  }
+}
+
+function melee_engaged_behavior(game: GameState, m:Monster, player_path:any[], activeMonsters:{ [key:string]:Entity }) {
+  let p = game.player;
+
+  let spawn_dist = Math.abs(m.spawnPointX - m._x) + Math.abs(m.spawnPointY - m._y);
+  if (spawn_dist >= m.minChaseRadius && m.currentAggro == 0) {
+    console.log("ACTIVE: will RETURN");
+    m.behaviorState = BehaviorState.RETURNING;
+  } else if (player_path.length > 1) {
+    // draw whatever was on the last tile the monster was on
+    // let oldKey = m._x + "," + m._y;
+    let oldPos: [number, number] = [m._x, m._y];
+    let newKey = `${player_path[0][0]},${player_path[0][1]}`
+    if (newKey in activeMonsters) { 
+      return
+    }
+    // the player is safe for now so update the monster position
+    // to the first step on the path and redraw
+    let delta: [number, number] = [player_path[0][0] - m._x, player_path[0][1] - m._y ];
+    console.log("moving monster");
+    console.log(delta);
+    m.lastArrow = delta;
+
+    m._x = player_path[0][0];
+    m._y = player_path[0][1];
+    // let newKey = m._x + "," + m._y;
+    let newPos: [number, number] = [m._x, m._y];
+    let animation = {
+        id: m.id,
+        startPos: oldPos,
+        endPos: newPos,
+        startTime: game.lastFrame,
+        endTime: game.lastFrame + 250
+    }
+    game.animatingEntities[m.id] = animation;
+
+  } else if (player_path.length == 1) {
+    combat(game, m, p);
+    return
+  }
+}
+
+function return_behavior(game: GameState, m: Monster) {
+  let spawn_point = { _x: m.spawnPointX, _y: m.spawnPointY }
+  let return_path = targetPath(game, m, spawn_point as Entity, [], fullMap(game,));
+
+  if (return_path.length == 0) {
+    console.log("RETURNING: will inactivate");
+    m.behaviorState = BehaviorState.INACTIVE;
     return
   }
 
-  // // in this whole code block we use the ROT.js "astar" path finding
-  // // algorithm to help the monster figure out the fastest way to get
-  // // to the player - for implementation details check out the doc:
-  // // http://ondras.github.io/rot.js/manual/#path
-  // const astar = new Path.AStar(p._x, p._y, passableCallback, {topology:4});
-  // const path: any[] = [];
-  // const pathCallback = function(x:number, y:number) {
-  //   path.push([x, y]);
-  // }
-  // astar.compute(m._x, m._y, pathCallback);
+  let oldPos: [number, number] = [m._x, m._y];
+  // the player is safe for now so update the monster position
+  // to the first step on the path and redraw
+  let delta: [number, number] = [return_path[0][0] - m._x, return_path[0][1] - m._y ];
+  console.log("moving monster");
+  console.log(delta);
+  m.lastArrow = delta;
 
-  // // ignore the first move on the path as it is the starting point
-  // path.shift();
+  m._x = return_path[0][0];
+  m._y = return_path[0][1];
+  // let newKey = m._x + "," + m._y;
+  let newPos: [number, number] = [m._x, m._y];
+  let animation = {
+      id: m.id,
+      startPos: oldPos,
+      endPos: newPos,
+      startTime: game.lastFrame,
+      endTime: game.lastFrame + 250
+  }
+  game.animatingEntities[m.id] = animation;
+  return
 
-  // if the distance from the monster to the player is less than one
-  // square then initiate combat
 }
