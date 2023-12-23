@@ -102,7 +102,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "STR": 0,
         "DEF": 0,
         "AGI": 2,
-        "DEX": 0,
+        "DEX": 2,
         "xpValue": 1
       }
     }
@@ -114,7 +114,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "STR": 0,
         "DEF": 0,
         "AGI": 3,
-        "DEX": 0,
+        "DEX": 2,
         "xpValue": 1
       }
     }
@@ -126,7 +126,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "STR": 0,
         "DEF": 0,
         "AGI": 4,
-        "DEX": 0,
+        "DEX": 3,
         "xpValue": 3
       }
     }

@@ -9,7 +9,7 @@ import { goldAmountTable, levels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
-import { initLevel } from "../mapgen/Level";
+import { AllCellContents, getCell, initLevel } from "../mapgen/Level";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -250,12 +250,70 @@ export function win(game) {
 // or The Amulet
 export function checkItem(game:GameState, entity) {
   const key = entity._x + "," + entity._y;
+  let cell = getCell(game.level, entity._x, entity._y);
+  let newContents: AllCellContents[] = [];
+  for (let idx = 0; idx < cell.contents.length; idx++) {
+    let item = cell.contents[idx];
+    if (item.kind == "GoldContent") {
+      game.player.stats.gold += item.quantity;
+      renderStats(game.player);
+      toast(game, `You found ${item.quantity} gold!`);
+      game.player.inventory.push([item.item,""]);
+      sfx["win"].play();
+      delete game.items[key];  
+    } else if (item.kind == "ItemContent") {
+
+      if (item.item == "f" || game.items == "h") {
+        toast(game, `You found food!`);
+        if (game.player.stats.food < game.player.stats.maxFood) {
+            game.player.stats.food += 1;
+            // re-enable EAT
+            sfx["win"].play();
+            delete game.items[key];
+        } else {
+          newContents.push(item)
+          game.items[key] = "h"
+        }
+      } else if (game.items[key] == "r" || game.items[key] == "s") {
+        toast(game, `You found arrows!`);
+        if (game.player.stats.arrows < game.player.stats.maxArrows) {
+          game.player.stats.arrows += 2;
+          // re-enable BOW
+          if (game.player.stats.arrows > game.player.stats.maxArrows) {
+            game.player.stats.arrows = game.player.stats.maxArrows
+          }
+          sfx["win"].play();
+          delete game.items[key];  
+        } else {
+          newContents.push(item)
+          game.items[key] = "s";
+        }
+      }  
+
+    } else if (item.kind == "QuestItemContent") {
+
+      toast(game, `You found the ${item.item}`);
+      game.player.inventory.push([item.item,""]);
+      sfx["win"].play();
+      delete game.items[key];    
+    } else if (item.kind == "ContainerContent") {
+
+      toast(game, "This chest is empty.");
+      sfx["empty"].play();
+      delete game.items[key];  
+    } else if (item.kind == "ExitContent") {
+      newContents.push(item)
+      
+    }
+  }
+  cell.contents = newContents;
+
   if (game.items[key] == "Q") {
     // the amulet is hit initiate the win flow below
-    toast(game, "You found THE AMULET");
-    game.player.inventory.push(["amulet","the cursed amulet"])
-    sfx["win"].play();
-    delete game.items[key];
+    // toast(game, "You found THE AMULET");
+    // game.player.inventory.push(["amulet","the cursed amulet"])
+    // sfx["win"].play();
+    // delete game.items[key];
     // win(game);
   } else if (game.items[key] == "g") {
     // if the player stepped on gold
@@ -270,28 +328,28 @@ export function checkItem(game:GameState, entity) {
     sfx["win"].play();
     delete game.items[key];
   } else if (game.items[key] == "f" || game.items[key] == "h") {
-    toast(game, `You found food!`);
-    if (game.player.stats.food < game.player.stats.maxFood) {
-      game.player.stats.food += 1;
-      // re-enable EAT
-      sfx["win"].play();
-      delete game.items[key];
-    } else {
-      game.items[key] = "h"
-    }
+    // toast(game, `You found food!`);
+    // if (game.player.stats.food < game.player.stats.maxFood) {
+    //   game.player.stats.food += 1;
+    //   // re-enable EAT
+    //   sfx["win"].play();
+    //   delete game.items[key];
+    // } else {
+    //   game.items[key] = "h"
+    // }
   } else if (game.items[key] == "r" || game.items[key] == "s") {
-    toast(game, `You found arrows!`);
-    if (game.player.stats.arrows < game.player.stats.maxArrows) {
-      game.player.stats.arrows += 2;
-      // re-enable BOW
-      if (game.player.stats.arrows > game.player.stats.maxArrows) {
-        game.player.stats.arrows = game.player.stats.maxArrows
-      }
-      sfx["win"].play();
-      delete game.items[key];  
-    } else {
-      game.items[key] = "s";
-    }
+    // toast(game, `You found arrows!`);
+    // if (game.player.stats.arrows < game.player.stats.maxArrows) {
+    //   game.player.stats.arrows += 2;
+    //   // re-enable BOW
+    //   if (game.player.stats.arrows > game.player.stats.maxArrows) {
+    //     game.player.stats.arrows = game.player.stats.maxArrows
+    //   }
+    //   sfx["win"].play();
+    //   delete game.items[key];  
+    // } else {
+    //   game.items[key] = "s";
+    // }
   } else if (game.items[key] == "*") {
     // if an empty box is opened
     // by replacing with a floor tile, show the user

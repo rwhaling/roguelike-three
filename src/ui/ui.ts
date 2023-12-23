@@ -168,46 +168,32 @@ export function renderStats(player:Player) {
 
   const st = $("#hud");
   st.innerHTML = "";
+  let lower_skills_content = ""
   let moves = player.controls.moves;
   let selected = player.controls.selectedMove;
   console.log("selected move:", selected);
   // for (let s in stats) {
   moves.forEach((s,idx) => {
-    if (s.ready) {
-      if (idx === selected) {
-        attach(st, el("span", { "style": "text-decoration: underline" }, [s.name]));
-      } else {
-        attach(st, el("span", { "style": "text-decoration: none" }, [s.name]));
-      }
-    } else {
-      if (idx === selected) {
-        attach(st, el("span", { "style": "text-decoration: underline; color: darkgrey" }, [s.name]));
-      } else {
-        attach(st, el("span", { "style": "text-decoration: none; color: darkgrey" }, [s.name]));
-      }
-    }
+    let decoration = idx == selected ? "underline" : "none";
+    let color = s.ready ? "white" : "darkgrey"
+    let key = ["Q","W","E","R","T","Y"][idx]
+    lower_skills_content += `<span class='skill' style='text-decoration: ${decoration}; color: ${color}'>${key}-${s.name}</span>  `
   });
+  st.innerHTML = lower_skills_content;
 
   const skills_st = $("#skillhud");
   skills_st.innerHTML = "";
   let skills = player.controls.skills;
+  let skills_content = ""
+
   skills.forEach((s,idx) => {
     let real_idx = idx + moves.length;
-    if (s.ready) {
-      if (real_idx === selected) {
-        attach(skills_st, el("span", { "style": "text-decoration: underline" }, [s.name]));
-      } else {
-        attach(skills_st, el("span", { "style": "text-decoration: none" }, [s.name]));
-      }
-    } else {
-      if (real_idx === selected) {
-        attach(skills_st, el("span", { "style": "text-decoration: underline; color: darkgrey" }, [s.name]));
-      } else {
-        attach(skills_st, el("span", { "style": "text-decoration: none; color: darkgrey" }, [s.name]));
-      }
-    }
-  });
+    let decoration = real_idx === selected ? "underline" : "none";
+    let color = s.ready ? "white" : "darkgrey";
+    skills_content += `<span class ='skill' style='text-decoration: ${decoration}; color: ${color}'>${idx + 1}-${s.name}</span>  `
 
+  });
+  skills_st.innerHTML = skills_content;
   
 }
 
