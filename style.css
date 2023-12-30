@@ -267,7 +267,7 @@ a:hover {
   image-rendering: pixelated;
   transform: scale(8);
   background-image: url("colored_tilemap_packed.png");
-  margin: 80px auto;
+  margin: 40px auto;
 }
 
 .free {

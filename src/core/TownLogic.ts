@@ -1,4 +1,4 @@
-import { hideModalGame, renderTown } from "../ui/ui";
+import { hideModalGame, renderTown, showScreen } from "../ui/ui";
 import { init } from "./GameLogic";
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
 
@@ -25,6 +25,7 @@ export function getTownState(game,zone):TownState {
       ["shop", "Shop"],
       ["train", "Train"],
       ["castle", "The Castle"],
+      ["test", "Test"],
       ["return", "Return"]
     ]}
   } else if (zone == "shop") {
@@ -66,6 +67,7 @@ export function getTownState(game,zone):TownState {
 export function handleTownAction(game, zone, ev) {
   let choice = ev.target['id'];
   console.log("town action in zone", zone, ev, choice, ev.target.classList);
+  showScreen("town",ev)
   if (choice == "return") {
     init(game, 1);
     hideModalGame(ev);
@@ -84,7 +86,17 @@ export function handleTownAction(game, zone, ev) {
   } else if (choice == "castle" || zone == "castle") {
     let nextState = handleCastle(game, choice)
     renderTown(game, nextState)
+  } else if (choice == "test" || zone == "test") {
+    showScreen("townmenu",ev)
+  } else if (choice.startsWith("dungeon")) {
+    let level = parseInt(choice.slice(-1));
+    console.log("loading level ",level);
+    init(game, level);
+    hideModalGame(ev);
+    // let nextState = getTownState(game, "town");
+    // renderTown(game, nextState);  
   } else {
+    // This is an error at this point.
     let state = getTownState(game, choice);
     if (state) {
       console.log("rendering town for ", choice)
