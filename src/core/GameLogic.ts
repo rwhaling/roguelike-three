@@ -255,6 +255,7 @@ export function checkItem(game:GameState, entity) {
   for (let idx = 0; idx < cell.contents.length; idx++) {
     let item = cell.contents[idx];
     if (item.kind == "GoldContent") {
+      // Not implemented
       game.player.stats.gold += item.quantity;
       renderStats(game.player);
       toast(game, `You found ${item.quantity} gold!`);
@@ -263,7 +264,7 @@ export function checkItem(game:GameState, entity) {
       delete game.items[key];  
     } else if (item.kind == "ItemContent") {
 
-      if (item.item == "f" || game.items == "h") {
+      if (item.item == "f") {
         toast(game, `You found food!`);
         if (game.player.stats.food < game.player.stats.maxFood) {
             game.player.stats.food += 1;
@@ -274,7 +275,7 @@ export function checkItem(game:GameState, entity) {
           newContents.push(item)
           game.items[key] = "h"
         }
-      } else if (game.items[key] == "r" || game.items[key] == "s") {
+      } else if (item.item == "r") {
         toast(game, `You found arrows!`);
         if (game.player.stats.arrows < game.player.stats.maxArrows) {
           game.player.stats.arrows += 2;
@@ -288,78 +289,45 @@ export function checkItem(game:GameState, entity) {
           newContents.push(item)
           game.items[key] = "s";
         }
-      }  
-
+      } else if (item.item == "g") {
+        let [lower, upper, bonus] = goldAmountTable[game.currentLevel];
+        let goldAmount = RNG.getUniformInt(lower, upper);
+        game.player.stats.gold += goldAmount;
+        renderStats(game.player);
+        toast(game, `You found ${goldAmount} gold!`);
+        sfx["win"].play();
+        delete game.items[key];            
+      } else if (item.item == "*") {
+        toast(game, "This chest is empty.");
+        sfx["empty"].play();
+        delete game.items[key];    
+      } else if (item.item == "<") {
+        toast(game, "These are the stairs up");
+      } else if (item.item == ">") {
+        toast(game, "These are the stairs down");
+      } else if (item.item == "Q") {
+        toast(game, `You found the ${item.item}`);
+        game.player.inventory.push([item.item,""]);
+        sfx["win"].play();
+        delete game.items[key];      
+      }
     } else if (item.kind == "QuestItemContent") {
-
+      // Not implemented
       toast(game, `You found the ${item.item}`);
       game.player.inventory.push([item.item,""]);
       sfx["win"].play();
       delete game.items[key];    
     } else if (item.kind == "ContainerContent") {
+      // Not implemented
 
       toast(game, "This chest is empty.");
       sfx["empty"].play();
       delete game.items[key];  
     } else if (item.kind == "ExitContent") {
+      // Not implemented
       newContents.push(item)
       
     }
   }
   cell.contents = newContents;
-
-  if (game.items[key] == "Q") {
-    // the amulet is hit initiate the win flow below
-    // toast(game, "You found THE AMULET");
-    // game.player.inventory.push(["amulet","the cursed amulet"])
-    // sfx["win"].play();
-    // delete game.items[key];
-    // win(game);
-  } else if (game.items[key] == "g") {
-    // if the player stepped on gold
-    // increment their gold stat,
-    // show a message, re-render the stats
-    // then play the pickup/win sound
-    let [lower, upper, bonus] = goldAmountTable[game.currentLevel];
-    let goldAmount = RNG.getUniformInt(lower, upper);
-    game.player.stats.gold += goldAmount;
-    renderStats(game.player);
-    toast(game, `You found ${goldAmount} gold!`);
-    sfx["win"].play();
-    delete game.items[key];
-  } else if (game.items[key] == "f" || game.items[key] == "h") {
-    // toast(game, `You found food!`);
-    // if (game.player.stats.food < game.player.stats.maxFood) {
-    //   game.player.stats.food += 1;
-    //   // re-enable EAT
-    //   sfx["win"].play();
-    //   delete game.items[key];
-    // } else {
-    //   game.items[key] = "h"
-    // }
-  } else if (game.items[key] == "r" || game.items[key] == "s") {
-    // toast(game, `You found arrows!`);
-    // if (game.player.stats.arrows < game.player.stats.maxArrows) {
-    //   game.player.stats.arrows += 2;
-    //   // re-enable BOW
-    //   if (game.player.stats.arrows > game.player.stats.maxArrows) {
-    //     game.player.stats.arrows = game.player.stats.maxArrows
-    //   }
-    //   sfx["win"].play();
-    //   delete game.items[key];  
-    // } else {
-    //   game.items[key] = "s";
-    // }
-  } else if (game.items[key] == "*") {
-    // if an empty box is opened
-    // by replacing with a floor tile, show the user
-    // a message, and play the "empty" sound effect
-    toast(game, "This chest is empty.");
-    sfx["empty"].play();
-    delete game.items[key];
-  } else if (game.items[key] == "<") {
-    toast(game, "These are the stairs up");
-  } else if (game.items[key] == ">") {
-    toast(game, "These are the stairs down");
-  }
 }
