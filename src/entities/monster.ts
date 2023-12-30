@@ -64,7 +64,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "baseDAM": 2,
         "varDAM": 5,
         "STR": 0,
-        "DEF": 0,
+        "DEF": 1,
         "AGI": 6,
         "DEX": 0,
         "xpValue": 3
@@ -76,7 +76,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "baseDAM": 3,
         "varDAM": 6,
         "STR": 0,
-        "DEF": 1,
+        "DEF": 2,
         "AGI": 7,
         "DEX": 1,
         "xpValue": 4
@@ -84,11 +84,11 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     }
     case "melee_4": {
       return {
-        "hp": 15,
+        "hp": 12,
         "baseDAM": 3,
         "varDAM": 6,
         "STR": 0,
-        "DEF": 1,
+        "DEF": 3,
         "AGI": 7,
         "DEX": 2,
         "xpValue": 6
@@ -108,11 +108,11 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     }
     case "critter_2": {
       return {
-        "hp": 4,
+        "hp": 3,
         "baseDAM": 1,
         "varDAM": 4,
         "STR": 0,
-        "DEF": 0,
+        "DEF": 1,
         "AGI": 3,
         "DEX": 2,
         "xpValue": 1
@@ -120,11 +120,11 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     }
     case "critter_3": {
       return {
-        "hp": 6,
+        "hp": 4,
         "baseDAM": 2,
         "varDAM": 5,
         "STR": 0,
-        "DEF": 0,
+        "DEF": 2,
         "AGI": 4,
         "DEX": 3,
         "xpValue": 3

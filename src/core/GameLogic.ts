@@ -39,10 +39,10 @@ export function init(game:GameState, n: number) {
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
   console.log("spawning map, game state now:",game);
   // spawnLevel(game, digger, freeCells);
-  if (n <= 3) {
+  if (n <= 6) {
     spawnLevelFrom(game, digger, levels[n]);
   } else {
-    spawnLevelFrom(game, digger, levels[3]);
+    spawnLevelFrom(game, digger, levels[6]);
   }
 
   // let ROT.js schedule the player and monster entities

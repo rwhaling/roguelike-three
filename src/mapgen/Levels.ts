@@ -103,14 +103,123 @@ let level3: LevelSpawner = {
   ]
 }
 
+let level4: LevelSpawner = {
+  level: 4,
+  default: [
+    ["monster", "a skeleton", 0.3],
+    ["monster", "a bat", 0.75],
+    ["monster", "a spider", 0.5],
+    ["item", "g", 1.0],
+    ["item", "*", 1.0],
+    ["item", "r", 1.0]
+  ],
+  last: [
+    ["monster", "a skeleton", 1.0],
+    ["monster", "a spider", 1.0],
+    ["item", "g", 1.0],
+    ["item", "g", 1.0],
+    ["item", "r", 1.0]
+  ],
+  rooms: [
+    [
+      ["item", "g", 1.0],
+      ["item", "*", 1.0],
+      ["item", "r", 1.0],
+      ["item", "Q", 1.0]
+    ],[
+      ["monster", "a bat", 1.0],
+      ["monster", "a spider", 1.0],  
+      ["item", "g", 1.0],
+      ["item", "*", 1.0],
+      ["item", "f", 1.0]
+    ]
+  ]
+}
+
+
+let level5: LevelSpawner = {
+  level: 5,
+  default: [
+    ["monster", "a skeleton", 0.75],
+    ["monster", "a bat", 0.75],
+    ["monster", "a spider", 0.75],
+    ["item", "g", 1.0],
+    ["item", "*", 1.0],
+    ["item", "r", 1.0]
+  ],
+  last: [
+    ["monster", "a skeleton", 1.0],
+    ["monster", "a skeleton mage", 1.0],
+    ["item", "g", 1.0],
+    ["item", "g", 1.0],
+    ["item", "r", 1.0]
+  ],
+  rooms: [
+    [
+      ["item", "g", 1.0],
+      ["item", "*", 1.0],
+      ["item", "r", 1.0]  
+    ],[
+      ["monster", "a skeleton mage", 1.0],
+      ["monster", "a bat", 1.0],
+      ["monster", "a spider", 1.0],  
+      ["item", "g", 1.0],
+      ["item", "*", 1.0],
+      ["item", "f", 1.0]
+    ]
+  ]
+}
+
+let level6: LevelSpawner = {
+  level: 6,
+  default: [
+    ["monster", "a skeleton mage", 0.5],
+    ["monster", "a skeleton", 0.75],
+    ["monster", "a spider", 0.75],
+    ["monster", "a bat", 0.5],
+    ["item", "g", 1.0],
+    ["item", "*", 1.0],
+    ["item", "r", 1.0]
+  ],
+  last: [
+    ["monster", "a skeleton", 1.0],
+    ["monster", "a skeleton", 1.0],
+    ["monster", "a skeleton warrior", 1.0],
+    ["item", "g", 1.0],
+    ["item", "g", 1.0],
+    ["item", "r", 1.0]
+  ],
+  rooms: [
+    [
+      ["monster", "a bat", 1.0],
+      ["item", "g", 1.0],
+      ["item", "*", 1.0],
+      ["item", "r", 1.0]  
+    ],[
+      ["monster", "a skeleton", 1.0],
+      ["monster", "a skeleton mage", 1.0],
+      ["monster", "a spider", 1.0],  
+      ["item", "g", 1.0],
+      ["item", "*", 1.0],
+      ["item", "f", 1.0]
+    ]
+  ]
+}
+
 export let levels: {[key:number]: LevelSpawner} = {
   1: level1,
   2: level2,
   3: level3,
+  4: level4,
+  5: level5,
+  6: level6
 }
 
 export let goldAmountTable: {[key:number]: [number, number, number]} = {
   1: [1,4,5],
   2: [3,6,7],
-  3: [5,9,15]
+  3: [5,9,15],
+  4: [12,15,18],
+  5: [15,18,21],
+  6: [18,21,24]
 }

@@ -78,13 +78,13 @@ export function handleTownAction(game, zone, ev) {
     let nextState = handleInn(game, choice);
     renderTown(game, nextState);
   } else if (choice == "train" || zone == "train") {
-    let nextState = handleTrain(game, choice)
+    let nextState = handleTrain(game, choice);
     renderTown(game, nextState);
   } else if (choice == "shop" || zone == "shop") {
-    let nextState = handleShop(game, choice)
+    let nextState = handleShop(game, choice);
     renderTown(game, nextState);  
   } else if (choice == "castle" || zone == "castle") {
-    let nextState = handleCastle(game, choice)
+    let nextState = handleCastle(game, choice);
     renderTown(game, nextState)
   } else if (choice == "test" || zone == "test") {
     showScreen("townmenu",ev)
@@ -93,8 +93,6 @@ export function handleTownAction(game, zone, ev) {
     console.log("loading level ",level);
     init(game, level);
     hideModalGame(ev);
-    // let nextState = getTownState(game, "town");
-    // renderTown(game, nextState);  
   } else {
     // This is an error at this point.
     let state = getTownState(game, choice);
