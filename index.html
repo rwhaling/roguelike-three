@@ -151,10 +151,14 @@
     </div>
 
     <div id="townmenu" class="screen modal">
-      <div class="nes-container is-rounded is-bordered is-dark with-title is-centered">
-        <p class="title">Level Select</p>
-        <div class="sprite town"></div>
+      <!-- <div class="nes-container is-rounded is-bordered is-dark with-title is-centered">
+        <p class="title">Level Select</p> -->
+        <!-- <div class="sprite town"></div> -->
           <table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
+            <tr rowspan="4">
+              <td colspan="2"><div class="sprite town"></div>
+                <p>Which level do you wish to return to?</p></td>
+            </tr>
             <tr>
               <td><button class="nes-btn is-success townaction" id="dungeon1">dungeon1</button></td>
               <td><button class="nes-btn is-success townaction" id="dungeon4">dungeon4</button></td>
@@ -168,12 +172,24 @@
               <td><button class="nes-btn is-success townaction" id="dungeon6">dungeon6</button></td>
             </tr>
             <tr>
+              <td><a class="nes-badge"><span class="is-success" id="load-dungeon-1">dungeon1</span></span></td>
+              <td><a class="nes-badge"><span class="is-success" id="load-dungeon-2">dungeon2</span></span></td>
+            </tr>
+            <tr>
+              <td><a class="nes-badge"><span class="is-success" id="load-dungeon-3">dungeon3</span></span></td>
+              <td><a class="nes-badge"><span class="is-success" id="load-dungeon-4">dungeon4</span></span></td>
+            </tr>
+            <tr>
+              <td>description goes here:</td>
+              <td> <a class="nes-badge"><span class="is-success" id="load-dungeon-5">dungeon3</span></span></td>
+            </tr>
+  
               <td colspan="2">
                 <button class="nes-btn is-success townaction" id="town">Return</button>
               </td>
             </tr>
         </table>
-      </div>
+      <!-- </div> -->
     </div>
 
 

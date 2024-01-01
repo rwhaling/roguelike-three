@@ -217,9 +217,9 @@ export let levels: {[key:number]: LevelSpawner} = {
 
 export let goldAmountTable: {[key:number]: [number, number, number]} = {
   1: [1,4,5],
-  2: [3,6,7],
-  3: [5,9,15],
-  4: [12,15,18],
-  5: [15,18,21],
-  6: [18,21,24]
+  2: [2,6,7],
+  3: [3,8,15],
+  4: [8,15,18],
+  5: [10,18,21],
+  6: [12,21,24]
 }

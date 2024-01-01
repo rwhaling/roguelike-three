@@ -1,13 +1,18 @@
-import { hideModalGame, renderTown, showScreen } from "../ui/ui";
+import GameState from "../gamestate";
+import { hideModalGame, renderLevelSelect, renderTown, showScreen } from "../ui/ui";
 import { init } from "./GameLogic";
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
 
-// type TownState = [string, string][]
+
+export type TownNavChoice = ['nav',string, string]
+export type TownShopChoice = ['shop',string, string]
+export type TownChoice = TownNavChoice | TownShopChoice
+
 export interface TownState {
   zone: string,
   icon: string,
   description: string,
-  choices: [string, string][]
+  choices: TownChoice[]
 }
 
 export function getTownState(game,zone):TownState {
@@ -15,53 +20,19 @@ export function getTownState(game,zone):TownState {
   let d = `<p>zone: ${zone}</p>
   <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
   <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}`
-  if (zone == "town") {
-    return {
-      zone: "town",
-      icon: i,
-      description: d,
-      choices: [
-      ["inn", "Inn [Restore HP] (5 GP)"],
-      ["shop", "Shop"],
-      ["train", "Train"],
-      ["castle", "The Castle"],
-      ["test", "Test"],
-      ["return", "Return"]
-    ]}
-  } else if (zone == "shop") {
-    return {
-      zone: "shop",
-      icon: i,
-      description: d,
-      choices: [
-      ["food", "Buy food"],
-      ["maxfood", "Increase max food"],
-      ["arrows", "Buy arrows"],
-      ["maxarrows", "Increase max arrows"],
-      ["town", "Return"]
-    ]}
-  } else if (zone == "train") {
-    return {
-      zone: "train",
-      icon: i,
-      description: d,
-      choices: [
-      ["dex", "Improve DEX"],
-      ["agi", "Improve AGI"],
-      ["town", "Return"]
-    ]}
-  } else {
-    return {
-      zone: "town",
-      icon: i,
-      description: d,
-      choices: [
-      ["inn", "Inn (5 gold)"],
-      ["shop", "Shop"],
-      ["train", "Train"],
-      ["return", "Return"]
-    ]}
-  }
+  return {
+    zone: "town",
+    icon: i,
+    description: d,
+    choices: [
+    ["nav","inn", "Inn [Restore HP] (5 GP)"],
+    ["nav","shop", "Shop"],
+    ["nav","train", "Train"],
+    ["nav","castle", "The Castle"],
+    ["nav","levelselect", "Level Select"],
+    ["nav","return", "Return"]
+  ]}
+
 }
 
 export function handleTownAction(game, zone, ev) {
@@ -86,13 +57,16 @@ export function handleTownAction(game, zone, ev) {
   } else if (choice == "castle" || zone == "castle") {
     let nextState = handleCastle(game, choice);
     renderTown(game, nextState)
-  } else if (choice == "test" || zone == "test") {
-    showScreen("townmenu",ev)
-  } else if (choice.startsWith("dungeon")) {
-    let level = parseInt(choice.slice(-1));
-    console.log("loading level ",level);
-    init(game, level);
-    hideModalGame(ev);
+  } else if (choice == "levelselect" || zone == "levelselect") {
+    if (choice.startsWith("dungeon")) {
+      let level = parseInt(choice.slice(-1));
+      console.log("loading level ",level);
+      init(game, level);
+      hideModalGame(ev);
+    } else {
+      let choices = getLevelSelections(game);
+      renderLevelSelect(game, choices);  
+    }
   } else {
     // This is an error at this point.
     let state = getTownState(game, choice);
@@ -155,15 +129,15 @@ export function handleShop(game, choice):TownState {
       break
   }
   
-  let options: [string, string][] = [["food","buy food [10 GP]"]]
+  let options: TownChoice[] = [["shop","food","buy food [10 GP]"]]
   if (next_max_food_cost) {
-    options.push(["maxfood",`max food ${game.player.stats.maxFood} -> ${next_max_food} (${next_max_food_cost} GP)`])
+    options.push(["shop","maxfood",`max food<br/>${game.player.stats.maxFood} -> ${next_max_food} [${next_max_food_cost} GP]`])
   }
-  options.push(["morearrows", "buy more arrows [5GP]"])
+  options.push(["shop","morearrows", "buy more arrows [5GP]"])
   if (next_max_arrows) {
-    options.push(["maxarrows", `max arrows ${game.player.stats.maxArrows} -> ${next_max_arrows} (${next_max_arrows_cost} GP)`])
+    options.push(["shop","maxarrows", `max arrows<br/>${game.player.stats.maxArrows} -> ${next_max_arrows} [${next_max_arrows_cost} GP]`])
   }
-  options.push(["town","return"])
+  options.push(["nav","town","return"])
    
 
 
@@ -196,7 +170,7 @@ export function handleShop(game, choice):TownState {
 
 
   let i = "town";
-  let d = `<p>zone: train</p>
+  let d = `<p>zone: shop</p>
   <p>Spend GP to improve your gear.</p>
   <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
   <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
@@ -214,7 +188,7 @@ export function handleShop(game, choice):TownState {
 export function handleCastle(game, choice): TownState {
   let hasAmulet = game.player.inventory.map( i => i[0]).indexOf("amulet") != -1;
   console.log("loading town, has amulet:", hasAmulet, "inventory:", game.player.inventory);
-  let options: [string, string][] = [["town","return"]]
+  let options: TownChoice[] = [["nav","town","return"]]
   let i = "castle"  
 
   if (choice == "castle" && hasAmulet == false) {
@@ -231,7 +205,7 @@ export function handleCastle(game, choice): TownState {
   if (choice == "castle" && hasAmulet == true) {
     let d = `<p>zone: castle</p>
     <p>Give me the amulet of Yendor!</p>`
-    options.unshift(["turnin", "Hand over the amulet"])
+    options.unshift(["nav","turnin", "Hand over the amulet"])
     return {
       zone: "castle",
       icon: i,
@@ -246,7 +220,7 @@ export function handleCastle(game, choice): TownState {
     console.log("inventory after:", game.player.inventory)
     let d = `<p>zone: castle</p>
     <p>Here are some coins. Please leave now.</p>`
-    options = [["return", "You won?"]]
+    options = [["nav","return", "You won?"]]
     return {
       zone: "castle",
       icon: i,
@@ -260,7 +234,7 @@ export function handleCastle(game, choice): TownState {
   }
 }
 
-export function handleTrain(game, choice): TownState {
+export function handleTrain(game, choice):TownState {
   let dexCosts = { 
     1: 10,
     2: 20,
@@ -285,12 +259,12 @@ export function handleTrain(game, choice): TownState {
   let next_dex_cost = dexCosts[next_dex]
   let next_agi_cost = agiCosts[next_agi]
 
-  let options: [string,string][] = [["town", "Return"]]
+  let options: TownChoice[] = [["nav","town", "Return"]]
   if (next_agi_cost) {
-    options.unshift(["agi", `AGI ${game.player.stats.AGI} -> ${next_agi} (${next_agi_cost} XP)`])
+    options.unshift(["shop","agi", `AGI ${game.player.stats.AGI} -> ${next_agi} (${next_agi_cost} XP)`])
   }
   if (next_dex_cost) {
-    options.unshift(["dex", `DEX ${game.player.stats.DEX} -> ${next_dex} (${next_dex_cost} XP)`])
+    options.unshift(["shop","dex", `DEX ${game.player.stats.DEX} -> ${next_dex} (${next_dex_cost} XP)`])
   }
 
   if (choice == "dex") {
@@ -318,4 +292,8 @@ export function handleTrain(game, choice): TownState {
     description: d,
     choices: options
   }
+}
+
+export function getLevelSelections(game:GameState): string[] {
+  return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6"]
 }
