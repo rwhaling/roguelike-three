@@ -25,7 +25,7 @@ export function getTownState(game,zone):TownState {
     icon: i,
     description: d,
     choices: [
-    ["nav","inn", "Inn [Restore HP] (5 GP)"],
+    ["nav","inn", "Inn"],
     ["nav","shop", "Shop"],
     ["nav","train", "Train"],
     ["nav","castle", "The Castle"],
@@ -45,7 +45,7 @@ export function handleTownAction(game, zone, ev) {
   } else if (choice == "town") {
     let nextState = getTownState(game, choice);
     renderTown(game, nextState);
-  } else if (choice == "inn") {
+  } else if (choice == "inn" || zone == "inn") {
     let nextState = handleInn(game, choice);
     renderTown(game, nextState);
   } else if (choice == "train" || zone == "train") {
@@ -81,13 +81,36 @@ export function handleTownAction(game, zone, ev) {
 
 export function handleInn(game, choice):TownState {
   let p = game.player;
-  if (p.stats.gold >= 5) {
-    p.stats.gold -= 5;
-    p.stats.hp = p.stats.maxHP;
-  } else {
-
+  if (choice == "rest") {
+    if (p.stats.gold >= 5) {
+      p.stats.gold -= 5;
+      p.stats.hp = p.stats.maxHP;
+    }
+  } else if (choice == "resupply") {
+    if (p.stats.gold >= 10) {
+      p.stats.gold -= 10;
+      p.stats.food = p.stats.maxFood;
+      p.stats.arrows = p.stats.maxArrows;
+    }
   }
-  return getTownState(game, "town");
+  let options: TownChoice[] = [
+    ["shop","rest","Rest<br/> recover full HP [5 GP]"],
+    ["shop","resupply","Resupply<br/> full food and arrows [10 GP]"],
+    ["nav","return","Return"]
+  ]
+
+  let d = `<p>zone: inn</p>
+  <p>Welcome! You can recover here <br/>before you go back</p>
+  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
+  <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
+  <p>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
+
+  return {
+    zone: "inn",
+    icon: "town",
+    description: d,
+    choices: options
+  }
 }
 
 export function handleShop(game, choice):TownState {
@@ -107,11 +130,21 @@ export function handleShop(game, choice):TownState {
     15: 150
   }
 
+  let armorCosts = {
+    1: 75,
+    2: 150,
+    3: 300
+  }
+
   let next_max_food = game.player.stats.maxFood + 1
   let next_max_food_cost = maxFoodCosts[next_max_food]
 
   let next_max_arrows = undefined
   let next_max_arrows_cost = undefined
+
+  let next_def = game.player.stats.DEF + 1
+  let next_def_cost = armorCosts[next_def]
+
   switch(game.player.stats.maxArrows) {
     case 5: 
       next_max_arrows = 8
@@ -129,32 +162,18 @@ export function handleShop(game, choice):TownState {
       break
   }
   
-  let options: TownChoice[] = [["shop","food","buy food [10 GP]"]]
+  let options: TownChoice[] = []
   if (next_max_food_cost) {
     options.push(["shop","maxfood",`max food<br/>${game.player.stats.maxFood} -> ${next_max_food} [${next_max_food_cost} GP]`])
   }
-  options.push(["shop","morearrows", "buy more arrows [5GP]"])
   if (next_max_arrows) {
     options.push(["shop","maxarrows", `max arrows<br/>${game.player.stats.maxArrows} -> ${next_max_arrows} [${next_max_arrows_cost} GP]`])
   }
-  options.push(["nav","town","return"])
-   
-
-
-
-  let p = game.player;
-
-  if (p.stats.gold >= 5) {
-    if (choice == "food" && p.stats.food < p.stats.maxFood) {
-      p.stats.gold -= 5; // maybe bump to 10?
-      p.stats.food = p.stats.maxFood;
-    } else if (choice == "morearrows" && p.stats.arrows < p.stats.maxArrows) {
-      p.stats.gold -= 5;
-      p.stats.food = p.stats.maxArrows;
-    }
-  } else {
-
+  if (next_def_cost) {
+    options.push(["shop","armor",`Increase DEF +1<br/>${game.player.stats.DEF} -> ${game.player.stats.DEF + 1} [${next_def_cost} GP]`])
   }
+  options.push(["nav","town","return"])
+  let p = game.player;
 
   if (choice == "maxfood") {
     game.player.stats.maxFood = next_max_food;
@@ -163,6 +182,10 @@ export function handleShop(game, choice):TownState {
   } else if (choice == "maxarrows") {
     game.player.stats.maxArrows = next_max_arrows;
     game.player.baseStats.maxArrows = next_max_arrows;
+    return handleShop(game, "shop");
+  } else if (choice == "armor") {
+    game.player.stats.DEF = next_def;
+    game.player.baseStats.DEF = next_def;
     return handleShop(game, "shop");
   } else if (choice == "return") {
     return getTownState(game, "town");

@@ -42,7 +42,7 @@ export class Monster {
   act: () => void
 }
 
-type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2"
+type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "melee_boss_1" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2"
 
 function _monsterStats(typ: MonsterType): { [key:string]:number} {
   switch (typ) {
@@ -74,7 +74,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 10,
         "baseDAM": 3,
-        "varDAM": 6,
+        "varDAM": 5,
         "STR": 0,
         "DEF": 2,
         "AGI": 7,
@@ -92,6 +92,18 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "AGI": 7,
         "DEX": 2,
         "xpValue": 6
+      }
+    }
+    case "melee_boss_1": {
+      return {
+        "hp": 20,
+        "baseDAM": 4,
+        "varDAM": 5,
+        "STR": 0,
+        "DEF": 3,
+        "AGI": 7,
+        "DEX": 2,
+        "xpValue": 10
       }
     }
     case "critter_1": {
@@ -186,7 +198,7 @@ function getMonsterData(monsterName:string):MonsterData {
     case "a death knight":
       return [[192, 160], "melee_4", MonsterAI.MELEE]
     case "a reaper":
-      return [[128, 320], "melee_4", MonsterAI.MELEE]
+      return [[128, 320], "melee_boss_1", MonsterAI.MELEE]
   }
 }
   

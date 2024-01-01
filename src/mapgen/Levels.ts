@@ -21,8 +21,7 @@ let level1: LevelSpawner = {
     [
       ["item", "g", 1.0],
       ["item", "*", 1.0],
-      ["item", "r", 1.0],
-      ["item", "Q", 1.0]
+      ["item", "r", 1.0]
     ],[
       ["monster", "a rat", 1.0],
       ["monster", "a snake", 1.0],  
@@ -70,8 +69,9 @@ let level2: LevelSpawner = {
 let level3: LevelSpawner = {
   level: 3,
   default: [
-    ["monster", "a goblin mage", 0.5],
-    ["monster", "a goblin", 0.75],
+    ["monster", "a goblin mage", 0.4],
+    ["monster", "a goblin", 0.6],
+    ["monster", "a goblin peltast", 0.5],
     ["monster", "a snake", 0.75],
     ["monster", "a rat", 0.5],
     ["item", "g", 1.0],
@@ -81,7 +81,7 @@ let level3: LevelSpawner = {
   last: [
     ["monster", "a goblin", 1.0],
     ["monster", "a goblin", 1.0],
-    ["monster", "a goblin peltast", 1.0],
+    ["monster", "a death knight", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
     ["item", "r", 1.0]
@@ -140,7 +140,8 @@ let level4: LevelSpawner = {
 let level5: LevelSpawner = {
   level: 5,
   default: [
-    ["monster", "a skeleton", 0.75],
+    ["monster", "a skeleton", 0.5],
+    ["monster", "a skeleton warrior", 0.75],
     ["monster", "a bat", 0.75],
     ["monster", "a spider", 0.75],
     ["item", "g", 1.0],
@@ -148,7 +149,7 @@ let level5: LevelSpawner = {
     ["item", "r", 1.0]
   ],
   last: [
-    ["monster", "a skeleton", 1.0],
+    ["monster", "a skeleton warrior", 1.0],
     ["monster", "a skeleton mage", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
@@ -174,7 +175,7 @@ let level6: LevelSpawner = {
   level: 6,
   default: [
     ["monster", "a skeleton mage", 0.5],
-    ["monster", "a skeleton", 0.75],
+    ["monster", "a skeleton warrior", 0.75],
     ["monster", "a spider", 0.75],
     ["monster", "a bat", 0.5],
     ["item", "g", 1.0],
@@ -184,10 +185,11 @@ let level6: LevelSpawner = {
   last: [
     ["monster", "a skeleton", 1.0],
     ["monster", "a skeleton", 1.0],
-    ["monster", "a skeleton warrior", 1.0],
+    ["monster", "a reaper", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0]
+    ["item", "r", 1.0],
+    ["item", "Q", 1.0]
   ],
   rooms: [
     [
