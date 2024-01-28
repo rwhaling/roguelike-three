@@ -58,14 +58,19 @@ export function handleTownAction(game, zone, ev) {
     let nextState = handleCastle(game, choice);
     renderTown(game, nextState)
   } else if (choice == "levelselect" || zone == "levelselect") {
-    if (choice.startsWith("dungeon")) {
-      let level = parseInt(choice.slice(-1));
-      console.log("loading level ",level);
-      init(game, level);
-      hideModalGame(ev);
-    } else {
+    if (choice == "levelselect") {
       let choices = getLevelSelections(game);
       renderLevelSelect(game, choices);  
+    } else if (choice.startsWith("dungeon")) {
+      let level = parseInt(choice.slice(-1));
+      console.log("loading level ",level);
+      init(game, level, "dungeon");
+      hideModalGame(ev);
+    } else if (choice.startsWith("cave")) {
+      let level = parseInt(choice.slice(-1));
+      console.log("loading CAVE level ",level);
+      init(game, level, "cave");
+      hideModalGame(ev);
     }
   } else {
     // This is an error at this point.
@@ -318,5 +323,6 @@ export function handleTrain(game, choice):TownState {
 }
 
 export function getLevelSelections(game:GameState): string[] {
-  return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6"]
+  return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6",
+          "cave1","cave2","cave3","cave4","cave5","cave6"]
 }

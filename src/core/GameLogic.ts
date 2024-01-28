@@ -18,7 +18,7 @@ export const walkable = [".", "*", "g"]
 // to exit back out and clean everything up to display
 // the menu and get ready for next round
 
-export function init(game:GameState, n: number) {
+export function init(game:GameState, n: number, biome:string = "dungeon") {
   let width = 80
   let height = 60
   game.map = {};
@@ -36,9 +36,9 @@ export function init(game:GameState, n: number) {
   // this is where we populate the map data structure
   // with all of the background tiles, items,
   // player and the monster positions
-  let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
-  console.log("spawning map, game state now:",game);
+  console.log(`spawning map (BIOME ${biome}), game state now:`,game);
   // spawnLevel(game, digger, freeCells);
+  let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
   if (n <= 6) {
     spawnLevelFrom(game, digger, levels[n]);
   } else {
@@ -177,6 +177,10 @@ export function combat(game, hitter, receiver) {
   if (hitRoll + hitter.stats.DEX > receiver.stats.AGI) {
     let damageRoll = RNG.getUniformInt(0,hitter.stats.varDAM);
     let dam = hitter.stats.baseDAM + damageRoll + hitter.stats.STR - receiver.stats.DEF;
+    if (dam <= 0) {
+      // TODO: plink formula
+      dam = 1
+    }
     damage(game, hitter, receiver, dam);
   } else {
     sfx["miss"].play();

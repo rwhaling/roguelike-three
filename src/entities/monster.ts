@@ -50,7 +50,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {  
         "hp": 8,
         "baseDAM": 2,
-        "varDAM": 4,
+        "varDAM": 3,
         "STR": 0,
         "DEF": 0,
         "AGI": 5,
@@ -62,7 +62,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 9,
         "baseDAM": 2,
-        "varDAM": 5,
+        "varDAM": 3,
         "STR": 0,
         "DEF": 1,
         "AGI": 6,
@@ -74,7 +74,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 10,
         "baseDAM": 3,
-        "varDAM": 5,
+        "varDAM": 3,
         "STR": 0,
         "DEF": 2,
         "AGI": 7,
@@ -86,7 +86,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 12,
         "baseDAM": 3,
-        "varDAM": 6,
+        "varDAM": 3,
         "STR": 0,
         "DEF": 3,
         "AGI": 7,
@@ -98,9 +98,9 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 20,
         "baseDAM": 4,
-        "varDAM": 5,
+        "varDAM": 3,
         "STR": 0,
-        "DEF": 3,
+        "DEF": 2,
         "AGI": 7,
         "DEX": 2,
         "xpValue": 10
@@ -110,7 +110,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 2,
         "baseDAM": 1,
-        "varDAM": 3,
+        "varDAM": 2,
         "STR": 0,
         "DEF": 0,
         "AGI": 2,
@@ -122,7 +122,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 3,
         "baseDAM": 1,
-        "varDAM": 4,
+        "varDAM": 3,
         "STR": 0,
         "DEF": 1,
         "AGI": 3,
@@ -134,7 +134,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 4,
         "baseDAM": 2,
-        "varDAM": 5,
+        "varDAM": 3,
         "STR": 0,
         "DEF": 2,
         "AGI": 4,
@@ -159,7 +159,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 7,
         "baseDAM": 2,
-        "varDAM": 4,
+        "varDAM": 2,
         "STR": 0,
         "DEF": 0,
         "AGI": 4,

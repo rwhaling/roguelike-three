@@ -548,7 +548,7 @@ function eatAction(game, player:Player): boolean {
     player.stats.hp = player.stats.maxHP;
     player.stats.food -= 1;
     if (player.stats.food == 0) {
-        player.controls.skills[1].ready = false;
+        player.controls.skills[0].ready = false;
     }
 
     console.log("spawning green tile flash at ", [player._x, player._y])
