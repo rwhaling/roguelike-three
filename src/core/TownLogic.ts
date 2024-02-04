@@ -2,6 +2,7 @@ import GameState from "../gamestate";
 import { hideModalGame, renderLevelSelect, renderTown, showScreen } from "../ui/ui";
 import { init } from "./GameLogic";
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
+import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 
 
 export type TownNavChoice = ['nav',string, string]
@@ -214,33 +215,78 @@ export function handleShop(game, choice):TownState {
 }
 
 export function handleCastle(game, choice): TownState {
+  console.log("loading castle, choice:", choice)
+
+
   let hasAmulet = game.player.inventory.map( i => i[0]).indexOf("amulet") != -1;
   console.log("loading town, has amulet:", hasAmulet, "inventory:", game.player.inventory);
-  let options: TownChoice[] = [["nav","town","return"]]
-  let i = "castle"  
 
-  if (choice == "castle" && hasAmulet == false) {
-    let d = `<p>zone: castle</p>
-    <p>Bring me the amulet of Yendor!</p>`
-    return {
-      zone: "castle",
-      icon: i,
-      description: d,
-      choices: options
-    }  
+  let d = `<p>zone: castle</p>`
+
+  let options: TownChoice[] = []
+
+  if (choice.startsWith("accept_")) {
+    let questName = choice.slice(7)
+    console.log("accepting:", questName)
+    quests[questName].status = "accepted"
+    d = d + quests[questName].giveDescription
+  } else if (choice.startsWith("check_")) {
+    let questName = choice.slice(6)
+    console.log("checking:", questName)
+    d = d + quests[questName].giveDescription
+  } else if (choice.startsWith("handin_")) {
+    let questName = choice.slice(7)
+    console.log("handing in:", questName)
+    quests[questName].status = "completed"
+    d = d + quests[questName].handInDescription
+    quests[questName].rewardFunction(game)
+    // call completion callback here
   }
 
-  if (choice == "castle" && hasAmulet == true) {
-    let d = `<p>zone: castle</p>
-    <p>Give me the amulet of Yendor!</p>`
-    options.unshift(["nav","turnin", "Hand over the amulet"])
-    return {
-      zone: "castle",
-      icon: i,
-      description: d,
-      choices: options
+  for (let questName in quests) {
+    let quest = quests[questName];
+    console.log("quest:",questName, quest.status)
+    if (quest.status == "available") {
+      options = options.concat([["nav",`accept_${questName}`,`accept quest ${quest.name}`]])
+    } else if (quest.status == "accepted") {
+      options = options.concat([["nav",`check_${questName}`,`accepted quest ${quest.name}`]])
+    } else if (quest.status == "ready") {
+      options = options.concat([["nav",`handin_${questName}`,`hand in quest ${quest.name}`]])
     }
   }
+
+  options = options.concat([["nav","town","return"]])
+  console.log(options);
+  let i = "castle"  
+
+  return {
+    zone: "castle",
+    icon: i,
+    description: d,
+    choices: options
+  }  
+
+  // if (choice == "castle" && hasAmulet == false) {
+  //   let d = `<p>zone: castle</p>`
+  //   return {
+  //     zone: "castle",
+  //     icon: i,
+  //     description: d,
+  //     choices: options
+  //   }  
+  // }
+
+  // if (choice == "castle" && hasAmulet == true) {
+  //   let d = `<p>zone: castle</p>
+  //   <p>Give me the amulet of Yendor!</p>`
+  //   options.unshift(["nav","turnin", "Hand over the amulet"])
+  //   return {
+  //     zone: "castle",
+  //     icon: i,
+  //     description: d,
+  //     choices: options
+  //   }
+  // }
 
   if (choice == "turnin" && hasAmulet == true) {
     console.log("inventory before:", game.player.inventory)

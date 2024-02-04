@@ -4,7 +4,7 @@ import { Room } from "rot-js/lib/map/features";
 import { makeMonster } from "../entities/monster";
 import GameState from "../gamestate";
 import { posFromKey } from "../utils"
-import { getCell, ItemContent } from "./Level";
+import { getCell, ItemContent, QuestItemContent } from "./Level";
 
 export interface LevelSpawner {
     level: number
@@ -46,7 +46,7 @@ function placeMonster(game, name, freeCells) {
     return m;
 }
 
-export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpawner) {
+export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpawner, questRoom: RoomContents[]) {
     let rooms = digger.getRooms();
     // hack
     game.monsters = [];
@@ -58,15 +58,21 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
 
     let lastRoomI = shuffledRooms.length - 1;
 
+    let spawnRooms = spawner.rooms.slice()
+    if (questRoom) {
+        console.log("spawning quest room")
+        spawnRooms = spawnRooms.concat([questRoom])
+    }
+
     for (let [i,room] of shuffledRooms.entries()) {
         var cells = makeFreeCells(room);
         game.level.roomItems[i] = [];
         if (i == 0) {
-            spawnRoomFrom(game, cells, spawner.rooms[i], game.level.roomItems[i] )
+            spawnRoomFrom(game, cells, spawnRooms[i], game.level.roomItems[i] )
             game.player = placePlayer(game,cells);
             generateItem(game, "<", cells);
-        } else if (i < spawner.rooms.length) {
-            spawnRoomFrom(game, cells, spawner.rooms[i], game.level.roomItems[i])
+        } else if (i < spawnRooms.length) {
+            spawnRoomFrom(game, cells, spawnRooms[i], game.level.roomItems[i])
         } else if (i == lastRoomI) {
             spawnRoomFrom(game, cells, spawner.last, game.level.roomItems[i])
             generateItem(game, ">", cells)
@@ -92,7 +98,7 @@ export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[], r
             }
         } else if (s[0] == "questitem") {
             if (roll < s[2]) {
-                generateItem(game, "Q", cells)
+                generateQuestItem(game, s[1], cells)
             }
         }
     }
@@ -130,5 +136,23 @@ function generateItem(game, item, freeCells): ItemContent {
     // add either a treasure chest
     // or a piece of gold to the map
     game.items[key] = item;
+    return i;
+}
+
+function generateQuestItem(game, item, freeCells): QuestItemContent {
+    const key = takeFreeCell(freeCells);
+    const pos = posFromKey(key);
+    let cell = getCell(game.level, pos[0], pos[1])
+    let i:QuestItemContent = { 
+        kind: "QuestItemContent",
+        x: pos[0],
+        y: pos[1],
+        item: item
+    }
+    cell.contents.push(i)
+    // the first chest contains the amulet
+    // add either a treasure chest
+    // or a piece of gold to the map
+    game.items[key] = "Q";
     return i;
 }

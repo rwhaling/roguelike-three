@@ -59,7 +59,7 @@ export interface ExitContent {
 
 export type AllCellContents = ItemContent | QuestItemContent | ContainerContent | ExitContent | GoldContent;
 
-export function initLevel(d: number, w:number, h:number): Level {
+export function initLevel(d: number, biome: string, w:number, h:number): Level {
     let len = w * h
     let cells: MapCell[] = new Array(len)
     for (let i = 0; i < len; i++) {
@@ -76,7 +76,7 @@ export function initLevel(d: number, w:number, h:number): Level {
     }
 
     return {
-        biome: "dungeon",
+        biome: biome,
         depth: d,
         cells: cells,
         rooms: [],

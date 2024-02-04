@@ -4,12 +4,13 @@ import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
 import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
-import { spawnLevelFrom } from "../mapgen/Spawner";
+import { RoomContents, spawnLevelFrom } from "../mapgen/Spawner";
 import { goldAmountTable, levels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
 import { AllCellContents, getCell, initLevel } from "../mapgen/Level";
+import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -25,13 +26,28 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   game.mapDisplay.clear();
   game.items = {};
   game.running = true;
-  game.level = initLevel(n, width, height);
+  game.level = initLevel(n, biome, width, height);
 
   game.currentLevel = n;
-  if (game.maxLevel < n) {
-    game.maxLevel = n;
-  }
+  game.currentBiome = biome;
   game.player.in_map = true;
+
+  game.currentQuest = null;
+  let questRoom: RoomContents[] = null
+
+  for (let questName in quests) {
+    let quest = quests[questName];
+    if (quest.status == "accepted") {
+      console.log(`checking if accepted quest ${questName} is loadable`)
+      if (quest.biome == biome && quest.depth == n) {
+        console.log(`loading quest ${questName} for biome ${biome} level ${n}`)
+        game.currentQuest = questName
+        questRoom = quest.room
+        break
+      }
+    }
+  }
+  
 
   // this is where we populate the map data structure
   // with all of the background tiles, items,
@@ -40,9 +56,9 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
   if (n <= 6) {
-    spawnLevelFrom(game, digger, levels[n]);
+    spawnLevelFrom(game, digger, levels[n], questRoom);
   } else {
-    spawnLevelFrom(game, digger, levels[6]);
+    spawnLevelFrom(game, digger, levels[6], questRoom);
   }
 
   // let ROT.js schedule the player and monster entities
@@ -309,19 +325,17 @@ export function checkItem(game:GameState, entity) {
         toast(game, "These are the stairs up");
       } else if (item.item == ">") {
         toast(game, "These are the stairs down");
-      } else if (item.item == "Q") {
-        toast(game, `You found the ${item.item}`);
-        game.player.inventory.push([item.item,""]);
-        sfx["win"].play();
-        delete game.items[key];      
       }
-    } else if (item.kind == "QuestItemContent") {
-      // Not implemented
-      toast(game, `You found the ${item.item}`);
-      game.player.inventory.push([item.item,""]);
-      sfx["win"].play();
-      delete game.items[key];    
-    } else if (item.kind == "ContainerContent") {
+  } else if (item.kind == "QuestItemContent") {
+    let questItemName = game.quests[game.currentQuest].questItem
+    toast(game, `You found the ${questItemName}`);
+    if (game.currentQuest) {
+      game.quests[game.currentQuest].status = "ready"
+    }
+    game.player.inventory.push([questItemName,questItemName]);
+    sfx["win"].play();
+    delete game.items[key];      
+  } else if (item.kind == "ContainerContent") {
       // Not implemented
 
       toast(game, "This chest is empty.");

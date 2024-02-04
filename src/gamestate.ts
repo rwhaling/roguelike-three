@@ -5,12 +5,13 @@ import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";
 import { Monster } from "./entities/monster";
 import { Level } from "./mapgen/Level"
+import { Quest, quests } from "./mapgen/Quests";
 
 export default class GameState {
     running: boolean
     level: Level
     currentLevel: number
-    maxLevel: number
+    currentBiome: string
     tileOptions: any
     display: Display
     mapDisplay: any
@@ -25,6 +26,8 @@ export default class GameState {
     particles: Particle[]
     visibleMap: {[key:string]: boolean}
     exploreMap: {[key:string]: boolean}
+    quests: {[key:string] :Quest}  
+    currentQuest: string  
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -38,7 +41,7 @@ export default class GameState {
         this.running = false;
         this.level = null;
         this.currentLevel = null;
-        this.maxLevel = null;
+        this.currentBiome = null;
         this.tileOptions = null;
         this.display = null;
         this.map = {};
@@ -52,6 +55,8 @@ export default class GameState {
         this.particles = [];
         this.visibleMap = {};
         this.exploreMap = {};
+        this.quests = quests;
+        this.currentQuest = null;
         this.amulet = null;
         this.arrowHeld = null;
         this.lastFrame = 0.0;

@@ -124,8 +124,7 @@ let level4: LevelSpawner = {
     [
       ["item", "g", 1.0],
       ["item", "*", 1.0],
-      ["item", "r", 1.0],
-      ["item", "Q", 1.0]
+      ["item", "r", 1.0]
     ],[
       ["monster", "a bat", 1.0],
       ["monster", "a spider", 1.0],  
@@ -188,8 +187,7 @@ let level6: LevelSpawner = {
     ["monster", "a reaper", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0],
-    ["item", "Q", 1.0]
+    ["item", "r", 1.0]
   ],
   rooms: [
     [
