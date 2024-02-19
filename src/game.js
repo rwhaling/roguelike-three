@@ -5,8 +5,10 @@ import { Display } from "rot-js/lib/index";
 import GameState from "./gamestate"
 import { makePlayer } from "./entities/player";
 import { sfx } from "./sound/sfx";
-import { showScreen, renderStats, toggleInventory, renderTargets } from "./ui/ui";
+import { showScreen, renderStats, toggleInventory, renderTargets, renderTown, hideToast } from "./ui/ui";
 import { keyHandler, resolvePointing } from "./ui/hid";
+import { getTownState } from "./core/TownLogic";
+
 // import Crypto from "cryptojs";
 import * as Crypto from "crypto-js";
 
@@ -282,13 +284,27 @@ function runGame(w,mydisplay) {
     // screens above, shows the title screen again,
     // and plays a sound as it does so
     function hideModal(ev) {
+      let choice = ev.target['id'];
       console.log("hiding modal, returning to title", ev);
       ev.preventDefault();
-      showScreen("title");
+      if (choice == "lose-cheat") {
+        console.log("cheat selected", Game);
+        Game.player.stats.hp = Game.player.stats.maxHP;
+        hideToast(true);
+        init(Game,Game.level.depth,Game.level.biome);
+        let nextState = getTownState(Game, "town");
+        renderTown(Game, nextState);
+        showScreen("town");
+      } else {
+        // tear down the game
+        destroy(Game);
+
+        showScreen("title");
+      }
       sfx['hide'].play();
     }
 
-        // this helper function hides any of the menu
+    // this helper function hides any of the menu
     // screens above, shows the title screen again,
     // and plays a sound as it does so
     function hideModalGame(ev) {

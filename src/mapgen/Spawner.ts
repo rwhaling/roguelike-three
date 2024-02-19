@@ -1,10 +1,11 @@
 import { RNG } from "rot-js";
 import Digger from "rot-js/lib/map/digger";
 import { Room } from "rot-js/lib/map/features";
-import { makeMonster } from "../entities/monster";
+import { makeMonster, Monster } from "../entities/monster";
 import GameState from "../gamestate";
 import { posFromKey } from "../utils"
 import { getCell, ItemContent, QuestItemContent } from "./Level";
+import { Quest } from "./Quests";
 
 export interface LevelSpawner {
     level: number
@@ -15,7 +16,7 @@ export interface LevelSpawner {
 
 // export type RoomContents = MonsterSpawner | ItemSpawner
 
-export type RoomContents = ["item" | "monster" | "questitem", string, number]
+export type RoomContents = ["item" | "monster" | "questitem" | "questmonster", string, number]
 
 // export interface MonsterSpawner {
 //     kind: "MonsterSpawner"
@@ -46,7 +47,7 @@ function placeMonster(game, name, freeCells) {
     return m;
 }
 
-export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpawner, questRoom: RoomContents[]) {
+export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpawner, quest:Quest) {
     let rooms = digger.getRooms();
     // hack
     game.monsters = [];
@@ -59,10 +60,6 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
     let lastRoomI = shuffledRooms.length - 1;
 
     let spawnRooms = spawner.rooms.slice()
-    if (questRoom) {
-        console.log("spawning quest room")
-        spawnRooms = spawnRooms.concat([questRoom])
-    }
 
     for (let [i,room] of shuffledRooms.entries()) {
         var cells = makeFreeCells(room);
@@ -73,6 +70,13 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
             generateItem(game, "<", cells);
         } else if (i < spawnRooms.length) {
             spawnRoomFrom(game, cells, spawnRooms[i], game.level.roomItems[i])
+        } else if (i == spawnRooms.length) {
+            if (quest) {
+                spawnRoomFrom(game, cells, quest.room, game.level.roomItems[i])
+            } else {
+                spawnRoomFrom(game, cells, spawner.default, game.level.roomItems[i])
+            }
+            // placeholder, todo spawn quest room
         } else if (i == lastRoomI) {
             spawnRoomFrom(game, cells, spawner.last, game.level.roomItems[i])
             generateItem(game, ">", cells)
@@ -85,6 +89,7 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
 }
 
 export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[], roomItems: [number,number][]) {
+    let placedmonster: Monster = null;
     for (let s of contents) {
         let roll = RNG.getUniform()
         if (s[0] == "monster") {
@@ -98,7 +103,18 @@ export function spawnRoomFrom(game:GameState, cells, contents: RoomContents[], r
             }
         } else if (s[0] == "questitem") {
             if (roll < s[2]) {
-                generateQuestItem(game, s[1], cells)
+                if (placedmonster) {
+                    placedmonster.loot = ["Q", s[1], 1]
+                    placedmonster = null
+                } else {
+                    let i = generateQuestItem(game, s[1], cells)
+                    roomItems.push([i.x,i.y]);    
+                }
+            }
+        } else if (s[0] == "questmonster") {
+            if (roll < s[2]) {
+                let m = placeMonster(game, s[1], cells);
+                placedmonster = m;
             }
         }
     }
@@ -139,7 +155,7 @@ function generateItem(game, item, freeCells): ItemContent {
     return i;
 }
 
-function generateQuestItem(game, item, freeCells): QuestItemContent {
+function generateQuestItem(game, quest, freeCells): QuestItemContent {
     const key = takeFreeCell(freeCells);
     const pos = posFromKey(key);
     let cell = getCell(game.level, pos[0], pos[1])
@@ -147,7 +163,7 @@ function generateQuestItem(game, item, freeCells): QuestItemContent {
         kind: "QuestItemContent",
         x: pos[0],
         y: pos[1],
-        item: item
+        item: quest
     }
     cell.contents.push(i)
     // the first chest contains the amulet

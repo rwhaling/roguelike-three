@@ -7,6 +7,7 @@ export interface Level {
     cells: MapCell[]
     rooms: Room[]
     roomItems: [number, number][][]
+    newDrops: [number, number][]
     w: number
     h: number
 }
@@ -19,6 +20,13 @@ export interface MapCell {
     visited: boolean
     baseTile: string
     contents: AllCellContents[]
+}
+
+export interface DecorItemContent {
+    kind: "DecorContent"
+    x: number,
+    y: number,
+    item: string
 }
 
 export interface ContainerContent {
@@ -81,6 +89,7 @@ export function initLevel(d: number, biome: string, w:number, h:number): Level {
         cells: cells,
         rooms: [],
         roomItems: [],
+        newDrops: [],
         w: w,
         h: h
     }

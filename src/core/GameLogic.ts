@@ -9,7 +9,7 @@ import { goldAmountTable, levels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
-import { AllCellContents, getCell, initLevel } from "../mapgen/Level";
+import { AllCellContents, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 
 // these map tiles are walkable
@@ -31,6 +31,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   game.currentLevel = n;
   game.currentBiome = biome;
   game.player.in_map = true;
+  game.player.character = "@";
 
   game.currentQuest = null;
   let questRoom: RoomContents[] = null
@@ -56,9 +57,9 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
   if (n <= 6) {
-    spawnLevelFrom(game, digger, levels[n], questRoom);
+    spawnLevelFrom(game, digger, levels[n], quests[game.currentQuest]);
   } else {
-    spawnLevelFrom(game, digger, levels[6], questRoom);
+    spawnLevelFrom(game, digger, levels[6], quests[game.currentQuest]);
   }
 
   // let ROT.js schedule the player and monster entities
@@ -138,23 +139,25 @@ export function lose(game) {
   // create an animated div element over the top of the game
   // holding a rising ghost image above the tombstone
   const ghost = createGhost(16, 16, [p._x, p._y]);
-  // we stop listening for user input while the ghost animates
-  removeListeners(game);
+
+  // // we stop listening for user input while the ghost animates
+  // removeListeners(game);
+
   // play the lose sound effect
   sfx["lose"].play();
   // wait 2 seconds for the ghost animation to finish
   setTimeout(function() {
     // set our stats for the end screen
     setEndScreenValues(game.player.stats.xp, game.player.stats.gold);
-    // tear down the game
-    destroy(game);
+    // // tear down the game
+    // destroy(game);
     // show the "lose" screen to the user
     showScreen("lose", null);
   }, 2000);
 }
 
 // if the monster is dead remove it from the game
-export function checkDeath(game,m) {
+export function checkDeath(game:GameState,m) {
   if (m.stats.hp < 1) {
     if (m == game.player) {
       toast(game, "You died!");
@@ -164,6 +167,48 @@ export function checkDeath(game,m) {
       game.player.stats.xp += xp;
       const key = m._x + "," + m._y;
       removeMonster(game,m);      
+      if (m.loot) {
+        console.log('spawning loot drop:', m.loot);
+
+        let cell = getCell(game.level, m._x, m._y)
+        if (m.loot[0] == "Q") {
+          let i:QuestItemContent = {
+            kind: "QuestItemContent",
+            x: m._x,
+            y: m._y,
+            item: m.loot[1]
+          }
+          cell.contents.push(i)
+          game.items[key] = m.loot[0]  
+        } else {
+          let i:ItemContent = {
+            kind: "ItemContent",
+            x: m._x,
+            y: m._y,
+            item: m.loot[1]
+          }
+          cell.contents.push(i)
+          game.items[key] = m.loot[0]
+        }
+        game.level.newDrops.push([m._x, m._y])
+        // const key = takeFreeCell(freeCells);
+        // const pos = posFromKey(key);
+        // let cell = getCell(game.level, pos[0], pos[1])
+        // let i:ItemContent = { 
+        //     kind: "ItemContent",
+        //     x: pos[0],
+        //     y: pos[1],
+        //     item: item
+        // }
+        // cell.contents.push(i)
+        // // the first chest contains the amulet
+        // // add either a treasure chest
+        // // or a piece of gold to the map
+        // game.items[key] = item;
+    
+
+
+      }
       sfx["kill"].play();
       return true;
     }
@@ -327,12 +372,23 @@ export function checkItem(game:GameState, entity) {
         toast(game, "These are the stairs down");
       }
   } else if (item.kind == "QuestItemContent") {
-    let questItemName = game.quests[game.currentQuest].questItem
-    toast(game, `You found the ${questItemName}`);
-    if (game.currentQuest) {
-      game.quests[game.currentQuest].status = "ready"
-    }
+    // let questItemName = game.quests[game.currentQuest].questItem
+    let questItemName = item.item;
+    let quest = game.quests[questItemName];
     game.player.inventory.push([questItemName,questItemName]);
+    toast(game, `You found the ${questItemName}`);
+    let itemCount = game.player.inventory.filter( ([a,b]) => { 
+      console.log('checking inventory item:', a, b[0]);
+      return a === questItemName;
+    }).length;
+    console.log(`found ${itemCount} ${questItemName} in inventory:`, game.player.inventory)
+
+    if (itemCount >= quest.itemCount) {
+      console.log("marking quest as ready:", quest)
+      quest.status = "ready"
+    } else {
+      console.log("quest item count not fulfilled:", quest)
+    }
     sfx["win"].play();
     delete game.items[key];      
   } else if (item.kind == "ContainerContent") {

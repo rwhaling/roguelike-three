@@ -118,6 +118,9 @@ export class PlayerControls {
         let cell = getCell(game.level, p._x, p._y)
         cell.visited = true
         cell.discovered = true;
+        game.level.newDrops = game.level.newDrops.filter( i => {
+            return i[0] != p._x || i[1] != p._y;
+        })
       
         let newPos = [p._x, p._y]
         let animation = {
@@ -574,6 +577,13 @@ function searchAction(game:GameState, player:Player): boolean {
     for (let m of game.monsters) {
         if (m.behaviorState == BehaviorState.ENGAGED)
         targets.push(m)
+    }
+
+    if (targets.length == 0) {
+        targets = game.level.newDrops.map( i => { return { _x: i[0], _y: i[1]}})
+        if (targets.length > 0) {
+            console.log("navigating toward newDrops:", game.level.newDrops);
+        }
     }
 
     if (targets.length == 0) {

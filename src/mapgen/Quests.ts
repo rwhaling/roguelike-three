@@ -10,6 +10,8 @@ export interface Quest {
     depth: number
     room: RoomContents[]
     questItem: string
+    questMonster: string
+    itemCount: number
     giver: string
     giveDescription: string
     handInDescription: string
@@ -23,12 +25,15 @@ export let quests: {[key:string]: Quest} = {
         biome:"dungeon",
         depth:1,
         room: [
-            ["monster", "a goblin peltast", 1.0],
-            ["questitem", "Q", 1.0],
-            ["item", "g", 1.0],
-            ["item", "r", 1.0]        
+            ["questmonster", "a bat", 1.0],
+            ["questitem", "amulet", 1.0],
+            ["item", "r", 1.0],
+            ["item", "r", 1.0],       
+            ["item", "r", 1.0]
         ],
         questItem: "amulet",
+        questMonster: null,
+        itemCount: 1,
         giver: "count",
         giveDescription: "bring me the amulet of Yendor",
         handInDescription: "quickly, give me the amulet!",

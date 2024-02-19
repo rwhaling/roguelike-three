@@ -17,6 +17,7 @@ export enum MonsterAI {
 }
 
 type MonsterData = [[number, number], MonsterType, MonsterAI]
+type MonsterLoot = [string, string, number] // glyph, name, quantity
 
 export class Monster {
   id: string
@@ -36,6 +37,7 @@ export class Monster {
   minChaseRadius: number
   aggroOnSight: number
   currentAggro: number
+  loot: MonsterLoot
   // minChaseRadius
   // aggroOnSight
   // currentAggro
@@ -228,6 +230,7 @@ export function makeMonster(game:GameState, name, x, y): Monster {
         minChaseRadius: 15,
         aggroOnSight: 18,
         currentAggro: 0,
+        loot: null,
         act: () => null
     }
 }

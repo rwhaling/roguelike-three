@@ -240,7 +240,7 @@ export function handleCastle(game, choice): TownState {
     quests[questName].status = "completed"
     d = d + quests[questName].handInDescription
     quests[questName].rewardFunction(game)
-    // call completion callback here
+    // show handin splash
   }
 
   for (let questName in quests) {
