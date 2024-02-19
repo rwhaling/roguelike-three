@@ -375,8 +375,9 @@ export function checkItem(game:GameState, entity) {
     // let questItemName = game.quests[game.currentQuest].questItem
     let questItemName = item.item;
     let quest = game.quests[questItemName];
-    game.player.inventory.push([questItemName,questItemName]);
-    toast(game, `You found the ${questItemName}`);
+    let displayName = quest.questItem;
+    game.player.inventory.push([questItemName,displayName]);
+    toast(game, `You found the ${displayName}`);
     let itemCount = game.player.inventory.filter( ([a,b]) => { 
       console.log('checking inventory item:', a, b[0]);
       return a === questItemName;
