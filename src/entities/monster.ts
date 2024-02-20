@@ -44,7 +44,7 @@ export class Monster {
   act: () => void
 }
 
-type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "melee_boss_1" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2"
+type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "melee_boss_1" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2" | "ranged_boss_1" | "melee_2_1" | "melee_2_2"
 
 function _monsterStats(typ: MonsterType): { [key:string]:number} {
   switch (typ) {
@@ -99,7 +99,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     case "melee_boss_1": {
       return {
         "hp": 20,
-        "baseDAM": 4,
+        "baseDAM": 3,
         "varDAM": 3,
         "STR": 0,
         "DEF": 2,
@@ -170,6 +170,44 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "ammo": 1
       }
     }
+    case "ranged_boss_1": {
+      return {
+        "hp": 14,
+        "baseDAM": 3,
+        "varDAM": 3,
+        "STR": 0,
+        "DEF": 1,
+        "AGI": 4,
+        "DEX": 0,
+        "xpValue": 10,
+        "ammo": 1
+      }
+    }
+    case "melee_2_1": {
+      return {
+        "hp": 15,
+        "baseDAM": 3,
+        "varDAM": 3,
+        "STR": 0,
+        "DEF": 3,
+        "AGI": 7,
+        "DEX": 3,
+        "xpValue": 10
+      }  
+    }
+    case "melee_2_2": {
+      return {
+        "hp": 20,
+        "baseDAM": 5,
+        "varDAM": 3,
+        "STR": 0,
+        "DEF": 4,
+        "AGI": 7,
+        "DEX": 3,
+        "xpValue": 10
+      }  
+
+    }
   }
 }
 
@@ -177,6 +215,8 @@ function getMonsterData(monsterName:string):MonsterData {
   switch (monsterName) {
     case "a goblin": 
       return [[0, 96], "melee_1", MonsterAI.MELEE]
+    case "a hobgoblin": 
+      return [[0, 96], "melee_2_1", MonsterAI.MELEE]
     case "a rat":
       return [[64, 256], "critter_1", MonsterAI.MELEE]
     case "a snake":
@@ -185,6 +225,9 @@ function getMonsterData(monsterName:string):MonsterData {
       return [[128,96], "melee_2", MonsterAI.MELEE]
     case "a skeleton":
       return [[0, 128], "melee_2", MonsterAI.MELEE]
+    case "a revenant":
+      return [[0, 128], "melee_2_2", MonsterAI.MELEE]
+  
     case "a skeleton warrior":
       return [[64,128], "melee_3", MonsterAI.MELEE]
     case "a spider":

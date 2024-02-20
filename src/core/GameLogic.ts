@@ -60,10 +60,10 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   console.log(`spawning map (BIOME ${biome}), game state now:`,game);
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
-  if (n <= 6) {
+  if (n <= 7) {
     spawnLevelFrom(game, digger, levels[n], quests[game.currentQuest]);
   } else {
-    spawnLevelFrom(game, digger, levels[6], quests[game.currentQuest]);
+    spawnLevelFrom(game, digger, levels[7], quests[game.currentQuest]);
   }
 
   // let ROT.js schedule the player and monster entities
