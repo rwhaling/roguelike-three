@@ -206,12 +206,21 @@ let level6: LevelSpawner = {
   ]
 }
 
-export let levels: {[key:number]: LevelSpawner} = {
+export let dungeonLevels: {[key:number]: LevelSpawner} = {
   1: level1,
-  2: level2,
-  3: level3,
-  4: level4,
-  5: level5,
+  2: level1,
+  3: level2,
+  4: level2,
+  5: level3,
+  6: level3
+}
+
+export let cryptLevels: {[key:number]: LevelSpawner} = {
+  1: level4,
+  2: level4,
+  3: level5,
+  4: level5,
+  5: level6,
   6: level6
 }
 

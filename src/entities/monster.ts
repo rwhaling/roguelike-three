@@ -197,6 +197,8 @@ function getMonsterData(monsterName:string):MonsterData {
       return [[64, 160], "melee_1", MonsterAI.MELEE]
     case "a skeleton mage":
       return [[128, 128], "ranged_2", MonsterAI.RANGED]
+    case "a skeleton king":
+      return [[192, 128], "ranged_2", MonsterAI.RANGED]
     case "a death knight":
       return [[192, 160], "melee_4", MonsterAI.MELEE]
     case "a reaper":

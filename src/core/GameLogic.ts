@@ -5,7 +5,7 @@ import { battleMessage, createGhost, damageNum, hideToast, removeListeners, rend
 import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
 import { RoomContents, spawnLevelFrom } from "../mapgen/Spawner";
-import { goldAmountTable, levels } from "../mapgen/Levels"
+import { goldAmountTable, dungeonLevels, cryptLevels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
@@ -49,6 +49,10 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
     }
   }
   
+  let levels = dungeonLevels
+  if (biome == "crypt") {
+    levels = cryptLevels;
+  }
 
   // this is where we populate the map data structure
   // with all of the background tiles, items,

@@ -45,7 +45,7 @@ export let quests: {[key:string]: Quest} = {
     },
     "shields": {
         name:"shields",
-        status: "available",
+        status: "unavailable",
         biome:"dungeon",
         depth:4,
         room: [
@@ -71,7 +71,7 @@ export let quests: {[key:string]: Quest} = {
         name:"amulet",
         status: "available",
         biome:"dungeon",
-        depth:1,
+        depth:6,
         room: [
             ["questmonster", "a death knight", 1.0],
             ["questitem", "amulet", 1.0],
@@ -93,7 +93,7 @@ export let quests: {[key:string]: Quest} = {
         name:"swords",
         status: "available",
         biome:"crypt",
-        depth:1,
+        depth:2,
         room: [
             ["questmonster", "a skeleton warrior", 1.0],
             ["questitem", "swords", 1.0],
@@ -107,12 +107,72 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 2,
         giver: "count",
-        giveDescription: "bring me 2 swords from skeleton warrios in crypt level 1",
+        giveDescription: "bring me 2 swords from skeleton warriors in crypt level 2",
         handInDescription: "thank you!",
         rewardFunction: (game) => {
             console.log("swords quest COMPLETED")
         }
     },
+    "armor": {
+        name:"armor",
+        status: "unavailable",
+        biome:"crypt",
+        depth:3,
+        room: [
+            ["questmonster", "a skeleton warrior", 1.0],
+            ["questitem", "armor", 1.0],
+            ["questmonster", "a skeleton warrior", 1.0],
+            ["questitem", "armor", 1.0],
+            ["questmonster", "a skeleton warrior", 1.0],
+            ["questitem", "armor", 1.0],
+            ["questmonster", "a skeleton warrior", 1.0],
+            ["questitem", "armor", 1.0],
 
+            ["item", "g", 1.0],
+            ["item", "g", 1.0],
+            ["item", "r", 1.0]
+        ],
+        questItem: "skeleton warrior armor",
+        questMonster: null,
+        itemCount: 4,
+        giver: "count",
+        giveDescription: "bring me 4 sets of armor from skeleton warriors in crypt level 3",
+        handInDescription: "thank you!",
+        rewardFunction: (game) => {
+            console.log("swords quest COMPLETED")
+        }
+    },
+    "crown": {
+        name:"crown",
+        status: "unavailable",
+        biome:"crypt",
+        depth:4,
+        room: [
+            ["questmonster", "a skeleton king", 1.0],
+            ["questitem", "crown", 1.0],
+            ["monster", "a skeleton warrior", 1.0],
+            ["monster", "a skeleton warrior", 1.0],
+            ["monster", "a skeleton mage", 1.0],
+            ["monster", "a skeleton mage", 1.0],
+            ["item", "g", 1.0],
+            ["item", "g", 1.0],
+            ["item", "r", 1.0]
+        ],
+        questItem: "skeleton king's crown",
+        questMonster: null,
+        itemCount: 1,
+        giver: "count",
+        giveDescription: "bring me the crown of the skeleton king in crypt level 4",
+        handInDescription: "thank you!",
+        rewardFunction: (game) => {
+            console.log("swords quest COMPLETED")
+        }
+    },
+}
+
+export let questDependencies = {
+    "armor":["swords"],
+    "shields":["staves"],
+    "crown":["amulet"]
 }
 
