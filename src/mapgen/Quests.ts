@@ -23,7 +23,7 @@ export let quests: {[key:string]: Quest} = {
         name:"staves",
         status: "available",
         biome:"dungeon",
-        depth:2,
+        depth:1,
         room: [
             ["questmonster", "a goblin mage", 1.0],
             ["questitem", "staves", 1.0],
@@ -47,7 +47,7 @@ export let quests: {[key:string]: Quest} = {
         name:"shields",
         status: "unavailable",
         biome:"dungeon",
-        depth:4,
+        depth:3,
         room: [
             ["questmonster", "a goblin peltast", 1.0],
             ["questitem", "shields", 1.0],
@@ -93,7 +93,7 @@ export let quests: {[key:string]: Quest} = {
         name:"swords",
         status: "available",
         biome:"crypt",
-        depth:2,
+        depth:1,
         room: [
             ["questmonster", "a skeleton warrior", 1.0],
             ["questitem", "swords", 1.0],
@@ -146,7 +146,7 @@ export let quests: {[key:string]: Quest} = {
         name:"crown",
         status: "unavailable",
         biome:"crypt",
-        depth:4,
+        depth:5,
         room: [
             ["questmonster", "a skeleton king", 1.0],
             ["questitem", "crown", 1.0],
@@ -170,9 +170,31 @@ export let quests: {[key:string]: Quest} = {
     },
 }
 
-export let questDependencies = {
+let questDependencies = {
     "armor":["swords"],
     "shields":["staves"],
     "crown":["amulet"]
 }
 
+export function updateQuestStatus() {
+    let doneQuests = Object.values(quests).filter( q => q.status === "completed").map( q => q.name);
+    console.log("checking quest status.  completed:", doneQuests)
+    for (let i in quests) {
+        let quest = quests[i];
+        if (quest.status === "unavailable" && quest.name in questDependencies) {
+            let deps = questDependencies[quest.name]
+            let shouldFlip = true
+            for (let dep of deps) {
+                if (!doneQuests.includes(dep)) {
+                    shouldFlip = false
+                    console.log(`dependency not satisfied for ${quest.name}:${dep}`)
+                    break
+                }
+            }
+            if (shouldFlip) {
+                quest.status = "available"
+                console.log("flipped quest status to available", quest)
+            }
+        }
+    }
+}

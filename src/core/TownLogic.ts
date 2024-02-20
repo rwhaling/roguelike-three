@@ -2,7 +2,7 @@ import GameState from "../gamestate";
 import { hideModalGame, renderLevelSelect, renderTown, showScreen } from "../ui/ui";
 import { init } from "./GameLogic";
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
-import { Quest, QuestStatus, quests } from "../mapgen/Quests";
+import { Quest, QuestStatus, quests, updateQuestStatus } from "../mapgen/Quests";
 
 
 export type TownNavChoice = ['nav',string, string]
@@ -242,6 +242,8 @@ export function handleCastle(game, choice): TownState {
     quests[questName].rewardFunction(game)
     // show handin splash
   }
+
+  updateQuestStatus()
 
   for (let questName in quests) {
     let quest = quests[questName];
