@@ -137,9 +137,19 @@ export function handleShop(game, choice):TownState {
   }
 
   let armorCosts = {
-    1: 75,
+    1: 50,
     2: 150,
-    3: 300
+    3: 450,
+    4: 1500,
+    5: 4500
+  }
+
+  let swordCosts = {
+    1: 75,
+    2: 250,
+    3: 700,
+    4: 2000,
+    5: 6000
   }
 
   let next_max_food = game.player.stats.maxFood + 1
@@ -150,6 +160,9 @@ export function handleShop(game, choice):TownState {
 
   let next_def = game.player.stats.DEF + 1
   let next_def_cost = armorCosts[next_def]
+
+  let next_str = game.player.stats.STR + 1
+  let next_str_cost = swordCosts[next_str]
 
   switch(game.player.stats.maxArrows) {
     case 5: 
@@ -178,6 +191,9 @@ export function handleShop(game, choice):TownState {
   if (next_def_cost) {
     options.push(["shop","armor",`Increase DEF +1<br/>${game.player.stats.DEF} -> ${game.player.stats.DEF + 1} [${next_def_cost} GP]`])
   }
+  if (next_str_cost) {
+    options.push(["shop","sword",`Increase STR +1<br/>${game.player.stats.STR} -> ${game.player.stats.STR + 1} [${next_str_cost} GP]`])
+  }
   options.push(["nav","town","return"])
   let p = game.player;
 
@@ -193,6 +209,9 @@ export function handleShop(game, choice):TownState {
     game.player.stats.DEF = next_def;
     game.player.baseStats.DEF = next_def;
     return handleShop(game, "shop");
+  } else if (choice == "sword") {
+    game.player.stats.STR = next_str;
+    game.player.baseStats.STR = next_str;  
   } else if (choice == "return") {
     return getTownState(game, "town");
   }
@@ -210,7 +229,6 @@ export function handleShop(game, choice):TownState {
     icon: i,
     description: d,
     choices: options
-
   }
 }
 
@@ -371,6 +389,6 @@ export function handleTrain(game, choice):TownState {
 }
 
 export function getLevelSelections(game:GameState): string[] {
-  return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6",
-          "cave1","cave2","cave3","cave4","cave5","cave6"]
+  return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6","dungeon7","dungeon8",
+          "cave1","cave2","cave3","cave4","cave5","cave6","cave7","cave8"]
 }

@@ -34,6 +34,7 @@
   "dependencies": {
     "@types/crypto-js": "^4.2.1",
     "crypto-js": "^4.2.0",
+    "howler": "^2.2.4",
     "jsfxr": "^1.2.2",
     "uuid": "^9.0.0"
   }

@@ -183,8 +183,7 @@ let level6: LevelSpawner = {
   ],
   last: [
     ["monster", "a skeleton", 1.0],
-    ["monster", "a skeleton", 1.0],
-    ["monster", "a reaper", 1.0],
+    ["monster", "a skeleton king", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
     ["item", "r", 1.0]
@@ -219,8 +218,7 @@ let cave_2_1: LevelSpawner = {
   ],
   last: [
     ["monster", "a hobgoblin", 1.0],
-    ["monster", "a hobgoblin", 1.0],
-    ["monster", "a hobgoblin", 1.0],
+    ["monster", "an ogre", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
     ["item", "r", 1.0]
@@ -254,8 +252,7 @@ let crypt_2_1: LevelSpawner = {
   ],
   last: [
     ["monster", "a revenant", 1.0],
-    ["monster", "a revenant", 1.0],
-    ["monster", "a revenant", 1.0],
+    ["monster", "a reaper", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
     ["item", "r", 1.0]
@@ -302,5 +299,7 @@ export let goldAmountTable: {[key:number]: [number, number, number]} = {
   3: [3,8,15],
   4: [8,15,18],
   5: [10,18,21],
-  6: [12,21,24]
+  6: [12,21,24],
+  7: [20,30,40],
+  8: [50,75,80]
 }

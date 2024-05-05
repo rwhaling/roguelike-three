@@ -11,6 +11,7 @@ import { Player } from "../entities/player";
 import GameState from "../gamestate";
 import { AllCellContents, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
+import { music } from "../sound/music";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -92,6 +93,8 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   }
 
   requestAnimationFrame(drawScene);
+  music.stop();
+  music.play("dungeon");
 
 }
 

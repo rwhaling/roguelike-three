@@ -8,6 +8,7 @@ import { getTownState } from "../core/TownLogic";
 import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 import { getCell, getRoomItems } from '../mapgen/Level';
+import { music }from "../sound/music";
 
 interface Buff {
     duration: number,
@@ -529,6 +530,8 @@ function useAction(game, player): boolean {
         if (i == "<") {
             console.log("stairs up")
             unload(game);
+            music.stop();
+            music.play("town");          
             renderTown(game, getTownState(game, "town"));
             showScreen("town", null);
             // init(game);

@@ -44,7 +44,7 @@ export class Monster {
   act: () => void
 }
 
-type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "melee_boss_1" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2" | "ranged_boss_1" | "melee_2_1" | "melee_2_2"
+type MonsterType = "melee_1" | "melee_2" | "melee_3" | "melee_4" | "melee_boss_1" | "melee_boss_2" | "critter_1" | "critter_2" | "critter_3" | "ranged_1" | "ranged_2" | "ranged_boss_1" | "melee_2_1" | "melee_2_2" | "melee_boss_2" | "melee_boss_3"
 
 function _monsterStats(typ: MonsterType): { [key:string]:number} {
   switch (typ) {
@@ -74,7 +74,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     }
     case "melee_3": {
       return {
-        "hp": 10,
+        "hp": 12,
         "baseDAM": 3,
         "varDAM": 3,
         "STR": 0,
@@ -86,11 +86,11 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     }
     case "melee_4": {
       return {
-        "hp": 12,
+        "hp": 14,
         "baseDAM": 3,
-        "varDAM": 3,
+        "varDAM": 4,
         "STR": 0,
-        "DEF": 3,
+        "DEF": 2,
         "AGI": 7,
         "DEX": 2,
         "xpValue": 6
@@ -100,7 +100,7 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 20,
         "baseDAM": 3,
-        "varDAM": 3,
+        "varDAM": 4,
         "STR": 0,
         "DEF": 2,
         "AGI": 7,
@@ -186,10 +186,10 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     case "melee_2_1": {
       return {
         "hp": 15,
-        "baseDAM": 3,
-        "varDAM": 3,
+        "baseDAM": 4,
+        "varDAM": 4,
         "STR": 0,
-        "DEF": 3,
+        "DEF": 4,
         "AGI": 7,
         "DEX": 3,
         "xpValue": 10
@@ -199,15 +199,39 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
       return {
         "hp": 20,
         "baseDAM": 5,
-        "varDAM": 3,
+        "varDAM": 4,
         "STR": 0,
-        "DEF": 4,
+        "DEF": 5,
         "AGI": 7,
         "DEX": 3,
         "xpValue": 10
       }  
-
     }
+    case "melee_boss_2": {
+      return {
+        "hp": 30,
+        "baseDAM": 5,
+        "varDAM": 5,
+        "STR": 0,
+        "DEF": 5,
+        "AGI": 7,
+        "DEX": 3,
+        "xpValue": 100
+      }
+    }
+    case "melee_boss_3": {
+      return {
+        "hp": 40,
+        "baseDAM": 7,
+        "varDAM": 5,
+        "STR": 0,
+        "DEF": 5,
+        "AGI": 7,
+        "DEX": 3,
+        "xpValue": 200
+      }
+    }
+
   }
 }
 
@@ -224,12 +248,12 @@ function getMonsterData(monsterName:string):MonsterData {
     case "a goblin peltast":
       return [[128,96], "melee_2", MonsterAI.MELEE]
     case "a skeleton":
-      return [[0, 128], "melee_2", MonsterAI.MELEE]
+      return [[0, 128], "melee_3", MonsterAI.MELEE]
     case "a revenant":
       return [[0, 128], "melee_2_2", MonsterAI.MELEE]
   
     case "a skeleton warrior":
-      return [[64,128], "melee_3", MonsterAI.MELEE]
+      return [[64,128], "melee_4", MonsterAI.MELEE]
     case "a spider":
       return [[0,256], "critter_3", MonsterAI.MELEE]
     case "a bat":
@@ -241,11 +265,13 @@ function getMonsterData(monsterName:string):MonsterData {
     case "a skeleton mage":
       return [[128, 128], "ranged_2", MonsterAI.RANGED]
     case "a skeleton king":
-      return [[192, 128], "ranged_2", MonsterAI.RANGED]
+      return [[192, 128], "ranged_boss_1", MonsterAI.RANGED]
     case "a death knight":
-      return [[192, 160], "melee_4", MonsterAI.MELEE]
+      return [[192, 160], "melee_boss_1", MonsterAI.MELEE]
+    case "an ogre":
+      return [[192,96], "melee_boss_2", MonsterAI.MELEE]
     case "a reaper":
-      return [[128, 320], "melee_boss_1", MonsterAI.MELEE]
+      return [[128, 320], "melee_boss_3", MonsterAI.MELEE]
   }
 }
   
