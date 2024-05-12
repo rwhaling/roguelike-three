@@ -257,7 +257,6 @@ export function renderStats(player:Player) {
     let decoration = real_idx === selected ? "underline" : "none";
     let color = s.ready ? "white" : "darkgrey";
     skills_content += `<span class ='skill' style='text-decoration: ${decoration}; color: ${color}'>${idx + 1}-${s.name}</span>  `
-
   });
   skills_st.innerHTML = skills_content;
   
@@ -348,8 +347,10 @@ export function toggleHudModal(ev, game:GameState,) {
   console.log(modal_st);
   if (modal_st.style.visibility == "visible") {
     modal_st.style.visibility = "hidden";
+    game.listening = true;
   } else {
     modal_st.style.visibility = "visible";
+    game.listening = false;
 
     let handleHudModal = (e) => {
       console.log("click!",e)
@@ -359,7 +360,6 @@ export function toggleHudModal(ev, game:GameState,) {
         ["hud_modal_journal","Journal"],
         ["hud_modal_options","Options"]
       ]
-      
 
       let parent_th = e.target.closest("th");
       let parent_input = e.target.closest("input");
@@ -381,7 +381,7 @@ export function toggleHudModal(ev, game:GameState,) {
         }
       }
       modal_st.innerHTML = '<table class="nes-table is-dark is-bordered"><tr id="hud_modal_headers"></tr></table>';
-      let header_row = $("#hud_modal_headers")  
+      let header_row = $("#hud_modal_headers")
       header_row.innerHTML = menu_html;
 
       if (menu_id == "hud_modal_status") {
@@ -418,7 +418,6 @@ export function toggleHudModal(ev, game:GameState,) {
           }
         }
 
-      
       } else if (menu_id == "hud_modal_options") {
         let music_row = document.createElement("tr")
         header_row.after(music_row)
