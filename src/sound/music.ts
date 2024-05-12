@@ -6,5 +6,5 @@ export const music = new Howl({
         "dungeon": [0,120000,true],
         "town": [120000,240000,true]
     },
-    volume: 0.5
+    volume: 0.25
 });

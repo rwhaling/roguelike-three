@@ -232,7 +232,7 @@ export function handleShop(game, choice):TownState {
   }
 }
 
-export function handleCastle(game, choice): TownState {
+export function handleCastle(game:GameState, choice): TownState {
   console.log("loading castle, choice:", choice)
 
 
@@ -258,6 +258,9 @@ export function handleCastle(game, choice): TownState {
     quests[questName].status = "completed"
     d = d + quests[questName].handInDescription
     quests[questName].rewardFunction(game)
+    game.player.inventory = game.player.inventory.filter( (i) => {
+      i[0] != quests[questName].questItem
+    })
     // show handin splash
   }
 

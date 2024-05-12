@@ -571,6 +571,15 @@ a:hover {
    }
 }
 
+#hud_modal {
+  position: absolute;
+  display: flex;
+  margin-left: auto; 
+  margin-right: auto; 
+  bottom: 60%;
+  visibility: hidden;
+}
+
 /*** CSS animations ***/
 
 .fade-in {

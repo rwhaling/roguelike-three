@@ -2,33 +2,33 @@ import { SoundEffect } from "jsfxr";
 
 export const sfx = {
     "rubber": (new SoundEffect({
-        "oldParams": true,
-        "wave_type": 0,
-        "p_env_attack": -0.04487519711256027,
-        "p_env_sustain": 0.14499999582767487,
-        "p_env_punch": 0,
-        "p_env_decay": 0.843999981880188,
-        "p_base_freq": 0.8943893313407898,
-        "p_freq_limit": 0,
-        "p_freq_ramp": -0.5209999680519104,
-        "p_freq_dramp": 0.8219999670982361,
-        "p_vib_strength": -0.3394811451435089,
-        "p_vib_speed": -0.6548117995262146,
-        "p_arp_mod": 0.8349490761756897,
-        "p_arp_speed": -0.624526858329773,
-        "p_duty": 0.8452107310295105,
-        "p_duty_ramp": -0.11960378289222717,
-        "p_repeat_speed": 0.6004010438919067,
-        "p_pha_offset": -0.8452721238136292,
-        "p_pha_ramp": 0.08492171764373779,
-        "p_lpf_freq": 0.9999743700027466,
-        "p_lpf_ramp": -0.38838738203048706,
-        "p_lpf_resonance": -0.6592060923576355,
-        "p_hpf_freq": 0.003894747933372855,
-        "p_hpf_ramp": 0.09905283898115158,
-        "sound_vol": 0.5,
-        "sample_rate": 44100,
-        "sample_size": 8
+      "oldParams": true,
+      "wave_type": 0,
+      "p_env_attack": -0.04487519711256027,
+      "p_env_sustain": 0.14499999582767487,
+      "p_env_punch": 0,
+      "p_env_decay": 0.843999981880188,
+      "p_base_freq": 0.8943893313407898,
+      "p_freq_limit": 0,
+      "p_freq_ramp": -0.5209999680519104,
+      "p_freq_dramp": 0.8219999670982361,
+      "p_vib_strength": -0.3394811451435089,
+      "p_vib_speed": -0.6548117995262146,
+      "p_arp_mod": 0.8349490761756897,
+      "p_arp_speed": -0.624526858329773,
+      "p_duty": 0.8452107310295105,
+      "p_duty_ramp": -0.11960378289222717,
+      "p_repeat_speed": 0.6004010438919067,
+      "p_pha_offset": -0.8452721238136292,
+      "p_pha_ramp": 0.08492171764373779,
+      "p_lpf_freq": 0.9999743700027466,
+      "p_lpf_ramp": -0.38838738203048706,
+      "p_lpf_resonance": -0.6592060923576355,
+      "p_hpf_freq": 0.003894747933372855,
+      "p_hpf_ramp": 0.09905283898115158,
+      "sound_vol": 0.5,
+      "sample_rate": 44100,
+      "sample_size": 8
     })).generate().getAudio(),
     "step": (new SoundEffect({
       "oldParams": true,
@@ -297,21 +297,7 @@ export const sfx = {
 
 for (let sound in sfx) {
   console.log(sound, sfx[sound])
-  sfx[sound].setVolume(0.05)
+  sfx[sound].setVolume(0.1)
 }
 
-// console.log("win:");
-// console.log(JSON.stringify(new SoundEffect("34T6Pkv34QJsqDqEa8aV4iwF2LnASMc3683oFUPKZic6kVUHvwjUQi6rz8qNRUHRs34cu37P5iQzz2AzipW3DHMoG5h4BZgDmZnyLhsXgPKsq2r4Fb2eBFVuR").parameters));
-// console.log("lose");
-// console.log(JSON.stringify(new SoundEffect("7BMHBGHKKnn7bgcmGprqiBmpuRaTytcd4JS9eRNDzUTRuQy8BTBzs5g8XzS7rrp4C9cNeSaqAtWR9qdvXvtnWVTmTC8GXgDuCXD2KyHJNXzfUahbZrce8ibuy").parameters));
-// console.log("kill");
-// console.log(JSON.stringify(new SoundEffect("7BMHBGKMhg8NZkxKcJxNfTWXKtMPiZVNsLR4aPEAghCSpz5ZxpjS5k4j4ZQpJ65UZnHSr4R2d7ALCHJe41pAS2ZPjauM7SveudhDGAxw2dhXpiNwEhG8xUYkX").parameters));
-
-// // here we are turning the sfxr sound codes into
-// // audio objects that can be played with `sfx[name].play()`
-// for (let s in sfx) {
-//     sfx[s] = (new SoundEffect(sfx[s])).generate().getAudio();
-// }
-
-// export sfx;
 

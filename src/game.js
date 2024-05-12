@@ -353,7 +353,14 @@ function runGame(w,mydisplay) {
             handleMenuChange.bind(null, el));
       });
       // listen for inventory interactions
-      $("#inventory").addEventListener(clickevt, toggleInventory);
+      // $("#inventory").addEventListener(clickevt, toggleInventory);
+      $("#inventory").addEventListener(clickevt, (e) => {
+        console.log("inventory clicked");
+        toggleInventory(e,false, Game);
+      });
+    
+
+
       // listen for "close modal" ok buttons
       document.querySelectorAll(".modal button.action")
       .forEach(function(el) {

@@ -37,7 +37,7 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 2,
         giver: "count",
-        giveDescription: "bring me 2 staffs from goblin mages in dungeon level 2",
+        giveDescription: "bring me 2 staffs from goblin mages in dungeon level 1",
         handInDescription: "thank you!",
         rewardFunction: (game) => {
             console.log("staves quest COMPLETED")
@@ -107,7 +107,7 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 2,
         giver: "count",
-        giveDescription: "bring me 2 swords from skeleton warriors in crypt level 2",
+        giveDescription: "bring me 2 swords from skeleton warriors in crypt level 1",
         handInDescription: "thank you!",
         rewardFunction: (game) => {
             console.log("swords quest COMPLETED")

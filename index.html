@@ -254,7 +254,7 @@
 
       </div>
       <div id="inventory" class="nes-container is-rounded is-dark">
-        <div>
+        <div id="inventory_container">
           <p>Example inventory</p>
           <ul></ul>
           <span class="toggle">X</span>
@@ -267,6 +267,19 @@
         <div id="btn-down" class="nes-container is-rounded is-dark"><span>&gt;</span></div>
         <div id="btn-right" class="nes-container is-rounded is-dark"><span>&gt;</span></div>
         <div id="btn-skip" class="nes-container is-rounded is-dark"><span>.</span></div>
+      </div>
+      <div id="hud_modal">
+        <table class="nes-table is-dark is-bordered">
+          <tr id="hud_modal_headers">
+            <th id="hud_modal_status"><span class='nes-badge'>Status</span></th>
+            <th id="hud_modal_inventory"><span class='nes-badge'>Inventory</span></th>
+            <th id="hud_modal_journal"><span class='nes-badge'><span class='is-primary'>Journal</span></span></th>
+            <th id="hud_modal_options"><span class='nes-badge'>Options</span></th>
+          </tr>
+          <tr>
+            <td colspan="4">foo bar baz</td>
+          </tr>
+        </table>
       </div>
     </div>
 

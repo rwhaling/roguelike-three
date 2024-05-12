@@ -331,7 +331,7 @@ export function checkItem(game:GameState, entity) {
       game.player.stats.gold += item.quantity;
       renderStats(game.player);
       toast(game, `You found ${item.quantity} gold!`);
-      game.player.inventory.push([item.item,""]);
+      // game.player.inventory.push([item.item,""]);
       sfx["win"].play();
       delete game.items[key];  
     } else if (item.kind == "ItemContent") {

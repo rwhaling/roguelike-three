@@ -9,6 +9,7 @@ import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 import { getCell, getRoomItems } from '../mapgen/Level';
 import { music }from "../sound/music";
+import { toggleHudModal } from "../ui/ui";
 
 interface Buff {
     duration: number,
@@ -274,6 +275,8 @@ export class PlayerControls {
             actionRet = searchAction(game, player);
         } else if (currentMove.name == "FLEE") {
             actionRet = fleeAction(game, player);
+        } else if (currentMove.name == "HELP") {
+            actionRet = helpAction(game, player);
         }
         if (actionRet) {
             setTimeout(function() {
@@ -657,6 +660,12 @@ function searchAction(game:GameState, player:Player): boolean {
     return false;
 }
 
+function helpAction(game, player) {
+    console.log("applying HELP");
+    toggleHudModal(null, game);
+    return false;
+}
+
 function fleeAction(game, player) {
     console.log("applying SEARCH");
     console.log("scanning items:", game.items);
@@ -826,7 +835,7 @@ export function makePlayer(game):Player {
             {name: "FLEE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "SEARCH", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "HELP", enabled: false, ready: false, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "HELP", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),
         act: () => {
             game.engine.lock();
