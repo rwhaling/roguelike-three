@@ -9,7 +9,7 @@ import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 import { getCell, getRoomItems } from '../mapgen/Level';
 import { music }from "../sound/music";
-import { toggleHudModal } from "../ui/ui";
+import { toggleHudModal } from "../ui/HudModal";
 
 interface Buff {
     duration: number,
