@@ -108,94 +108,94 @@ export function renderInventory(tileOptions,items) {
     });
 }
 
-export function renderTown(game:GameState, town:any) {
-  const town_el = $("#town");
-  town_el.innerHTML = "";
-  let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
-  <tr>
-    <td colspan="4"><div class="sprite ${town.icon}"></div>
-      <p>${town.description}</p>
-    </td>
-  </tr>`
-  let trailing_content = ""
+// export function renderTown(game:GameState, town:any) {
+//   const town_el = $("#town");
+//   town_el.innerHTML = "";
+//   let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
+//   <tr>
+//     <td colspan="4"><div class="sprite ${town.icon}"></div>
+//       <p>${town.description}</p>
+//     </td>
+//   </tr>`
+//   let trailing_content = ""
 
-  let quests_available = false;
-  let quests_ready = false;
+//   let quests_available = false;
+//   let quests_ready = false;
 
-  for (let q in quests) {
-    let qu = quests[q]
-    if (qu.status == "available") {
-      quests_available = true;
-    } if (qu.status == "ready") {
-      quests_ready = true;
-    }
-  }  
+//   for (let q in quests) {
+//     let qu = quests[q]
+//     if (qu.status == "available") {
+//       quests_available = true;
+//     } if (qu.status == "ready") {
+//       quests_ready = true;
+//     }
+//   }  
 
-  for (let b of town.choices) {
-  // for (let b of town.choices) {
-    if (b[1] == "castle" && quests_ready) {
-      trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
-    } else if (b[1] == "castle" && quests_available) {
-      trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
-    } else if (town.zone == "castle") {
-      if (b[1].startsWith("accept_")) {
-        trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
-      } else if (b[1].startsWith("handin_")) {
-        trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
-      } else {
-        trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
-      }
-    } else if (b[0] == "nav") {
-    // if (b[0] == "town" || b[0] == "return") {
-      trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
-    } else {
-      content += `<tr><td colspan="3">${b[2]}</td><td><button class="nes-btn townaction" id="${b[1]}">Buy</button></td></tr>`;
-    }
-  }
-  town_el.innerHTML = `${content}</table>${trailing_content}`
+//   for (let b of town.choices) {
+//   // for (let b of town.choices) {
+//     if (b[1] == "castle" && quests_ready) {
+//       trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
+//     } else if (b[1] == "castle" && quests_available) {
+//       trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
+//     } else if (town.zone == "castle") {
+//       if (b[1].startsWith("accept_")) {
+//         trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
+//       } else if (b[1].startsWith("handin_")) {
+//         trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
+//       } else {
+//         trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
+//       }
+//     } else if (b[0] == "nav") {
+//     // if (b[0] == "town" || b[0] == "return") {
+//       trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
+//     } else {
+//       content += `<tr><td colspan="3">${b[2]}</td><td><button class="nes-btn townaction" id="${b[1]}">Buy</button></td></tr>`;
+//     }
+//   }
+//   town_el.innerHTML = `${content}</table>${trailing_content}`
 
-  document.querySelectorAll(".modal button.townaction")
-  .forEach(function(el) {
-    el.addEventListener(clickevt, ev => { 
-      console.log("click", ev.target['id'], ev);
-      handleTownAction(game, town.zone, ev);
-    });
-    // el.addEventListener(clickevt, hideModalGame);
-  });
+//   document.querySelectorAll(".modal button.townaction")
+//   .forEach(function(el) {
+//     el.addEventListener(clickevt, ev => { 
+//       console.log("click", ev.target['id'], ev);
+//       handleTownAction(game, town.zone, ev);
+//     });
+//     // el.addEventListener(clickevt, hideModalGame);
+//   });
 
-}
+// }
 
-export function renderLevelSelect(game:GameState, levels:string[]) {
-  const town_el = $("#town");
-  town_el.innerHTML = "";
-  let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
-  <tr>
-    <td colspan="4"></div>
-      <p>Select a level to return to:</p>
-    </td>
-  </tr>`
-  let trailing_content = ""
-  for (let i = 0; i < levels.length; i += 2) {
-    content += `<tr><td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i]}">${levels[i]}</button></td>`
-    if (i + 1 < levels.length) {
-      content += `<td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i+1]}">${levels[i+1]}</button></td>`
-    } else {
-      content += '<td colspan="2"></td>'
-    }
-    content += "</tr>"
-  }
-  content += "</table>"
-  trailing_content += '<button class="nes-btn townaction" id="town">Return</button>'
-  town_el.innerHTML = content + trailing_content
+// export function renderLevelSelect(game:GameState, levels:string[]) {
+//   const town_el = $("#town");
+//   town_el.innerHTML = "";
+//   let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
+//   <tr>
+//     <td colspan="4"></div>
+//       <p>Select a level to return to:</p>
+//     </td>
+//   </tr>`
+//   let trailing_content = ""
+//   for (let i = 0; i < levels.length; i += 2) {
+//     content += `<tr><td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i]}">${levels[i]}</button></td>`
+//     if (i + 1 < levels.length) {
+//       content += `<td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i+1]}">${levels[i+1]}</button></td>`
+//     } else {
+//       content += '<td colspan="2"></td>'
+//     }
+//     content += "</tr>"
+//   }
+//   content += "</table>"
+//   trailing_content += '<button class="nes-btn townaction" id="town">Return</button>'
+//   town_el.innerHTML = content + trailing_content
 
-  document.querySelectorAll(".modal button.townaction")
-  .forEach(function(el) {
-    el.addEventListener(clickevt, ev => { 
-      console.log("click", ev.target['id'], ev);
-      handleTownAction(game, "levelselect", ev);
-    });
-  });
-}
+//   document.querySelectorAll(".modal button.townaction")
+//   .forEach(function(el) {
+//     el.addEventListener(clickevt, ev => { 
+//       console.log("click", ev.target['id'], ev);
+//       handleTownAction(game, "levelselect", ev);
+//     });
+//   });
+// }
     
 export function hideModalGame(ev) {
   console.log("hiding modal and returning to game", ev);
@@ -347,153 +347,6 @@ export function toggleInventory(ev, force, game:GameState) {
     return false;
   }
 }
-
-// let menus: [string, string][] = [
-//   ["hud_modal_status","Status"],
-//   ["hud_modal_inventory","Inventory"],
-//   ["hud_modal_journal","Journal"],
-//   ["hud_modal_options","Options"]
-// ]
-
-// function renderHudModal(page:string, game:GameState) {
-//   let modal_st = $("#hud_modal");
-
-//   let menu_html = "";
-//   for (let [i,d] of menus) {
-//     console.log("checking menu:",i,d);
-//     if (i == page) {
-//       menu_html += `<th id="${i}"><span class='nes-badge'><span class='is-primary'>${d}</span></span></th>`
-//     } else {
-//       menu_html += `<th id="${i}"><span class='nes-badge'>${d}</span></th>`
-//     }
-//   }
-//   modal_st.innerHTML = '<table class="nes-table is-dark is-bordered"><tr id="hud_modal_headers"></tr></table>';
-//   let header_row = $("#hud_modal_headers")
-//   header_row.innerHTML = menu_html;
-
-//   if (page == "hud_modal_status") {
-//     let table_body = header_row.closest("tbody");
-//     let player = game.player;
-//     table_body.append(el("tr", {colspan:4}, ["CLASS: Warrior"]));
-//     table_body.append(el("tr", {colspan:4}, [`HP: ${player.stats.hp}`]));
-//     table_body.append(el("tr", {colspan:4}, [`STR: ${player.stats.STR}`]));
-//     table_body.append(el("tr", {colspan:4}, [`DEF: ${player.stats.DEF}`]));
-//     table_body.append(el("tr", {colspan:4}, [`DEX: ${player.stats.DEX}`]));
-//     table_body.append(el("tr", {colspan:4}, [`AGI: ${player.stats.AGI}`]));
-//     table_body.append(el("tr", {colspan:4}, [`XP: ${player.stats.xp}`]));
-//     table_body.append(el("tr", {colspan:4}, [`GOLD: ${player.stats.gold}`]));
-//     table_body.append(el("tr", {colspan:4}, [`FOOD: ${player.stats.food}`]));
-//     table_body.append(el("tr", {colspan:4}, [`AMMO: ${player.stats.arrows}`]));
-//   } else if (page == "hud_modal_inventory") {
-//     let table_body = header_row.closest("tbody");
-
-//     for (let i of game.player.inventory) {
-//       console.log(i);
-//       table_body.append(el("tr", {colspan:4}, [i[1]]));
-//     }
-//   } else if (page == "hud_modal_journal") {
-//     let table_body = header_row.closest("tbody");
-
-//     for (let questName in quests) {
-//       let quest = quests[questName];
-//       if (quest.status == "accepted") {
-//         console.log(quest);
-//         table_body.append(el("tr", {colspan:4}, [`accepted: ${quest.giveDescription}`]))
-//       } else if (quest.status == "ready") {
-//         console.log(quest);
-//         table_body.append(el("tr", {colspan:4}, [`ready: ${quest.giveDescription}`]))
-//       }
-//     }
-
-//   } else if (page == "hud_modal_options") {
-//     let music_row = document.createElement("tr")
-//     header_row.after(music_row)
-//     music_row.innerHTML = 
-
-// '<td>Music Vol:</td> \
-// <td><label> \
-// <input type="radio" class="nes-radio" name="music_vol" value="music_vol_full" checked /> \
-// <span>Full</span> \
-// </label></td>\
-// <td><label> \
-// <input type="radio" class="nes-radio" name="music_vol" value="music_vol_quiet" /> \
-// <span>Quiet</span> \
-// </label></td>\
-// <td><label> \
-// <input type="radio" class="nes-radio" name="music_vol" value="music_vol_off" checked /> \
-// <span>Off</span> \
-// </label></td>'
-
-//     let sound_row = document.createElement("tr")
-//     sound_row.innerHTML = 
-
-// '<td>Sound Vol:</td> \
-// <td><label> \
-// <input type="radio" class="nes-radio" name="sound_vol" value="sound_vol_full" checked /> \
-// <span>Full</span> \
-// </label></td>\
-// <td><label> \
-// <input type="radio" class="nes-radio" name="sound_vol" value="sound_vol_quiet" /> \
-// <span>Quiet</span> \
-// </label></td>\
-// <td><label> \
-// <input type="radio" class="nes-radio" name="sound_vol" value="sound_vol_off" /> \
-// <span>Off</span> \
-// </label></td>'
-
-//     music_row.after(sound_row); 
-//   }
-//   return true;
-// }
-
-// export function toggleHudModal(ev, game:GameState,) {
-//   let modal_st = $("#hud_modal");
-//   let header_row = $("#hud_modal_headers")  
-//   console.log(modal_st);
-//   if (modal_st.style.visibility == "visible") {
-//     modal_st.style.visibility = "hidden";
-//     game.listening = true;
-//     UI.inHudModal = false;
-//   } else {
-//     modal_st.style.visibility = "visible";
-//     renderHudModal("hud_modal_journal", game);
-//     game.listening = false;
-//     UI.inHudModal = true;
-
-//     let handleHudModal = (e) => {
-//       console.log("click!",e)
-
-//       let parent_th = e.target.closest("th");
-//       let parent_input = e.target.closest("input");
-//       if (parent_input) {
-//         console.log("clicked modal body:", parent_input, parent_input.name, parent_input.value);
-//         if (parent_input.value == "music_vol_full") {
-//           music.volume(0.25);
-//         } else if (parent_input.value == "music_vol_quiet") {
-//           music.volume(0.1);
-//         } else if (parent_input.value == "music_vol_off") {
-//           music.volume(0);
-//         } else if (parent_input.value == "sound_vol_full") {
-//           setVolume(1.0);
-//         } else if (parent_input.value == "sound_vol_quiet") {
-//           setVolume(0.5);
-//         } else if (parent_input.value == "sound_vol_off") {
-//           setVolume(0);
-//         }
-//         return
-//       }
-
-//       let menu_id = parent_th.id
-//       console.log("clicked modal submenu:",menu_id)
-//       renderHudModal(menu_id, game);
-
-//       return true;
-//     }
-
-//     modal_st.removeEventListener(clickevt, handleHudModal);
-//     modal_st.addEventListener(clickevt, handleHudModal);
-//   }
-// }
     
 // creates the ghost sprite when the player dies
 // use this template to overlay effects on the game canvas

@@ -1,5 +1,6 @@
 import GameState from "../gamestate";
-import { hideModalGame, renderLevelSelect, renderTown, showScreen } from "../ui/ui";
+import { hideModalGame, showScreen } from "../ui/ui";
+import { renderLevelSelect, renderTown } from "../ui/TownUI";
 import { init } from "./GameLogic";
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
 import { Quest, QuestStatus, quests, updateQuestStatus } from "../mapgen/Quests";
