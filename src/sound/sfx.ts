@@ -300,4 +300,10 @@ for (let sound in sfx) {
   sfx[sound].setVolume(0.1)
 }
 
-
+export function setVolume(vol:number) {
+  for (let sound in sfx) {
+    console.log(sound, sfx[sound])
+    sfx[sound].setVolume(0.1 * vol);
+  }
+  
+}

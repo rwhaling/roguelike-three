@@ -77,6 +77,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // kick everything off
   game.engine = new Engine(game.scheduler);
   game.engine.start();
+  game.listening = true;
 
   function drawScene(timestamp) {
     if (game.running == false) {
@@ -140,6 +141,7 @@ export function destroy(game) {
 // this gets called when the player loses the game
 export function lose(game) {
   game.engine.lock();
+  game.listening = false;
   // change the player into a tombstone tile
   const p = game.player;
   p.character = "T";
@@ -160,6 +162,8 @@ export function lose(game) {
     // destroy(game);
     // show the "lose" screen to the user
     showScreen("lose", null);
+    game.listening = false;
+
   }, 2000);
 }
 

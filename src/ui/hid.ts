@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { DIRS } from "rot-js/lib";
+import { UI } from "./ui";
 // these are lookup tables mapping keycodes and
 // click/tap directions to game direction vectors
 
@@ -115,6 +116,18 @@ export function resolvePointing(game, ev) {
 // and the position of the player is updated
 export function keyHandler(game,ev) {
   const code = ev.keyCode;
+
+  // tricky - how to catch #6 to toggle menu?
+  if (!game.listening) {
+    if (UI.inHudModal) {
+      if (code == 54) {
+        game.player.controls.tempAttemptSkillByName(game, game.player, numMap[code]);        
+      }
+    }
+    ev.preventDefault();
+    return;
+  }
+
   game.player.controls.dirty = true;
   // prevent zoom
   if (code == 187 || code == 189) {
