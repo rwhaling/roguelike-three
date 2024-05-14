@@ -1,9 +1,12 @@
-import { handleTownAction, TownState } from "../core/TownLogic";
+import { getTownState } from "../core/TownLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
+import { destroy, init } from "../core/GameLogic";
+import { renderTown } from "./TownUI";
 import { sfx, setVolume } from "../sound/sfx";
 import { music } from "../sound/music";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
+import { setup } from "../game.js";
 
 
 const clickevt = !!('ontouchstart' in window) ? "touchstart" : "click";
@@ -23,6 +26,88 @@ export let UI = {
   sound_vol: "music_vol_full",
   clickevt: !!('ontouchstart' in window) ? "touchstart" : "click"
 }
+
+// // this helper function hides any of the menu
+// // screens above, shows the title screen again,
+// // and plays a sound as it does so
+// export function hideModal(ev) {
+//   let choice = ev.target['id'];
+//   console.log("hiding modal, returning to title", ev);
+//   ev.preventDefault();
+//   // tear down the game
+//   destroy(Game);
+
+//   showScreen("title");
+//   sfx['hide'].play();
+// }
+
+export function renderTitleScreen(game:GameState,which: string) {
+  console.log("rendering title screen:",which);
+  let id = "#" + which
+  let screen_el = $(id)
+  screen_el.outerHTML = screen_el.outerHTML
+  screen_el = $(id)
+  console.log("rendered:",screen_el);
+  let handleTitleScreen = ev => {
+    let input = ev.target.closest("input");
+    if (input) {
+      let choice = input.getAttribute("value");
+      console.log("handling title screen click:", input, ev, ev.target, choice)
+  
+      ev.preventDefault();
+      // const choice = which.getAttribute("value");
+      showScreen(choice, ev);
+      renderTitleScreen(game,choice);
+      sfx["choice"].play();  
+    }
+    let button = ev.target.closest("button");
+    if (button) {
+      console.log("handling title screen button:", button.id)  
+      ev.preventDefault();
+      // const choice = which.getAttribute("value");
+      if (button.id == "play") {
+        setup(game);
+      } else {
+        showScreen("title", ev);
+        renderTitleScreen(game,"title");
+        sfx["choice"].play();    
+      }
+    }
+  }
+  screen_el.removeEventListener(clickevt, handleTitleScreen);
+  screen_el.addEventListener(clickevt, handleTitleScreen);
+}
+
+
+export function renderLoseScreen(game: GameState) {
+  let lose_st = $("#lose")
+  lose_st.outerHTML = lose_st.outerHTML
+  lose_st = $("#lose")
+  let handleLoseScreen = ev => {
+    let choice = ev.target['id'];
+    console.log("hiding modal, returning to title", ev);
+    ev.preventDefault();
+    if (choice == "lose-cheat") {
+      console.log("cheat selected", game);
+      game.player.stats.hp = game.player.stats.maxHP;
+      hideToast(true);
+      init(game,game.level.depth,game.level.biome);
+      let nextState = getTownState(game, "town");
+      renderTown(game, nextState);
+      showScreen("town", ev);
+    } else {
+      // tear down the game
+      destroy(game);
+  
+      showScreen("title", ev);
+    }
+    sfx['hide'].play();
+  }
+  lose_st.removeEventListener(clickevt, handleLoseScreen);
+  lose_st.addEventListener(clickevt, handleLoseScreen);
+
+}
+
 
 // hides all screens and shows the requested screen
 export function showScreen(which, ev) {
@@ -107,95 +192,6 @@ export function renderInventory(tileOptions,items) {
                   }), words]));
     });
 }
-
-// export function renderTown(game:GameState, town:any) {
-//   const town_el = $("#town");
-//   town_el.innerHTML = "";
-//   let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
-//   <tr>
-//     <td colspan="4"><div class="sprite ${town.icon}"></div>
-//       <p>${town.description}</p>
-//     </td>
-//   </tr>`
-//   let trailing_content = ""
-
-//   let quests_available = false;
-//   let quests_ready = false;
-
-//   for (let q in quests) {
-//     let qu = quests[q]
-//     if (qu.status == "available") {
-//       quests_available = true;
-//     } if (qu.status == "ready") {
-//       quests_ready = true;
-//     }
-//   }  
-
-//   for (let b of town.choices) {
-//   // for (let b of town.choices) {
-//     if (b[1] == "castle" && quests_ready) {
-//       trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
-//     } else if (b[1] == "castle" && quests_available) {
-//       trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
-//     } else if (town.zone == "castle") {
-//       if (b[1].startsWith("accept_")) {
-//         trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
-//       } else if (b[1].startsWith("handin_")) {
-//         trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
-//       } else {
-//         trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
-//       }
-//     } else if (b[0] == "nav") {
-//     // if (b[0] == "town" || b[0] == "return") {
-//       trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
-//     } else {
-//       content += `<tr><td colspan="3">${b[2]}</td><td><button class="nes-btn townaction" id="${b[1]}">Buy</button></td></tr>`;
-//     }
-//   }
-//   town_el.innerHTML = `${content}</table>${trailing_content}`
-
-//   document.querySelectorAll(".modal button.townaction")
-//   .forEach(function(el) {
-//     el.addEventListener(clickevt, ev => { 
-//       console.log("click", ev.target['id'], ev);
-//       handleTownAction(game, town.zone, ev);
-//     });
-//     // el.addEventListener(clickevt, hideModalGame);
-//   });
-
-// }
-
-// export function renderLevelSelect(game:GameState, levels:string[]) {
-//   const town_el = $("#town");
-//   town_el.innerHTML = "";
-//   let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
-//   <tr>
-//     <td colspan="4"></div>
-//       <p>Select a level to return to:</p>
-//     </td>
-//   </tr>`
-//   let trailing_content = ""
-//   for (let i = 0; i < levels.length; i += 2) {
-//     content += `<tr><td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i]}">${levels[i]}</button></td>`
-//     if (i + 1 < levels.length) {
-//       content += `<td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i+1]}">${levels[i+1]}</button></td>`
-//     } else {
-//       content += '<td colspan="2"></td>'
-//     }
-//     content += "</tr>"
-//   }
-//   content += "</table>"
-//   trailing_content += '<button class="nes-btn townaction" id="town">Return</button>'
-//   town_el.innerHTML = content + trailing_content
-
-//   document.querySelectorAll(".modal button.townaction")
-//   .forEach(function(el) {
-//     el.addEventListener(clickevt, ev => { 
-//       console.log("click", ev.target['id'], ev);
-//       handleTownAction(game, "levelselect", ev);
-//     });
-//   });
-// }
     
 export function hideModalGame(ev) {
   console.log("hiding modal and returning to game", ev);

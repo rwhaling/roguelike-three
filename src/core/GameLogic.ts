@@ -1,17 +1,19 @@
 import { sfx } from "../sound/sfx";
 import { v4 as uuidv4 } from 'uuid';
 import { RNG, Scheduler, Engine } from "rot-js/lib";
-import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
+import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderLoseScreen, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
 import { mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
 import { RoomContents, spawnLevelFrom } from "../mapgen/Spawner";
 import { goldAmountTable, dungeonLevels, cryptLevels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
-import { Player } from "../entities/player";
+import { makePlayer } from "../entities/player";
 import GameState from "../gamestate";
 import { AllCellContents, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 import { music } from "../sound/music";
+import Display from "../mydisplay";
+import MyDisplay from "../myglbackend";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -162,6 +164,7 @@ export function lose(game) {
     // destroy(game);
     // show the "lose" screen to the user
     showScreen("lose", null);
+    renderLoseScreen(game);
     game.listening = false;
 
   }, 2000);
