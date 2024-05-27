@@ -7,8 +7,9 @@ import { Quest, QuestStatus, quests, updateQuestStatus } from "../mapgen/Quests"
 
 
 export type TownNavChoice = ['nav',string, string]
-export type TownShopChoice = ['shop',string, string]
+export type TownShopChoice = ['shop',string, string, string]
 export type TownChoice = TownNavChoice | TownShopChoice
+export type TownPrices = {[key:string]: [number,number]}
 
 export interface TownState {
   zone: string,
@@ -88,6 +89,7 @@ export function handleTownAction(game, zone, ev) {
 
 export function handleInn(game, choice):TownState {
   let p = game.player;
+
   if (choice == "rest") {
     if (p.stats.gold >= 5) {
       p.stats.gold -= 5;
@@ -100,9 +102,20 @@ export function handleInn(game, choice):TownState {
       p.stats.arrows = p.stats.maxArrows;
     }
   }
+
+  let rest_ready = "is-disabled"
+  if (p.stats.hp < p.stats.maxHP && p.stats.gold >= 5) {
+    rest_ready = "is-warning"
+  }
+
+  let resupply_ready = "is-disabled"
+  if (p.stats.gold >= 10 && (p.stats.hp < p.stats.maxHP || p.stats.arrows < p.stats.maxArrows || p.stats.food < p.stats.maxFood)) {
+    resupply_ready = "is-warning"
+  }
+
   let options: TownChoice[] = [
-    ["shop","rest","Rest<br/> recover full HP [5 GP]"],
-    ["shop","resupply","Resupply<br/> full food and arrows [10 GP]"],
+    ["shop","rest","Rest<br/> recover full HP [5 GP]", rest_ready],
+    ["shop","resupply","Resupply<br/> full food and arrows [10 GP]", resupply_ready],
     ["nav","return","Return"]
   ]
 
@@ -120,10 +133,7 @@ export function handleInn(game, choice):TownState {
   }
 }
 
-export function handleShop(game, choice):TownState {
-  // let choice = ev.target['id'];
-  console.log("shop action", choice);
-
+export function getShopPrices(game): TownPrices {
   let maxFoodCosts = {
     2: 30,
     3: 50,
@@ -181,38 +191,126 @@ export function handleShop(game, choice):TownState {
     default:
       break
   }
+  return {
+    "max_food":[next_max_food_cost,next_max_food],
+    "max_arrows":[next_max_arrows_cost,next_max_arrows],
+    "def":[next_def_cost,next_def],
+    "str":[next_str_cost,next_str]
+  }
+}
+
+function checkReadyGold(game:GameState, price: number): boolean {
+  let gold = game.player.stats.gold  
+  if (price <= gold) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function checkReadyXp(game:GameState, price: number): boolean {
+  let xp = game.player.stats.xp  
+  if (price <= xp) {
+    return true
+  } else {
+    return false
+  }
+}
+
+
+export function handleShop(game, choice):TownState {
+  // let choice = ev.target['id'];
+  console.log("shop action", choice);
+
+  let prices = getShopPrices(game)
   
   let options: TownChoice[] = []
-  if (next_max_food_cost) {
-    options.push(["shop","maxfood",`max food<br/>${game.player.stats.maxFood} -> ${next_max_food} [${next_max_food_cost} GP]`])
+  if (prices["max_food"][0]) {
+    let readystate = ""
+    if (prices["max_food"][0] <= game.player.stats.gold) {
+      readystate = "is-warning"
+    } else if (game.debugMode == false) {
+      readystate = "is-disabled"
+    } else if (game.debugMode == true) {
+      readystate = ""
+    }
+
+    options.push(["shop","maxfood",`max food<br/>${game.player.stats.maxFood} -> ${prices["max_food"][1]} [${prices["max_food"][0]} GP]`, readystate])
   }
-  if (next_max_arrows) {
-    options.push(["shop","maxarrows", `max arrows<br/>${game.player.stats.maxArrows} -> ${next_max_arrows} [${next_max_arrows_cost} GP]`])
+  if (prices["max_arrows"][0]) {
+    let readystate = ""
+    if (prices["max_arrows"][0] <= game.player.stats.gold) {
+      readystate = "is-warning"
+    } else if (game.debugMode == false) {
+      readystate = "is-disabled"
+    } else if (game.debugMode == true) {
+      readystate = ""
+    }
+
+    options.push(["shop","maxarrows", `max arrows<br/>${game.player.stats.maxArrows} -> ${prices["max_arrows"][1]} [${prices["max_arrows"][0]} GP]`, readystate])
   }
-  if (next_def_cost) {
-    options.push(["shop","armor",`Increase DEF +1<br/>${game.player.stats.DEF} -> ${game.player.stats.DEF + 1} [${next_def_cost} GP]`])
+  if (prices["def"][0]) {
+    let readystate = ""
+    if (prices["def"][0] <= game.player.stats.gold) {
+      readystate = "is-warning"
+    } else if (game.debugMode == false) {
+      readystate = "is-disabled"
+    } else if (game.debugMode == true) {
+      readystate = ""
+    }
+
+    options.push(["shop","armor",`Increase DEF +1<br/>${game.player.stats.DEF} -> ${prices["def"][1]} [${prices["def"][0]} GP]`, readystate])
   }
-  if (next_str_cost) {
-    options.push(["shop","sword",`Increase STR +1<br/>${game.player.stats.STR} -> ${game.player.stats.STR + 1} [${next_str_cost} GP]`])
+  if (prices["str"][0]) {
+    let readystate = ""
+    if (prices["str"][0] <= game.player.stats.gold) {
+      readystate = "is-warning"
+    } else if (game.debugMode == false) {
+      readystate = "is-disabled"
+    } else if (game.debugMode == true) {
+      readystate = ""
+    }
+
+    options.push(["shop","sword",`Increase STR +1<br/>${game.player.stats.STR} -> ${prices["str"][1]} [${prices["str"][0]} GP]`, readystate])
   }
+
   options.push(["nav","town","return"])
   let p = game.player;
 
   if (choice == "maxfood") {
-    game.player.stats.maxFood = next_max_food;
-    game.player.baseStats.maxFood = next_max_food;
+    if (prices["max_food"][0] > game.player.stats.gold && game.debugMode == false) {
+      return handleShop(game, "shop")
+    }
+    game.player.stats.maxFood = prices["max_food"][1];
+    game.player.baseStats.maxFood = prices["max_food"][1];
+    game.player.stats.gold -= prices["max_food"][0];
     return handleShop(game, "shop");
   } else if (choice == "maxarrows") {
-    game.player.stats.maxArrows = next_max_arrows;
-    game.player.baseStats.maxArrows = next_max_arrows;
+    if (prices["max_arrows"][0] > game.player.stats.gold && game.debugMode == false) {
+      return handleShop(game, "shop")
+    }
+    game.player.stats.maxArrows = prices["max_arrows"][1];
+    game.player.baseStats.maxArrows = prices["max_arrows"][1];
+    game.player.stats.gold -= prices["max_arrows"][0];
+
     return handleShop(game, "shop");
   } else if (choice == "armor") {
-    game.player.stats.DEF = next_def;
-    game.player.baseStats.DEF = next_def;
+    if (prices["def"][0] > game.player.stats.gold && game.debugMode == false) {
+      return handleShop(game, "shop")
+    }
+    game.player.stats.DEF = prices["def"][1];
+    game.player.baseStats.DEF = prices["def"][1];
+    game.player.stats.gold -= prices["def"][0];
+
     return handleShop(game, "shop");
   } else if (choice == "sword") {
-    game.player.stats.STR = next_str;
-    game.player.baseStats.STR = next_str;  
+    if (prices["sword"][0] > game.player.stats.gold && game.debugMode == false) {
+      return getTownState(game, "shop")
+    }
+    game.player.stats.STR = prices["str"][1];
+    game.player.baseStats.STR = prices["str"][1];  
+    game.player.stats.gold -= prices["str"][0];
+
   } else if (choice == "return") {
     return getTownState(game, "town");
   }
@@ -289,50 +387,9 @@ export function handleCastle(game:GameState, choice): TownState {
     description: d,
     choices: options
   }  
-
-  // if (choice == "castle" && hasAmulet == false) {
-  //   let d = `<p>zone: castle</p>`
-  //   return {
-  //     zone: "castle",
-  //     icon: i,
-  //     description: d,
-  //     choices: options
-  //   }  
-  // }
-
-  // if (choice == "castle" && hasAmulet == true) {
-  //   let d = `<p>zone: castle</p>
-  //   <p>Give me the amulet of Yendor!</p>`
-  //   options.unshift(["nav","turnin", "Hand over the amulet"])
-  //   return {
-  //     zone: "castle",
-  //     icon: i,
-  //     description: d,
-  //     choices: options
-  //   }
-  // }
-
-  if (choice == "turnin" && hasAmulet == true) {
-    console.log("inventory before:", game.player.inventory)
-    game.player.inventory = game.player.inventory.filter( i => i[0] == "amulet")
-    console.log("inventory after:", game.player.inventory)
-    let d = `<p>zone: castle</p>
-    <p>Here are some coins. Please leave now.</p>`
-    options = [["nav","return", "You won?"]]
-    return {
-      zone: "castle",
-      icon: i,
-      description: d,
-      choices: options
-    }
-  }
-
-  if (choice == "return") {
-    return getTownState(game, "town");
-  }
 }
 
-export function handleTrain(game, choice):TownState {
+export function getTrainPrices(game):TownPrices {
   let dexCosts = { 
     1: 10,
     2: 20,
@@ -357,21 +414,59 @@ export function handleTrain(game, choice):TownState {
   let next_dex_cost = dexCosts[next_dex]
   let next_agi_cost = agiCosts[next_agi]
 
-  let options: TownChoice[] = [["nav","town", "Return"]]
-  if (next_agi_cost) {
-    options.unshift(["shop","agi", `AGI ${game.player.stats.AGI} -> ${next_agi} (${next_agi_cost} XP)`])
+  return {
+    "dex":[next_dex_cost,next_dex],
+    "agi":[next_agi_cost,next_agi]
   }
-  if (next_dex_cost) {
-    options.unshift(["shop","dex", `DEX ${game.player.stats.DEX} -> ${next_dex} (${next_dex_cost} XP)`])
+
+}
+
+export function handleTrain(game, choice):TownState {
+
+  let prices = getTrainPrices(game)
+
+  let options: TownChoice[] = [["nav","town", "Return"]]
+  if (prices["agi"][0]) {
+    let readystate = ""
+    if (prices["agi"][0] <= game.player.stats.xp) {
+      readystate = "is-warning"
+    } else if (game.debugMode == false) {
+      readystate = "is-disabled"
+    } else if (game.debugMode == true) {
+      readystate = ""
+    }
+  
+    options.unshift(["shop","agi", `AGI ${game.player.stats.AGI} -> ${prices["agi"][1]} (${prices["agi"][0]} XP)`, readystate])
+  }
+  if (prices["dex"][0]) {
+    let readystate = ""
+    if (prices["dex"][0] <= game.player.stats.xp) {
+      readystate = "is-warning"
+    } else if (game.debugMode == false) {
+      readystate = "is-disabled"
+    } else if (game.debugMode == true) {
+      readystate = ""
+    }
+
+    options.unshift(["shop","dex", `DEX ${game.player.stats.DEX} -> ${prices["dex"][1]} (${prices["dex"][0]} XP)`, readystate])
   }
 
   if (choice == "dex") {
-    game.player.stats.DEX = next_dex;
-    game.player.baseStats.DEX = next_dex;
+    if (prices["dex"][0] > game.player.stats.xp && game.debugMode == false) {
+      return getTownState(game, "train")
+    }
+    game.player.stats.DEX = prices["dex"][1];
+    game.player.baseStats.DEX = prices["dex"][1];
+    game.player.stats.xp -= prices["dex"][0];
     return handleTrain(game, "train");
   } else if (choice == "agi") {
-    game.player.stats.AGI = next_agi;
-    game.player.baseStats.AGI = next_agi;
+    if (prices["agi"][0] > game.player.stats.xp && game.debugMode == false) {
+      return getTownState(game, "train")
+    }
+    game.player.stats.AGI = prices["agi"][1];
+    game.player.baseStats.AGI = prices["agi"][1];
+    game.player.stats.xp -= prices["agi"][0];
+
     return handleTrain(game, "train");
   } else if (choice == "return") {
     return getTownState(game, "town");

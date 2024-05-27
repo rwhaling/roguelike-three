@@ -1,4 +1,4 @@
-import { handleTownAction, TownState } from "../core/TownLogic";
+import { getShopPrices, getTrainPrices, handleTownAction, TownState } from "../core/TownLogic";
 import GameState from "../gamestate";
 import { quests } from "../mapgen/Quests";
 
@@ -30,10 +30,46 @@ export function renderTown(game:GameState, town:any) {
         quests_ready = true;
       }
     }  
+
+    let shop_ready = false;
+    let train_ready = false;
+
+    let shop_prices = getShopPrices(game)
+    for (let p in shop_prices) {
+        let pri = shop_prices[p]
+        if (pri[0] <= game.player.stats.gold) {
+            shop_ready = true;
+        }
+    }
+
+    let train_prices = getTrainPrices(game)
+    for (let t in train_prices) {
+        let tra = train_prices[t]
+        if (tra[0] <= game.player.stats.xp) {
+            train_ready = true;
+        }
+    }
+
+    let inn_ready = false;
+
+    if (game.player.stats.hp < game.player.stats.maxHP && game.player.stats.gold >= 5) {
+      inn_ready = true
+    }
   
+    if (game.player.stats.gold >= 10 && (game.player.stats.hp < game.player.stats.maxHP || game.player.stats.arrows < game.player.stats.maxArrows || game.player.stats.food < game.player.stats.maxFood)) {
+      inn_ready = true
+    }
+  
+
     for (let b of town.choices) {
     // for (let b of town.choices) {
-      if (b[1] == "castle" && quests_ready) {
+      if (b[1] == "shop" && shop_ready) {
+        trailing_content += `<button class="nes-btn townaction is-warning" id="${b[1]}">${b[2]}</button>`
+      } else if (b[1] == "inn" && inn_ready) {
+        trailing_content += `<button class="nes-btn townaction is-warning" id="${b[1]}">${b[2]}</button>`
+      } else if (b[1] == "train" && train_ready) {
+        trailing_content += `<button class="nes-btn townaction is-warning" id="${b[1]}">${b[2]}</button>`
+      } else if (b[1] == "castle" && quests_ready) {
         trailing_content += `<button class="nes-btn townaction is-primary" id="${b[1]}">${b[2]}</button>`
       } else if (b[1] == "castle" && quests_available) {
         trailing_content += `<button class="nes-btn townaction is-success" id="${b[1]}">${b[2]}</button>`
@@ -49,7 +85,7 @@ export function renderTown(game:GameState, town:any) {
       // if (b[0] == "town" || b[0] == "return") {
         trailing_content += `<button class="nes-btn townaction" id="${b[1]}">${b[2]}</button>`
       } else {
-        content += `<tr><td colspan="3">${b[2]}</td><td><button class="nes-btn townaction" id="${b[1]}">Buy</button></td></tr>`;
+        content += `<tr><td colspan="3">${b[2]}</td><td><button class="nes-btn townaction ${b[3]}" id="${b[1]}">Buy</button></td></tr>`;
       }
     }
     town_el.innerHTML = `${content}</table>${trailing_content}`

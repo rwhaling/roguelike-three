@@ -36,6 +36,7 @@ export default class GameState {
     listening: boolean
     cleanup: any
     tick: Function
+    debugMode: boolean
 
     constructor() {
         this.running = false;
@@ -65,5 +66,6 @@ export default class GameState {
         this.listening = false;
         this.cleanup = null;
         this.tick = null;
+        this.debugMode = false;
     }   
 }

@@ -105,6 +105,22 @@ let menus: [string, string][] = [
   </label></td>'
   
       music_row.after(sound_row); 
+
+      let debug_row = document.createElement("tr")
+      debug_row.innerHTML = 
+
+    '<td>Debug Mode:</td> \
+    <td><label> \
+    <input type="radio" class="nes-radio" name="debug_mode" value="debug_mode_off" checked /> \
+    <span>OFF</span> \
+    </label></td>\
+    <td><label> \
+    <input type="radio" class="nes-radio" name="debug_mode" value="debug_mode_on" /> \
+    <span>ON</span> \
+    </label></td>'
+
+      sound_row.after(debug_row);
+ 
     }
     return true;
   }
@@ -142,6 +158,10 @@ let menus: [string, string][] = [
             setVolume(0.5);
           } else if (parent_input.value == "sound_vol_off") {
             setVolume(0);
+          } else if (parent_input.value == "debug_mode_on") {
+            game.debugMode = true;
+          } else if (parent_input.value == "debug_mode_off") {
+            game.debugMode = false;
           }
           return
         }

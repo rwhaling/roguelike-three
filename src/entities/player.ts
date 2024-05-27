@@ -492,6 +492,8 @@ function dashAction(game, player, target, paths):boolean {
     player._x = move_to[0];
     player._y = move_to[1];
   
+    game.mapDisplay.draw(oldPos[0],oldPos[1],"","","white");
+
     let animation = {
         id: player.id,
         startPos: oldPos,
