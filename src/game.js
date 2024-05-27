@@ -357,7 +357,7 @@ function runGame(w,mydisplay) {
     })
   
     // listen for the start game button
-    $("#play").addEventListener(clickevt, startGame);
+    // $("#play").addEventListener(clickevt, startGame);
     
     // allow live reloading of the game code
     if (w["rbb"]) {

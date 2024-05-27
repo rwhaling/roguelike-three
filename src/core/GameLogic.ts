@@ -30,6 +30,8 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   game.items = {};
   game.running = true;
   game.level = initLevel(n, biome, width, height);
+  game.visibleMap = {};
+  game.exploreMap = {};
 
   game.currentLevel = n;
   game.currentBiome = biome;
@@ -219,9 +221,26 @@ export function checkDeath(game:GameState,m) {
         // // add either a treasure chest
         // // or a piece of gold to the map
         // game.items[key] = item;
-    
+      } else {
+        console.log("generating loot at random");
+        let roll = RNG.getUniformInt(0,19);
+        if (roll > 4) {
+          console.log('spawning loot drop for level:', game.level.biome, game.level.depth);
 
+          let cell = getCell(game.level, m._x, m._y)
 
+          let i:ItemContent = {
+            kind: "ItemContent",
+            x: m._x,
+            y: m._y,
+            item: "g"
+          }
+          cell.contents.push(i)
+          game.items[key] = "g"
+          game.level.newDrops.push([m._x, m._y])
+
+        }
+        console.log(`rolled ${roll},no loot`)
       }
       sfx["kill"].play();
       return true;

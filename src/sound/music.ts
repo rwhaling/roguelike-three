@@ -8,3 +8,4 @@ export const music = new Howl({
     },
     volume: 0.25 
 });
+

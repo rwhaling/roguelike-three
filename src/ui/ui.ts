@@ -23,7 +23,7 @@ export let UI = {
   lastScreen: "title",
   inHudModal: false,
   music_vol: "music_vol_full",
-  sound_vol: "music_vol_full",
+  sound_vol: "sound_vol_full",
   clickevt: !!('ontouchstart' in window) ? "touchstart" : "click"
 }
 

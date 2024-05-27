@@ -119,7 +119,7 @@ export class PlayerControls {
         p._y = target_y;
 
         let cell = getCell(game.level, p._x, p._y)
-        cell.visited = true
+        cell.visited = true;
         cell.discovered = true;
         game.level.newDrops = game.level.newDrops.filter( i => {
             return i[0] != p._x || i[1] != p._y;
@@ -139,14 +139,11 @@ export class PlayerControls {
         // hack
         game.mapDisplay.draw(oldPos[0],oldPos[1],"","","white");
 
-
         game.engine.unlock();
         // play the "step" sound
         sfx["step"].play();
         // check if the player stepped on an item
         checkItem(game,p);
-      
-
 
         return true;
     }
@@ -211,7 +208,7 @@ export class PlayerControls {
 
     // findClosestTarget(game, player)
 
-    attemptAction(game, player):boolean {
+    attemptAction(game:GameState, player):boolean {
         let currentMove = this.moves.concat(...this.skills)[this.selectedMove];
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
         console.log(`attempting current selected move at pos ${this.selectedMove}`,currentMove);
