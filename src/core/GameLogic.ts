@@ -57,6 +57,36 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   let levels = dungeonLevels
   if (biome == "crypt") {
     levels = cryptLevels;
+
+    // ".": [272, 64], // floor
+    // "╔": [352, 0],  // room corner
+    // "╗": [368, 0], // room corner
+    // "╝": [272, 0], // room corner
+    // "╚": [288, 0], // room corner
+    // "═": [256, 0],  // room edge
+    // "║": [368, 0], // room edge
+    // "o": [384, 0], // room corner
+    game.display._options.tileMap["."] = [272,80]
+
+    game.display._options.tileMap["╔"] = [352,32]
+    game.display._options.tileMap["╗"] = [368,32]
+    game.display._options.tileMap["╝"] = [272,32]
+    game.display._options.tileMap["╚"] = [288,32]
+    game.display._options.tileMap["═"] = [256,32]
+    game.display._options.tileMap["║"] = [368,32]
+    game.display._options.tileMap["o"] = [384,32]
+
+  } else {
+    game.display._options.tileMap["."] = [400,64]
+
+    game.display._options.tileMap["╔"] = [352,48]
+    game.display._options.tileMap["╗"] = [368,48]
+    game.display._options.tileMap["╝"] = [272,48]
+    game.display._options.tileMap["╚"] = [288,48]
+    game.display._options.tileMap["═"] = [256,48]
+    game.display._options.tileMap["║"] = [368,48]
+    game.display._options.tileMap["o"] = [384,48]
+
   }
 
   // this is where we populate the map data structure
@@ -350,6 +380,7 @@ export function checkItem(game:GameState, entity) {
   const key = entity._x + "," + entity._y;
   let cell = getCell(game.level, entity._x, entity._y);
   let newContents: AllCellContents[] = [];
+  let stairs = undefined;
   for (let idx = 0; idx < cell.contents.length; idx++) {
     let item = cell.contents[idx];
     if (item.kind == "GoldContent") {
@@ -401,36 +432,40 @@ export function checkItem(game:GameState, entity) {
         delete game.items[key];    
       } else if (item.item == "<") {
         toast(game, "These are the stairs up");
+        stairs = "<"
+        newContents.push(item)
       } else if (item.item == ">") {
         toast(game, "These are the stairs down");
+        stairs = ">"
+        newContents.push(item)
       }
-  } else if (item.kind == "QuestItemContent") {
-    // let questItemName = game.quests[game.currentQuest].questItem
-    let questItemName = item.item;
-    let quest = game.quests[questItemName];
-    let displayName = quest.questItem;
-    game.player.inventory.push([questItemName,displayName]);
-    toast(game, `You found the ${displayName}`);
-    let itemCount = game.player.inventory.filter( ([a,b]) => { 
-      console.log('checking inventory item:', a, b[0]);
-      return a === questItemName;
-    }).length;
-    console.log(`found ${itemCount} ${questItemName} in inventory:`, game.player.inventory)
+    } else if (item.kind == "QuestItemContent") {
+      // let questItemName = game.quests[game.currentQuest].questItem
+      let questItemName = item.item;
+      let quest = game.quests[questItemName];
+      let displayName = quest.questItem;
+      game.player.inventory.push([questItemName,displayName]);
+      toast(game, `You found the ${displayName}`);
+      let itemCount = game.player.inventory.filter( ([a,b]) => { 
+        console.log('checking inventory item:', a, b[0]);
+        return a === questItemName;
+      }).length;
+      console.log(`found ${itemCount} ${questItemName} in inventory:`, game.player.inventory)
 
-    if (itemCount >= quest.itemCount) {
-      console.log("marking quest as ready:", quest)
-      quest.status = "ready"
-    } else {
-      console.log("quest item count not fulfilled:", quest)
-    }
-    sfx["win"].play();
-    delete game.items[key];      
-  } else if (item.kind == "ContainerContent") {
-      // Not implemented
+      if (itemCount >= quest.itemCount) {
+        console.log("marking quest as ready:", quest)
+        quest.status = "ready"
+      } else {
+        console.log("quest item count not fulfilled:", quest)
+      }
+      sfx["win"].play();
+      delete game.items[key];      
+    } else if (item.kind == "ContainerContent") {
+        // Not implemented
 
-      toast(game, "This chest is empty.");
-      sfx["empty"].play();
-      delete game.items[key];  
+        toast(game, "This chest is empty.");
+        sfx["empty"].play();
+        delete game.items[key];  
     } else if (item.kind == "ExitContent") {
       // Not implemented
       newContents.push(item)
@@ -438,4 +473,10 @@ export function checkItem(game:GameState, entity) {
     }
   }
   cell.contents = newContents;
+  if (!(key in game.items)) {
+    if (stairs) {
+      game.items[key] = stairs
+    }
+
+  }
 }

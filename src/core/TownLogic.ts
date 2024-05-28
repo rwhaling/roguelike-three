@@ -116,7 +116,7 @@ export function handleInn(game, choice):TownState {
   let options: TownChoice[] = [
     ["shop","rest","Rest<br/> recover full HP [5 GP]", rest_ready],
     ["shop","resupply","Resupply<br/> full food and arrows [10 GP]", resupply_ready],
-    ["nav","return","Return"]
+    ["nav","town","Return"]
   ]
 
   let d = `<p>zone: inn</p>
