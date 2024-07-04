@@ -313,10 +313,10 @@ void main() {
 	// vec2 playerAdjust = playerPosAbs - (mapSize * 0.5);
 	// vec2 playerAdjust = playerPosAbs - (vec2(20,20) * scaleFactor);
 
-	vec2 playerAdjust = playerPosAbs - (mapSize * scaleFactor) + vec2(0.5,0.5);
+	vec2 playerAdjust = playerPosAbs - floor(mapSize * scaleFactor) + vec2(0.5,0.5);
 
 	vec2 scaledTargetPos = 1.0 * (targetPosRel - (playerAdjust));
-	vec2 targetPosPx = (scaledTargetPos + scaledTilePos) * tileSize;
+	vec2 targetPosPx = floor((scaledTargetPos + scaledTilePos) * tileSize);
 	vec2 targetPosNdc = ((targetPosPx / (targetSize*scaleFactor))-0.5)*2.0;
 	targetPosNdc.y *= -1.0;
 

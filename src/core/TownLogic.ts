@@ -304,7 +304,7 @@ export function handleShop(game, choice):TownState {
 
     return handleShop(game, "shop");
   } else if (choice == "sword") {
-    if (prices["sword"][0] > game.player.stats.gold && game.debugMode == false) {
+    if (prices["str"][0] > game.player.stats.gold && game.debugMode == false) {
       return getTownState(game, "shop")
     }
     game.player.stats.STR = prices["str"][1];
@@ -369,11 +369,11 @@ export function handleCastle(game:GameState, choice): TownState {
     let quest = quests[questName];
     console.log("quest:",questName, quest.status)
     if (quest.status == "available") {
-      options = options.concat([["nav",`accept_${questName}`,`accept quest ${quest.name}`]])
+      options = options.concat([["nav",`accept_${questName}`,`${quest.giver}: ${quest.name}`]])
     } else if (quest.status == "accepted") {
-      options = options.concat([["nav",`check_${questName}`,`accepted quest ${quest.name}`]])
+      options = options.concat([["nav",`check_${questName}`,`${quest.giver}: ${quest.name}`]])
     } else if (quest.status == "ready") {
-      options = options.concat([["nav",`handin_${questName}`,`hand in quest ${quest.name}`]])
+      options = options.concat([["nav",`handin_${questName}`,`${quest.giver}: ${quest.name}`]])
     }
   }
 
