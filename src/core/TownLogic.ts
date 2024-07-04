@@ -66,12 +66,12 @@ export function handleTownAction(game, zone, ev) {
       renderLevelSelect(game, choices);  
     } else if (choice.startsWith("dungeon")) {
       let level = parseInt(choice.slice(-1));
-      console.log("loading level ",level);
+      console.log("loading dungeon level ",level);
       init(game, level, "dungeon");
       hideModalGame(ev);
-    } else if (choice.startsWith("cave")) {
+    } else if (choice.startsWith("crypt")) {
       let level = parseInt(choice.slice(-1));
-      console.log("loading CAVE (CRYPT) level ",level);
+      console.log("loading CRYPT level ",level);
       init(game, level, "crypt");
       hideModalGame(ev);
     }
@@ -488,6 +488,16 @@ export function handleTrain(game, choice):TownState {
 }
 
 export function getLevelSelections(game:GameState): string[] {
-  return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6","dungeon7","dungeon8",
-          "cave1","cave2","cave3","cave4","cave5","cave6","cave7","cave8"]
+  let selections = [];
+  for (let i = 0; i <= 8; i++) {
+    if (game.biomeUnlock["dungeon"] >= i) {
+      selections.push(`dungeon${i}`);
+    }
+    if (game.biomeUnlock["crypt"] >= i) {
+      selections.push(`crypt${i}`)
+    }
+  }
+  return selections;
+  // return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6","dungeon7","dungeon8",
+  //         "cave1","cave2","cave3","cave4","cave5","cave6","cave7","cave8"]
 }

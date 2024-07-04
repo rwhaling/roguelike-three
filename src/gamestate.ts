@@ -26,8 +26,9 @@ export default class GameState {
     particles: Particle[]
     visibleMap: {[key:string]: boolean}
     exploreMap: {[key:string]: boolean}
-    quests: {[key:string] :Quest}  
+    quests: {[key:string]: Quest}  
     currentQuest: string  
+    biomeUnlock: {[key:string]: number}
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -59,6 +60,7 @@ export default class GameState {
         this.quests = quests;
         this.currentQuest = null;
         this.amulet = null;
+        this.biomeUnlock = {"dungeon":1,"crypt":0}
         this.arrowHeld = null;
         this.lastFrame = 0.0;
         this.lastFrameDur = 0.0;
