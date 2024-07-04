@@ -38,6 +38,11 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   game.player.in_map = true;
   game.player.character = "@";
 
+  if (game.biomeUnlock[biome] < n) {
+    game.biomeUnlock[biome] = n
+}
+
+
   game.currentQuest = null;
   let questRoom: RoomContents[] = null
 

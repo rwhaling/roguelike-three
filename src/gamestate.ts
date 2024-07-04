@@ -29,6 +29,7 @@ export default class GameState {
     quests: {[key:string]: Quest}  
     currentQuest: string  
     biomeUnlock: {[key:string]: number}
+    levelSelect: string
     amulet: Object
     arrowHeld: [number, number]
     lastFrame: number
@@ -61,6 +62,7 @@ export default class GameState {
         this.currentQuest = null;
         this.amulet = null;
         this.biomeUnlock = {"dungeon":1,"crypt":0}
+        this.levelSelect = "dungeon1"
         this.arrowHeld = null;
         this.lastFrame = 0.0;
         this.lastFrameDur = 0.0;

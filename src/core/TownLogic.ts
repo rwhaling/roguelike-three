@@ -19,7 +19,7 @@ export interface TownState {
 }
 
 export function getTownState(game,zone):TownState {
-  let i = "town";
+  let i = "town";  
   let d = `<p>zone: ${zone}</p>
   <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
   <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}`
@@ -33,7 +33,7 @@ export function getTownState(game,zone):TownState {
     ["nav","train", "Train"],
     ["nav","castle", "The Castle"],
     ["nav","levelselect", "Level Select"],
-    ["nav","return", "Return"]
+    ["nav","return", `Return (${levelDisplayName(game.levelSelect)})`]
   ]}
 
 }
@@ -43,7 +43,11 @@ export function handleTownAction(game, zone, ev) {
   console.log("town action in zone", zone, ev, choice, ev.target.classList);
   showScreen("town",ev)
   if (choice == "return") {
-    init(game, 1);
+    // parse levelSelect here
+    let biome = game.levelSelect.substr(0,game.levelSelect.length - 1)
+    let depth = parseInt(game.levelSelect.substr(-1))
+    console.log("loading level selection:",game.levelSelect, biome, depth)
+    init(game, depth, biome);
     hideModalGame(ev);
   } else if (choice == "town") {
     let nextState = getTownState(game, choice);
@@ -66,14 +70,21 @@ export function handleTownAction(game, zone, ev) {
       renderLevelSelect(game, choices);  
     } else if (choice.startsWith("dungeon")) {
       let level = parseInt(choice.slice(-1));
-      console.log("loading dungeon level ",level);
-      init(game, level, "dungeon");
-      hideModalGame(ev);
+      console.log("selecting dungeon level ",level);
+      game.levelSelect = choice
+      let state = getTownState(game, "town");
+      renderTown(game, state);
+      // init(game, level, "dungeon");
+      // hideModalGame(ev);
     } else if (choice.startsWith("crypt")) {
       let level = parseInt(choice.slice(-1));
-      console.log("loading CRYPT level ",level);
-      init(game, level, "crypt");
-      hideModalGame(ev);
+      console.log("selecting CRYPT level ",level);
+      game.levelSelect = choice
+      let state = getTownState(game, "town");
+      renderTown(game, state);
+
+      // init(game, level, "crypt");
+      // hideModalGame(ev);
     }
   } else {
     // This is an error at this point.
@@ -347,6 +358,9 @@ export function handleCastle(game:GameState, choice): TownState {
     console.log("accepting:", questName)
     quests[questName].status = "accepted"
     d = d + quests[questName].giveDescription
+    if (quests[questName].biome == "crypt" && game.biomeUnlock["crypt"] == 0) {
+      game.biomeUnlock["crypt"] = 1
+    }
   } else if (choice.startsWith("check_")) {
     let questName = choice.slice(6)
     console.log("checking:", questName)
@@ -489,7 +503,7 @@ export function handleTrain(game, choice):TownState {
 
 export function getLevelSelections(game:GameState): string[] {
   let selections = [];
-  for (let i = 0; i <= 8; i++) {
+  for (let i = 1; i <= 8; i++) {
     if (game.biomeUnlock["dungeon"] >= i) {
       selections.push(`dungeon${i}`);
     }
@@ -500,4 +514,11 @@ export function getLevelSelections(game:GameState): string[] {
   return selections;
   // return ["dungeon1","dungeon2","dungeon3","dungeon4","dungeon5","dungeon6","dungeon7","dungeon8",
   //         "cave1","cave2","cave3","cave4","cave5","cave6","cave7","cave8"]
+}
+
+export function levelDisplayName(level:string):string {
+  let len = level.length;
+  let depth = level[len - 1]
+  let biome = level.substring(0,len - 1)
+  return `${biome} LV ${depth}`
 }

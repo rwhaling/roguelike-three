@@ -1,4 +1,4 @@
-import { getShopPrices, getTrainPrices, handleTownAction, TownState } from "../core/TownLogic";
+import { getShopPrices, getTrainPrices, handleTownAction, TownState, levelDisplayName } from "../core/TownLogic";
 import GameState from "../gamestate";
 import { quests } from "../mapgen/Quests";
 
@@ -100,7 +100,8 @@ export function renderTown(game:GameState, town:any) {
     });
   
   }
-  
+
+
   export function renderLevelSelect(game:GameState, levels:string[]) {
     const town_el = $("#town");
     town_el.innerHTML = "";
@@ -112,9 +113,9 @@ export function renderTown(game:GameState, town:any) {
     </tr>`
     let trailing_content = ""
     for (let i = 0; i < levels.length; i += 2) {
-      content += `<tr><td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i]}">${levels[i]}</button></td>`
+      content += `<tr><td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i]}">${levelDisplayName(levels[i])}</button></td>`
       if (i + 1 < levels.length) {
-        content += `<td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i+1]}">${levels[i+1]}</button></td>`
+        content += `<td colspan="2"><button class="nes-btn townaction is-primary" id="${levels[i+1]}">${levelDisplayName(levels[i+1])}</button></td>`
       } else {
         content += '<td colspan="2"></td>'
       }
