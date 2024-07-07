@@ -785,6 +785,7 @@ export interface PlayerMove {
 
 // creates a player object with position, inventory, and stats
 export function makePlayer(game):Player {
+    console.log("creating player.",game.playerClass)
     let name = "Player"
     if (game.playerClass = "warrior") {
         name = "Ordis"
