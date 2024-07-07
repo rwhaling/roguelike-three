@@ -7,8 +7,7 @@ let level1: LevelSpawner = {
     ["monster", "a rat", 0.75],
     ["monster", "a snake", 0.5],
     ["item", "g", 1.0],
-    ["item", "*", 1.0],
-    ["item", "r", 1.0]
+    ["item", "*", 1.0]
   ],
   last: [
     ["monster", "a goblin", 1.0],
@@ -21,7 +20,7 @@ let level1: LevelSpawner = {
     [
       ["item", "g", 1.0],
       ["item", "*", 1.0],
-      ["item", "r", 1.0]
+      ["item", "*", 1.0]
     ],[
       ["monster", "a rat", 1.0],
       ["monster", "a snake", 1.0],  
@@ -40,8 +39,6 @@ let level2: LevelSpawner = {
     ["monster", "a rat", 0.75],
     ["monster", "a snake", 0.75],
     ["item", "g", 1.0],
-    ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a goblin", 1.0],
@@ -60,8 +57,6 @@ let level2: LevelSpawner = {
       ["monster", "a rat", 1.0],
       ["monster", "a snake", 1.0],  
       ["item", "g", 1.0],
-      ["item", "*", 1.0],
-      ["item", "f", 1.0]
     ]
   ]
 }
@@ -76,7 +71,6 @@ let level3: LevelSpawner = {
     ["monster", "a rat", 0.5],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a goblin", 1.0],
@@ -84,7 +78,7 @@ let level3: LevelSpawner = {
     ["monster", "a death knight", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0]
+    ["item", "*", 1.0]
   ],
   rooms: [
     [
@@ -111,14 +105,12 @@ let level4: LevelSpawner = {
     ["monster", "a spider", 0.5],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a skeleton", 1.0],
     ["monster", "a spider", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0]
   ],
   rooms: [
     [
@@ -145,7 +137,6 @@ let level5: LevelSpawner = {
     ["monster", "a spider", 0.75],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a skeleton warrior", 1.0],
@@ -158,7 +149,6 @@ let level5: LevelSpawner = {
     [
       ["item", "g", 1.0],
       ["item", "*", 1.0],
-      ["item", "r", 1.0]  
     ],[
       ["monster", "a skeleton mage", 1.0],
       ["monster", "a bat", 1.0],
@@ -179,14 +169,12 @@ let level6: LevelSpawner = {
     ["monster", "a bat", 0.5],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a skeleton", 1.0],
     ["monster", "a skeleton king", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0]
   ],
   rooms: [
     [
@@ -214,14 +202,12 @@ let cave_2_1: LevelSpawner = {
     ["monster", "a snake", 0.75],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a hobgoblin", 1.0],
     ["monster", "an ogre", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0]
   ],
   rooms: [
     [
@@ -248,14 +234,12 @@ let crypt_2_1: LevelSpawner = {
     ["monster", "a spider", 0.75],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
-    ["item", "r", 1.0]
   ],
   last: [
     ["monster", "a revenant", 1.0],
     ["monster", "a reaper", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
-    ["item", "r", 1.0]
   ],
   rooms: [
     [

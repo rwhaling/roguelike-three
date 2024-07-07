@@ -348,24 +348,17 @@ function bashAction(game, player:Player, target): boolean {
         toast(game, "out of range");
         return false;
     }
-    applyBuff(player, {
-        duration: 1,
-        displayName: "BASH",
-        stats: {
-            "STR":3
-        }
-    });
 
     // let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
-    combat(game, player, target);
+    // combat(game, player, target);
 
-    applyBuff(player, {
-        duration: 5,
-        displayName: "BASH",
-        stats: {
-            "STR":1
-        }
-    });
+    let damageRoll = RNG.getUniformInt(0,target.stats.varDAM);
+    let dam = player.stats.baseDAM + damageRoll + player.stats.STR + 5 - target.stats.DEF;
+    if (dam <= 0) {
+      // TODO: plink formula
+      dam = 1
+    }
+    damage(game, player, target, dam);
 
     player.controls.moves[1].ready = false;
     player.controls.moves[1].stats.currentCooldown = player.controls.moves[1].stats.cooldown;
@@ -434,18 +427,19 @@ function bowAction(game, player:Player, target): boolean {
 }
 
 function aimAction(game, player): boolean {
-    console.log("applying AIM");
-    applyBuff(player, {
-        duration: 5,
-        displayName: "AIM",
-        stats: {
-            "DEX":4
-        }
-    });
-    player.controls.moves[3].ready = false;
-    player.controls.moves[3].stats.currentCooldown = player.controls.moves[3].stats.cooldown;
+    // console.log("applying AIM");
+    // applyBuff(player, {
+    //     duration: 5,
+    //     displayName: "AIM",
+    //     stats: {
+    //         "DEX":4
+    //     }
+    // });
+    // player.controls.moves[3].ready = false;
+    // player.controls.moves[3].stats.currentCooldown = player.controls.moves[3].stats.cooldown;
 
-    return true;
+    // return true;
+    return false
 }
 
 function dashAction(game, player, target, paths):boolean {
@@ -483,8 +477,24 @@ function dashAction(game, player, target, paths):boolean {
         }
     });
     // let target = game.monsters.filter( (m) => m.id == player.controls.currentTarget )[0];
-    combat(game, player, target);
-    combat(game, player, target);
+    // combat(game, player, target);
+    // combat(game, player, target);
+
+    let damageRoll1 = RNG.getUniformInt(0,target.stats.varDAM);
+    let dam1 = player.stats.baseDAM + damageRoll1 + player.stats.STR + 2 - target.stats.DEF;
+    if (dam1 <= 0) {
+      // TODO: plink formula
+      dam1 = 1
+    }
+    damage(game, player, target, dam1);
+
+    let damageRoll2 = RNG.getUniformInt(0,target.stats.varDAM);
+    let dam2 = player.stats.baseDAM + damageRoll2 + player.stats.STR + 2 - target.stats.DEF;
+    if (dam2 <= 0) {
+      // TODO: plink formula
+      dam2 = 1
+    }
+    damage(game, player, target, dam2);
 
 
     let oldPos = [player._x, player._y]
@@ -513,14 +523,14 @@ function dashAction(game, player, target, paths):boolean {
 function defendAction(game, player):boolean {
     console.log("applying DEFEND");
     applyBuff(player, {
-        duration: 5,
+        duration: 6,
         displayName: "DFND",
         stats: {
-            "DEF":1
+            "DEF":3
         }
     });
-    player.controls.moves[5].ready = false;
-    player.controls.moves[5].stats.currentCooldown = player.controls.moves[1].stats.cooldown;
+    player.controls.moves[3].ready = false;
+    player.controls.moves[3].stats.currentCooldown = player.controls.moves[1].stats.cooldown;
     return true;
 }
 
@@ -541,7 +551,7 @@ function useAction(game, player): boolean {
         } else if (i == ">") {
             console.log("stairs down")
             unload(game);
-            init(game, game.currentLevel + 1);
+            init(game, game.currentLevel + 1, game.currentBiome);
         }
     }
     return false;
@@ -556,8 +566,8 @@ function eatAction(game, player:Player): boolean {
     console.log("applying EAT");
     player.stats.hp = player.stats.maxHP;
     player.stats.food -= 1;
-    if (player.stats.food == 0) {
-        player.controls.skills[0].ready = false;
+    if (player.stats.food <= 0) {
+        player.controls.skills[4].ready = false;
     }
 
     console.log("spawning green tile flash at ", [player._x, player._y])
@@ -826,16 +836,16 @@ export function makePlayer(game):Player {
             {name: "ATK", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "BASH", enabled: true, ready: true, stats: { cooldown: 5, currentCooldown: 0 } },
             {name: "BOW", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "AIM", enabled: false, ready: false, stats: { cooldown: 5, currentCooldown: 0 } },
             {name: "DASH", enabled: true, ready: true, stats: { cooldown: 5, currentCooldown: 0 } },
             {name: "DFND", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "HELP", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
         ], [ 
-            {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "WAIT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "FLEE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
             {name: "SEARCH", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "USE", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
-            {name: "HELP", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "EAT", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
+            {name: "MENU", enabled: true, ready: true, stats: { cooldown: 0, currentCooldown: 0 } },
         ]),
         act: () => {
             game.engine.lock();

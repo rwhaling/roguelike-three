@@ -120,21 +120,21 @@ export let quests: {[key:string]: Quest} = {
         depth:1,
         room: [
             ["questmonster", "a skeleton warrior", 1.0],
-            ["questitem", "swords", 1.0],
+            ["questitem", "armor", 1.0],
             ["questmonster", "a skeleton warrior", 1.0],
-            ["questitem", "swords", 1.0],
+            ["questitem", "armor", 1.0],
             ["item", "g", 1.0],
             ["item", "g", 1.0],
             ["item", "r", 1.0]
         ],
-        questItem: "a skeleton warrior sword",
+        questItem: "skeleton warrior armor",
         questMonster: null,
         itemCount: 2,
         giver: "Quartermaster",
         giveDescription: "Have you been in the old crypt?\n\nThe ancient warriors down there have this armor, never seen an alloy quite like it.\n\nBring me a few pieces of that armor, and we can see about making some proper protection for you!",
         handInDescription: "Look at that - cold iron.\n\nLet’s take it over to the smith.",
         rewardFunction: (game) => {
-            console.log("swords quest COMPLETED")
+            console.log("armor quest COMPLETED")
         }
     },
     // "armor": {

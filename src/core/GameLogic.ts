@@ -9,7 +9,7 @@ import { goldAmountTable, dungeonLevels, cryptLevels } from "../mapgen/Levels"
 import { render } from "../display/DisplayLogic";
 import { makePlayer } from "../entities/player";
 import GameState from "../gamestate";
-import { AllCellContents, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
+import { AllCellContents, DecorItemContent, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 import { music } from "../sound/music";
 import Display from "../mydisplay";
@@ -62,15 +62,6 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   let levels = dungeonLevels
   if (biome == "crypt") {
     levels = cryptLevels;
-
-    // ".": [272, 64], // floor
-    // "╔": [352, 0],  // room corner
-    // "╗": [368, 0], // room corner
-    // "╝": [272, 0], // room corner
-    // "╚": [288, 0], // room corner
-    // "═": [256, 0],  // room edge
-    // "║": [368, 0], // room edge
-    // "o": [384, 0], // room corner
     game.display._options.tileMap["."] = [272,80]
 
     game.display._options.tileMap["╔"] = [352,32]
@@ -91,9 +82,12 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
     game.display._options.tileMap["═"] = [256,48]
     game.display._options.tileMap["║"] = [368,48]
     game.display._options.tileMap["o"] = [384,48]
-
   }
-
+  if (game.playerClass == "ranger") {
+    game.display._options.tileMap["@"] = [0,64]
+  } else if (game.playerClass == "bard") {
+    game.display._options.tileMap["@"] = [192,64]
+  }
   // this is where we populate the map data structure
   // with all of the background tiles, items,
   // player and the monster positions
@@ -242,20 +236,6 @@ export function checkDeath(game:GameState,m) {
           game.items[key] = m.loot[0]
         }
         game.level.newDrops.push([m._x, m._y])
-        // const key = takeFreeCell(freeCells);
-        // const pos = posFromKey(key);
-        // let cell = getCell(game.level, pos[0], pos[1])
-        // let i:ItemContent = { 
-        //     kind: "ItemContent",
-        //     x: pos[0],
-        //     y: pos[1],
-        //     item: item
-        // }
-        // cell.contents.push(i)
-        // // the first chest contains the amulet
-        // // add either a treasure chest
-        // // or a piece of gold to the map
-        // game.items[key] = item;
       } else {
         console.log("generating loot at random");
         let roll = RNG.getUniformInt(0,19);
@@ -274,8 +254,20 @@ export function checkDeath(game:GameState,m) {
           game.items[key] = "g"
           game.level.newDrops.push([m._x, m._y])
 
+        } else {
+          console.log(`rolled ${roll},no loot`)
+          if (!(key in game.items)) {
+            let cell = getCell(game.level, m._x, m._y)
+            let i:ItemContent = {
+              kind: "ItemContent",
+              x: m._x,
+              y: m._y,
+              item: "U",
+            }
+            cell.contents.push(i)
+            game.items[key] = "U"
+          }
         }
-        console.log(`rolled ${roll},no loot`)
       }
       sfx["kill"].play();
       return true;
@@ -482,6 +474,5 @@ export function checkItem(game:GameState, entity) {
     if (stairs) {
       game.items[key] = stairs
     }
-
   }
 }

@@ -20,6 +20,7 @@ export default class GameState {
     engine: Engine
     scheduler: Simple
     player: Player
+    playerClass: String
     monsters: Array<Monster>
     entities: {[key:string]: any}
     animatingEntities: {[key:string]: Animation}
@@ -52,6 +53,7 @@ export default class GameState {
         this.engine = null;
         this.scheduler = null;
         this.player = null;
+        this.playerClass = "warrior";
         this.monsters = null;
         this.entities = {};
         this.animatingEntities = {};

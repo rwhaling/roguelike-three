@@ -231,7 +231,6 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
         "xpValue": 200
       }
     }
-
   }
 }
 

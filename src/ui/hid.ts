@@ -49,11 +49,11 @@ const arrowMap = {
 };
 
 const numMap = {
-  49: "EAT", // 1
+  49: "USE", // 1
   50: "WAIT", // 2
   51: "FLEE", // 3
   52: "SEARCH", // 4
-  53: "USE", // 5 
+  53: "EAT", // 5 
   54: "HELP", // 6
   55: "", // 7
   56: "", // 8
@@ -65,9 +65,9 @@ const qwertyMap = {
   81: "ATK", // q
   87: "BASH", // w
   69: "BOW", // e
-  82: "AIM", // r
-  84: "DASH", // t
-  89: "DFND", // y
+  82: "DASH", // r
+  84: "DFND", // t
+  89: "HELP", // y
 }
 
 const actionMap = {

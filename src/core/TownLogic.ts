@@ -322,6 +322,7 @@ export function handleShop(game, choice):TownState {
     game.player.baseStats.STR = prices["str"][1];  
     game.player.stats.gold -= prices["str"][0];
 
+    return handleShop(game, "shop");
   } else if (choice == "return") {
     return getTownState(game, "town");
   }

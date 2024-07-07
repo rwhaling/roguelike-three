@@ -75,6 +75,7 @@ const tileOptions = {
     "H": [144, 672], // green flash
     "Q": [496, 462], // quest item (unopened)
     "T": [400, 192], // tombstone
+    "U": [448, 208], // blood splatter
 
     "╔": [352, 0],  // room corner
     "╗": [368, 0], // room corner

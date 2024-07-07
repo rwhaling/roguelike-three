@@ -54,11 +54,17 @@ export function renderTitleScreen(game:GameState,which: string) {
       let choice = input.getAttribute("value");
       console.log("handling title screen click:", input, ev, ev.target, choice)
   
-      ev.preventDefault();
+      if (choice.startsWith("class")) {
+        console.log("class selection:",choice.substr(6));
+        game.playerClass = choice.substr(6);
+        sfx["choice"].play();    
+      } else {
+        ev.preventDefault();
+        showScreen(choice, ev);
+        renderTitleScreen(game,choice);
+        sfx["choice"].play();    
+      }
       // const choice = which.getAttribute("value");
-      showScreen(choice, ev);
-      renderTitleScreen(game,choice);
-      sfx["choice"].play();  
     }
     let button = ev.target.closest("button");
     if (button) {
@@ -226,8 +232,8 @@ export function renderStats(player:Player) {
 
   const playerStats = $("#playerdata");
   playerStats.innerHTML = "";
-  attach(playerStats, el("tr", {}, ["Player"]));
-  attach(playerStats, el("tr", {}, ["CLASS: Warrior"]));
+  attach(playerStats, el("tr", {}, ["Player NAME"]));
+  attach(playerStats, el("tr", {}, ["CLASS: ..."]));
   attach(playerStats, el("tr", {}, [`HP: ${player.stats.hp}`]));
   attach(playerStats, el("tr", {}, [`STR: ${player.stats.STR}`]));
   attach(playerStats, el("tr", {}, [`DEF: ${player.stats.DEF}`]));

@@ -37,16 +37,30 @@ let menus: [string, string][] = [
     if (page == "hud_modal_status") {
       let table_body = header_row.closest("tbody");
       let player = game.player;
-      table_body.append(el("tr", {colspan:4}, ["CLASS: Warrior"]));
-      table_body.append(el("tr", {colspan:4}, [`HP: ${player.stats.hp}`]));
-      table_body.append(el("tr", {colspan:4}, [`STR: ${player.stats.STR}`]));
-      table_body.append(el("tr", {colspan:4}, [`DEF: ${player.stats.DEF}`]));
-      table_body.append(el("tr", {colspan:4}, [`DEX: ${player.stats.DEX}`]));
-      table_body.append(el("tr", {colspan:4}, [`AGI: ${player.stats.AGI}`]));
-      table_body.append(el("tr", {colspan:4}, [`XP: ${player.stats.xp}`]));
-      table_body.append(el("tr", {colspan:4}, [`GOLD: ${player.stats.gold}`]));
-      table_body.append(el("tr", {colspan:4}, [`FOOD: ${player.stats.food}`]));
-      table_body.append(el("tr", {colspan:4}, [`AMMO: ${player.stats.arrows}`]));
+      let contents = el("tr", {}, [])
+      table_body.append(contents)
+      contents.innerHTML = `
+      <td colspan=4>CLASS: Warrior<br/>
+      HP: ${player.stats.hp}<br/>
+      STR: ${player.stats.STR}<br/>
+      DEF: ${player.stats.DEF}<br/>
+      DEX: ${player.stats.DEX}<br/>
+      AGI: ${player.stats.AGI}<br/>
+      XP: ${player.stats.xp}<br/>
+      GOLD: ${player.stats.gold}<br/>
+      FOOD: ${player.stats.food}<br/>
+      AMMO: ${player.stats.arrows}</td></tr>
+      `
+    //   table_body.append(el("tr", {colspan:4}, ["CLASS: Warrior"]));
+    //   table_body.append(el("tr", {colspan:4}, [`HP: ${player.stats.hp}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`STR: ${player.stats.STR}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`DEF: ${player.stats.DEF}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`DEX: ${player.stats.DEX}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`AGI: ${player.stats.AGI}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`XP: ${player.stats.xp}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`GOLD: ${player.stats.gold}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`FOOD: ${player.stats.food}`]));
+    //   table_body.append(el("tr", {colspan:4}, [`AMMO: ${player.stats.arrows}`]));
     } else if (page == "hud_modal_inventory") {
       let table_body = header_row.closest("tbody");
   
@@ -59,12 +73,16 @@ let menus: [string, string][] = [
   
       for (let questName in quests) {
         let quest = quests[questName];
+        let quest_row = el("tr", {}, [])
+        table_body.append(quest_row)
         if (quest.status == "accepted") {
           console.log(quest);
-          table_body.append(el("tr", {colspan:4}, [`accepted: ${quest.giveDescription}`]))
+          quest_row.innerHTML = `<td colspan=4>accepted: ${quest.name} - ${quest.biome} LV ${quest.depth}</td>`
+        //   table_body.append(el("tr", {colspan:4}, [`accepted: ${quest.name} - ${quest.biome} LV ${quest.depth}`]))
         } else if (quest.status == "ready") {
           console.log(quest);
-          table_body.append(el("tr", {colspan:4}, [`ready: ${quest.giveDescription}`]))
+          quest_row.innerHTML = `<td colspan=4>ready: ${quest.name} - RETURN to Town</td>`
+        //   table_body.append(el("tr", {colspan:4}, [`ready: ${quest.name} - RETURN to Town`]))
         }
       }
   
