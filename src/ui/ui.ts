@@ -232,8 +232,8 @@ export function renderStats(player:Player) {
 
   const playerStats = $("#playerdata");
   playerStats.innerHTML = "";
-  attach(playerStats, el("tr", {}, ["Player NAME"]));
-  attach(playerStats, el("tr", {}, ["CLASS: ..."]));
+  attach(playerStats, el("tr", {}, [`NAME: ${player.name}`]));
+  attach(playerStats, el("tr", {}, [`CLASS: ${player.class}`]));
   attach(playerStats, el("tr", {}, [`HP: ${player.stats.hp}`]));
   attach(playerStats, el("tr", {}, [`STR: ${player.stats.STR}`]));
   attach(playerStats, el("tr", {}, [`DEF: ${player.stats.DEF}`]));

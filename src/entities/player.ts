@@ -26,6 +26,7 @@ export class Player {
     lastArrow: [number, number]
     character: string
     name: string
+    class: string
     inventory: [string, string][]
     buffs: Buff[]
     stats: { [key: string]: number }
@@ -784,6 +785,14 @@ export interface PlayerMove {
 
 // creates a player object with position, inventory, and stats
 export function makePlayer(game):Player {
+    let name = "Player"
+    if (game.playerClass = "warrior") {
+        name = "Ordis"
+    } else if (game.playerClass = "ranger") {
+        name = "Eleth"
+    } else if (game.playerClass = "bard") {
+        name = "Giaco"
+    }
     return {
         // player's position
         id: uuidv4(),
@@ -794,7 +803,8 @@ export function makePlayer(game):Player {
         // which tile to draw the player with
         character: "@",
         // the name to display in combat
-        name: "you",
+        name: name,
+        class: game.playerClass,
         // what the player is carrying
         inventory: [
         // ["x", "Axe (+5)"],
