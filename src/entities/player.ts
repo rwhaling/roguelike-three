@@ -3,14 +3,14 @@ import { Path, RNG } from "rot-js/lib";
 import { combat, damage, init, checkItem, unload, walkable } from "../core/GameLogic";
 import GameState from '../gamestate';
 import { sfx } from "../sound/sfx";
-import { hideToast, showScreen, toast } from '../ui/ui';
+import { hideToast, showScreen, toast, UI } from '../ui/ui';
 import { renderTown } from "../ui/TownUI";
 import { getTownState } from "../core/TownLogic";
 import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 import { getCell, getRoomItems } from '../mapgen/Level';
 import { music }from "../sound/music";
-import { toggleHudModal } from "../ui/HudModal";
+import { hideHudModal, renderHelpModal, toggleHudModal } from "../ui/HudModal";
 
 interface Buff {
     duration: number,
@@ -264,6 +264,8 @@ export class PlayerControls {
             actionRet = dashAction(game,player, target, paths);
         } else if (currentMove.name == "DFND") {
             actionRet = defendAction(game,player);
+        } else if (currentMove.name == "HELP") {
+            actionRet = helpAction(game, player);
         } else if (currentMove.name == "USE") {
             actionRet = useAction(game,player);
         } else if (currentMove.name == "EAT") {
@@ -274,8 +276,8 @@ export class PlayerControls {
             actionRet = searchAction(game, player);
         } else if (currentMove.name == "FLEE") {
             actionRet = fleeAction(game, player);
-        } else if (currentMove.name == "HELP") {
-            actionRet = helpAction(game, player);
+        } else if (currentMove.name == "MENU") {
+            actionRet = menuAction(game, player);
         }
         if (actionRet) {
             setTimeout(function() {
@@ -670,10 +672,23 @@ function searchAction(game:GameState, player:Player): boolean {
     }
     return false;
 }
+function menuAction(game, player) {
+    console.log("applying MENU");
+    // if (UI.inHudModal) {
+    //     hideHudModal(game)
+    // }
+    // renderHelpModal(game,"help_modal_basics")
+    toggleHudModal(null, game);
+    return false;
+}
 
 function helpAction(game, player) {
     console.log("applying HELP");
-    toggleHudModal(null, game);
+    if (UI.inHudModal) {
+        hideHudModal(game)
+    } else {
+        renderHelpModal(game,"help_modal_basics")
+    }
     return false;
 }
 
@@ -787,11 +802,11 @@ export interface PlayerMove {
 export function makePlayer(game):Player {
     console.log("creating player.",game.playerClass)
     let name = "Player"
-    if (game.playerClass = "warrior") {
+    if (game.playerClass == "warrior") {
         name = "Ordis"
-    } else if (game.playerClass = "ranger") {
+    } else if (game.playerClass == "ranger") {
         name = "Eleth"
-    } else if (game.playerClass = "bard") {
+    } else if (game.playerClass == "bard") {
         name = "Giaco"
     }
     return {

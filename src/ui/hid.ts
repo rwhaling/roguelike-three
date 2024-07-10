@@ -54,11 +54,12 @@ const numMap = {
   51: "FLEE", // 3
   52: "SEARCH", // 4
   53: "EAT", // 5 
-  54: "HELP", // 6
+  54: "MENU", // 6
   55: "", // 7
   56: "", // 8
   57: "", // 9
   48: "", // 10
+  89: "HELP" // y - does this work?
 }
 
 const qwertyMap = {
@@ -67,7 +68,7 @@ const qwertyMap = {
   69: "BOW", // e
   82: "DASH", // r
   84: "DFND", // t
-  89: "HELP", // y
+  // 89: "HELP", // y
 }
 
 const actionMap = {
@@ -120,7 +121,7 @@ export function keyHandler(game,ev) {
   // tricky - how to catch #6 to toggle menu?
   if (!game.listening) {
     if (UI.inHudModal) {
-      if (code == 54) {
+      if (code == 54 || code == 89) {
         game.player.controls.tempAttemptSkillByName(game, game.player, numMap[code]);        
       }
     }

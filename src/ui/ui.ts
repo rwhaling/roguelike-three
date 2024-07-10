@@ -279,7 +279,10 @@ export function renderTargets(game:GameState) {
   const st = $("#enemies");
   st.innerHTML = "";
   const targetStats = $("#targetstatus");
-  targetStats.innerHTML = "";
+  targetStats.innerHTML = "";  
+
+  let visible_targets = false;
+  let current_target = false;
 
   for (let m of game.monsters) {
     if (m.awake && m.id == game.player.controls.currentTarget) {
@@ -287,11 +290,27 @@ export function renderTargets(game:GameState) {
 
       attach(targetStats,el("tr",{},[m.name]))
       attach(targetStats,el("tr",{},[`HP: ${m.stats.hp}`]))
-
+      current_target = true;
+      visible_targets = true;
     } else if (m.awake) {
       let row = attach(st, el("tr", { "style": "" }, [m.name]));
+      visible_targets = true;
     }
   }
+
+  if (visible_targets) {
+    $("#enemies_container").style.visibility = "visible"
+  } else {
+    $("#enemies_container").style.visibility = "hidden"
+  }
+
+  if (current_target) {
+    $("#targetstatus_container").style.visibility = "visible"
+  } else {
+    $("#targetstatus_container").style.visibility = "hidden"
+  }
+
+
 
   const map_st = $("#mapdata")
 

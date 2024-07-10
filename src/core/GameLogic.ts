@@ -84,7 +84,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
     game.display._options.tileMap["o"] = [384,48]
   }
   if (game.playerClass == "ranger") {
-    game.display._options.tileMap["@"] = [0,64]
+    game.display._options.tileMap["@"] = [128,64]
   } else if (game.playerClass == "bard") {
     game.display._options.tileMap["@"] = [192,64]
   }
@@ -205,6 +205,7 @@ export function lose(game) {
 export function checkDeath(game:GameState,m) {
   if (m.stats.hp < 1) {
     if (m == game.player) {
+      renderStats(game.player);
       toast(game, "You died!");
       lose(game);
     } else {

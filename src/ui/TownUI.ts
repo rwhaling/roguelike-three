@@ -56,7 +56,7 @@ export function renderTown(game:GameState, town:any) {
       inn_ready = true
     }
   
-    if (game.player.stats.gold >= 10 && (game.player.stats.hp < game.player.stats.maxHP || game.player.stats.arrows < game.player.stats.maxArrows || game.player.stats.food < game.player.stats.maxFood)) {
+    if (game.player.stats.gold >= 10 && (game.player.stats.arrows < game.player.stats.maxArrows || game.player.stats.food < game.player.stats.maxFood)) {
       inn_ready = true
     }
   

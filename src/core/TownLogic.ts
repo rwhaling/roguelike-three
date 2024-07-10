@@ -120,7 +120,7 @@ export function handleInn(game, choice):TownState {
   }
 
   let resupply_ready = "is-disabled"
-  if (p.stats.gold >= 10 && (p.stats.hp < p.stats.maxHP || p.stats.arrows < p.stats.maxArrows || p.stats.food < p.stats.maxFood)) {
+  if (p.stats.gold >= 10 && (p.stats.arrows < p.stats.maxArrows || p.stats.food < p.stats.maxFood)) {
     resupply_ready = "is-warning"
   }
 

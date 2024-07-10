@@ -145,6 +145,11 @@ let menus: [string, string][] = [
   
   export function toggleHudModal(ev, game:GameState,) {
     let modal_st = $("#hud_modal");
+    // clone and splice in a new div to get rid of hanging event listeners
+    var new_element = modal_st.cloneNode(true);
+    modal_st.parentNode.replaceChild(new_element, modal_st);
+    modal_st =  $("#hud_modal");
+    
     let header_row = $("#hud_modal_headers")  
     console.log(modal_st);
     if (modal_st.style.visibility == "visible") {
@@ -195,6 +200,96 @@ let menus: [string, string][] = [
       modal_st.addEventListener(clickevt, handleHudModal);
     }
   }
+
+let help_menus: [string,string][] = [
+  ["help_modal_basics","Welcome!"],
+  ["help_modal_combat_1","Combat 1"],
+  ["help_modal_combat_2","Combat 2"],
+  ["help_modal_exploration","Exploration"],
+  ["help_modal_advanced","Advanced"],
+  ["help_modal_dismiss","Back"]
+]
+
+export function hideHudModal(game) {
+  let modal_st = $("#hud_modal");
+  modal_st.style.visibility = "hidden";
+  game.listening = true;
+  UI.inHudModal = false;
+}
+
+export function renderHelpModal(game,page) {
+  let modal_st = $("#hud_modal");
+  // clone and splice in a new div to get rid of hanging event listeners
+  var new_element = modal_st.cloneNode(true);
+  modal_st.parentNode.replaceChild(new_element, modal_st);
+  modal_st =  $("#hud_modal");
+
+  console.log(modal_st);
+  modal_st.style.visibility = "visible";
+  game.listening = false;
+  UI.inHudModal = true;
+
+  let menu_html = "";
+  for (let [i,d] of help_menus) {
+    console.log("checking menu:",i,d);
+    if (i == page) {
+      menu_html += `<th id="${i}"><span class='nes-badge'><span class='is-primary'>${d}</span></span></th>`
+    } else {
+      menu_html += `<th id="${i}"><span class='nes-badge'>${d}</span></th>`
+    }
+  }
+  modal_st.innerHTML = '<table class="nes-table is-dark is-bordered"><tr id="hud_modal_headers"></tr></table>';
+  let header_row = $("#hud_modal_headers")
+  header_row.innerHTML = menu_html;
+
+  let table_body = header_row.closest("tbody");
+  let contents = el("tr", {}, [])
+  table_body.append(contents)
+
+  if (page == "help_modal_basics") {
+    contents.innerHTML = "<td colspan=6>Barrow 2: The Three is an accessible take on a traditional roguelike<br/>" +
+                         "If the monsters are too hard, upgrade your gear and skills in TOWN!<br/>" +
+                         "To return to TOWN, find the STAIRS up, and press the USE button [1]<br/>" + 
+                         "In TOWN, you can exchange GOLD for items and gear upgrades, or XP for stat and skill upgrades.<br/>" + 
+                         "If you are well prepared, you can overcome any obstacle.</td>"
+  } else if (page == "help_modal_combat_1") {
+    contents.innerHTML = "<td colspan=6>Healing is powerful! Press EAT to consume 1 food and fully restore your hitpoints - but food is scarce, so time it well.<br/>" +
+                         "Your character can eventually unlock three combat skills - BASH, BOW, and DASH - all are very powerful!<br/>" +
+                         "BASH and DASH have cooldowns - if you use them often, you’ll get the most value - and you can shorten their cooldown, if you have enough XP<br/>" + 
+                         "</td>"
+  } else if (page == "help_modal_combat_2") {
+    contents.innerHTML = "<td colspan=6>BOW consumes 1 arrow - arrows are scarce, so use them wisely.<br/>" + 
+                         "Press DFND [5] to use your defensive buff - this can be very helpful against the strongest enemies!<br/>" +
+                         "DFND has a lengthy cooldown, but you can shorten it with XP in town." +
+                         "</td>"
+  } else if (page == "help_modal_exploration") {
+    contents.innerHTML = "<td colspan=6>Barrow 2 has an advanced auto-explore functionality.  Try holding down the SEARCH button, and see what happens.  Try holding FLEE as well!<br/>" + 
+                         "There are multiple dungeons to explore!  Advance the Quartermaster’s quest-line to gain access to the CRYPT, and then use the Level Select function in TOWN to enter the CRYPT.<br/>" +
+                         "As you go deeper into any dungeon, the monsters will become harder, and more numerous - but there are greater treasures to discover as well!" +
+                         "</td>"
+  } else if (page == "help_modal_advanced") {
+    contents.innerHTML = "<td colspan=6></td>"
+  } else {
+    contents.innerHTML = "<td colspan=6></td>"
+  }
+
+  let handleHudModal = (e) => {
+    console.log("click!",e)
+
+    let parent_th = e.target.closest("th");
+    let menu_id = parent_th.id
+    console.log("clicked modal submenu:",menu_id)
+    if (menu_id == "help_modal_dismiss") {
+      hideHudModal(game)
+    } else {
+      renderHelpModal(game, menu_id);
+    }
+    return true;
+  }
+
+  modal_st.removeEventListener(clickevt, handleHudModal);
+  modal_st.addEventListener(clickevt, handleHudModal);
+}
 
   // create an HTML element
 export function el(tag, attrs, children?) {

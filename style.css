@@ -453,12 +453,14 @@ a:hover {
   display: block;
   clear: both;
   padding: 8px;
+  visibility: hidden;
 }
 
 #targetstatus_container {
   display: block;
   clear: both;
   padding: 8px;
+  visibility: hidden;
 }
 
 
