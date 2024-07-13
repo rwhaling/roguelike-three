@@ -15,7 +15,9 @@ let menus: [string, string][] = [
     ["hud_modal_status","Status"],
     ["hud_modal_inventory","Inventory"],
     ["hud_modal_journal","Journal"],
-    ["hud_modal_options","Options"]
+    ["hud_modal_options","Options"],
+    ["hud_modal_dismiss","Back"]
+
   ]
   
   function renderHudModal(page:string, game:GameState) {
@@ -40,7 +42,7 @@ let menus: [string, string][] = [
       let contents = el("tr", {}, [])
       table_body.append(contents)
       contents.innerHTML = `
-      <td colspan=4>CLASS: Warrior<br/>
+      <td colspan=5>CLASS: Warrior<br/>
       HP: ${player.stats.hp}<br/>
       STR: ${player.stats.STR}<br/>
       DEF: ${player.stats.DEF}<br/>
@@ -77,11 +79,11 @@ let menus: [string, string][] = [
         table_body.append(quest_row)
         if (quest.status == "accepted") {
           console.log(quest);
-          quest_row.innerHTML = `<td colspan=4>accepted: ${quest.name} - ${quest.biome} LV ${quest.depth}</td>`
+          quest_row.innerHTML = `<td colspan=5>accepted: ${quest.name} - ${quest.biome} LV ${quest.depth}</td>`
         //   table_body.append(el("tr", {colspan:4}, [`accepted: ${quest.name} - ${quest.biome} LV ${quest.depth}`]))
         } else if (quest.status == "ready") {
           console.log(quest);
-          quest_row.innerHTML = `<td colspan=4>ready: ${quest.name} - RETURN to Town</td>`
+          quest_row.innerHTML = `<td colspan=5>ready: ${quest.name} - RETURN to Town</td>`
         //   table_body.append(el("tr", {colspan:4}, [`ready: ${quest.name} - RETURN to Town`]))
         }
       }
@@ -91,16 +93,16 @@ let menus: [string, string][] = [
       header_row.after(music_row)
       music_row.innerHTML = 
   
-  '<td>Music Vol:</td> \
-  <td><label> \
+  '<td colspan=2>Music Vol:</td> \
+  <td colspan=3><label> \
   <input type="radio" class="nes-radio" name="music_vol" value="music_vol_full" checked /> \
   <span>Full</span> \
-  </label></td>\
-  <td><label> \
+  </label> \
+  <label> \
   <input type="radio" class="nes-radio" name="music_vol" value="music_vol_quiet" /> \
   <span>Quiet</span> \
-  </label></td>\
-  <td><label> \
+  </label>\
+  <label> \
   <input type="radio" class="nes-radio" name="music_vol" value="music_vol_off" checked /> \
   <span>Off</span> \
   </label></td>'
@@ -108,16 +110,16 @@ let menus: [string, string][] = [
       let sound_row = document.createElement("tr")
       sound_row.innerHTML = 
   
-  '<td>Sound Vol:</td> \
-  <td><label> \
+  '<td colspan=2>Sound Vol:</td> \
+  <td colspan=3><label> \
   <input type="radio" class="nes-radio" name="sound_vol" value="sound_vol_full" checked /> \
   <span>Full</span> \
-  </label></td>\
-  <td><label> \
+  </label>\
+  <label> \
   <input type="radio" class="nes-radio" name="sound_vol" value="sound_vol_quiet" /> \
   <span>Quiet</span> \
-  </label></td>\
-  <td><label> \
+  </label>\
+  <label> \
   <input type="radio" class="nes-radio" name="sound_vol" value="sound_vol_off" /> \
   <span>Off</span> \
   </label></td>'
@@ -127,12 +129,12 @@ let menus: [string, string][] = [
       let debug_row = document.createElement("tr")
       debug_row.innerHTML = 
 
-    '<td>Debug Mode:</td> \
-    <td><label> \
+    '<td colspan=2>Debug Mode:</td> \
+    <td colspan=3><label> \
     <input type="radio" class="nes-radio" name="debug_mode" value="debug_mode_off" checked /> \
     <span>OFF</span> \
-    </label></td>\
-    <td><label> \
+    </label>\
+    <label> \
     <input type="radio" class="nes-radio" name="debug_mode" value="debug_mode_on" /> \
     <span>ON</span> \
     </label></td>'
@@ -191,7 +193,12 @@ let menus: [string, string][] = [
   
         let menu_id = parent_th.id
         console.log("clicked modal submenu:",menu_id)
-        renderHudModal(menu_id, game);
+        if (menu_id == "hud_modal_dismiss") {
+          console.log("dismissing")
+          hideHudModal(game)
+        } else {
+          renderHudModal(menu_id, game);
+        }
   
         return true;
       }

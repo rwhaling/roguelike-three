@@ -172,9 +172,9 @@ function _monsterStats(typ: MonsterType): { [key:string]:number} {
     }
     case "ranged_boss_1": {
       return {
-        "hp": 14,
+        "hp": 20,
         "baseDAM": 3,
-        "varDAM": 3,
+        "varDAM": 4,
         "STR": 0,
         "DEF": 1,
         "AGI": 4,
@@ -252,7 +252,7 @@ function getMonsterData(monsterName:string):MonsterData {
       return [[0, 128], "melee_2_2", MonsterAI.MELEE]
   
     case "a skeleton warrior":
-      return [[64,128], "melee_4", MonsterAI.MELEE]
+      return [[64,128], "melee_2_2", MonsterAI.MELEE]
     case "a spider":
       return [[0,256], "critter_3", MonsterAI.MELEE]
     case "a bat":
@@ -261,14 +261,17 @@ function getMonsterData(monsterName:string):MonsterData {
       return [[64, 96], "ranged_1", MonsterAI.RANGED]
     case "a zombie":
       return [[64, 160], "melee_1", MonsterAI.MELEE]
+    case "a ghoul":
+      return [[64, 160], "melee_4", MonsterAI.MELEE]
+  
     case "a skeleton mage":
       return [[128, 128], "ranged_2", MonsterAI.RANGED]
     case "a skeleton king":
       return [[192, 128], "ranged_boss_1", MonsterAI.RANGED]
     case "a death knight":
-      return [[192, 160], "melee_boss_1", MonsterAI.MELEE]
+      return [[192, 160], "melee_boss_2", MonsterAI.MELEE]
     case "an ogre":
-      return [[192,96], "melee_boss_2", MonsterAI.MELEE]
+      return [[192,96], "melee_4", MonsterAI.MELEE]
     case "a reaper":
       return [[128, 320], "melee_boss_3", MonsterAI.MELEE]
   }

@@ -517,8 +517,8 @@ function dashAction(game, player, target, paths):boolean {
     // Game.animating[newKey] = animation;
     game.animatingEntities[player.id] = animation;
 
-    player.controls.moves[4].ready = false;
-    player.controls.moves[4].stats.currentCooldown = player.controls.moves[4].stats.cooldown;
+    player.controls.moves[3].ready = false;
+    player.controls.moves[3].stats.currentCooldown = player.controls.moves[3].stats.cooldown;
 
     return true;
 }

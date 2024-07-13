@@ -75,7 +75,7 @@ let level3: LevelSpawner = {
   last: [
     ["monster", "a goblin", 1.0],
     ["monster", "a goblin", 1.0],
-    ["monster", "a death knight", 1.0],
+    ["monster", "an ogre", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
     ["item", "*", 1.0]
@@ -132,14 +132,14 @@ let level5: LevelSpawner = {
   level: 5,
   default: [
     ["monster", "a skeleton", 0.5],
-    ["monster", "a skeleton warrior", 0.75],
+    ["monster", "a ghoul", 0.75],
     ["monster", "a bat", 0.75],
     ["monster", "a spider", 0.75],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
   ],
   last: [
-    ["monster", "a skeleton warrior", 1.0],
+    ["monster", "a ghoul", 1.0],
     ["monster", "a skeleton mage", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
@@ -164,13 +164,15 @@ let level6: LevelSpawner = {
   level: 6,
   default: [
     ["monster", "a skeleton mage", 0.5],
-    ["monster", "a skeleton warrior", 0.75],
+    ["monster", "a ghoul", 0.75],
     ["monster", "a spider", 0.75],
     ["monster", "a bat", 0.5],
     ["item", "g", 1.0],
     ["item", "*", 1.0],
   ],
   last: [
+    ["monster", "a skeleton warrior", 1.0],
+    ["monster", "a skeleton", 1.0],
     ["monster", "a skeleton", 1.0],
     ["monster", "a skeleton king", 1.0],
     ["item", "g", 1.0],
@@ -183,7 +185,7 @@ let level6: LevelSpawner = {
       ["item", "*", 1.0],
       ["item", "r", 1.0]  
     ],[
-      ["monster", "a skeleton", 1.0],
+      ["monster", "a skeleton warrior", 1.0],
       ["monster", "a skeleton mage", 1.0],
       ["monster", "a spider", 1.0],  
       ["item", "g", 1.0],

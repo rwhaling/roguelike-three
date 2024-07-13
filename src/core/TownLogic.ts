@@ -153,25 +153,28 @@ export function getShopPrices(game): TownPrices {
   }
 
   let maxArrowCosts = {
-    8: 30,
-    12: 50,
-    15: 150
+    6: 30,
+    7: 50,
+    8: 150
   }
 
   let armorCosts = {
     1: 50,
     2: 150,
-    3: 450,
-    4: 1500,
-    5: 4500
+    // 3: 1500,
+    // 4: 450,
+    // 4: 1500,
+    // 5: 4500
   }
 
   let swordCosts = {
     1: 75,
     2: 250,
-    3: 700,
-    4: 2000,
-    5: 6000
+    3: 1250,
+    4: 3000
+    // 3: 700,
+    // 4: 2000,
+    // 5: 6000
   }
 
   let next_max_food = game.player.stats.maxFood + 1
@@ -188,15 +191,15 @@ export function getShopPrices(game): TownPrices {
 
   switch(game.player.stats.maxArrows) {
     case 5: 
-      next_max_arrows = 8
+      next_max_arrows = 6
       next_max_arrows_cost = maxArrowCosts[next_max_arrows]
       break;
-    case 8:
-      next_max_arrows = 12
+    case 6:
+      next_max_arrows = 7
       next_max_arrows_cost = maxArrowCosts[next_max_arrows]
       break;
-    case 12:
-      next_max_arrows = 15;
+    case 7:
+      next_max_arrows = 8;
       next_max_arrows_cost = maxArrowCosts[next_max_arrows]
       break
     default:

@@ -86,6 +86,8 @@ export let quests: {[key:string]: Quest} = {
         giveDescription: "You might have seen the goblin elites further down in the barrow - mean little guys, and those spears are no joke. <br/><br/> If you can bring me two of their shields, I can use it to reinforce that board you’ve got - if you’re serious about this line of work, you’ll need it. <br/><br/> Might want to train some first, though. <br/><br/><span class='nes-text is-warning'>[Target: 2x Goblin Peltast, Dungeon Level 3]</span>",
         handInDescription: "There you go. <br/><br/> Stay safe down there. <br/><br/><span class='nes-text is-warning'>[+1 DEF]</span>",
         rewardFunction: (game) => {
+            game.player.stats.DEF = 3;
+            game.player.baseStats.DEF = 3;
             console.log("staves quest COMPLETED")
         }
     },
@@ -121,19 +123,20 @@ export let quests: {[key:string]: Quest} = {
         room: [
             ["questmonster", "a skeleton warrior", 1.0],
             ["questitem", "armor", 1.0],
-            ["questmonster", "a skeleton warrior", 1.0],
-            ["questitem", "armor", 1.0],
             ["item", "g", 1.0],
             ["item", "g", 1.0],
             ["item", "r", 1.0]
         ],
         questItem: "skeleton warrior armor",
         questMonster: null,
-        itemCount: 2,
+        itemCount: 1,
         giver: "Quartermaster",
-        giveDescription: "Have you been in the old crypt?<br/><br/>The ancient warriors down there have this armor, never seen an alloy quite like it.<br/><br/>Bring me a few pieces of that armor, and we can see about making some proper protection for you! <br/><br/><span class='nes-text is-warning'>[CRYPT dungeon unlocked!]</span><br/><br/><span class='nes-text is-warning'>[Target: 2x Skeleton Armor, Crypt Level 1]</span>",
-        handInDescription: "Look at that - cold iron.<br/><br/>Let’s take it over to the smith.<br/><br/><span class='nes-text is-warning'>[+2 DEF]</span>",
+        giveDescription: "Have you been in the old crypt?<br/><br/>The ancient warriors down there have this armor, never seen an alloy quite like it.<br/><br/>Bring me a piece of that armor, and we can see about making some proper protection for you! <br/><br/><span class='nes-text is-warning'>[CRYPT dungeon unlocked!]</span><br/><br/><span class='nes-text is-warning'>[Target: 2x Skeleton Armor, Crypt Level 1]</span>",
+        handInDescription: "Look at that - cold iron.<br/><br/>Let’s take it over to the smith.<br/><br/><span class='nes-text is-warning'>[+1 DEF]</span>",
         rewardFunction: (game) => {
+            game.player.stats.DEF =  4;
+            game.player.baseStats.DEF = 4;
+        
             console.log("armor quest COMPLETED")
         }
     },
@@ -176,7 +179,7 @@ export let quests: {[key:string]: Quest} = {
             ["questmonster", "a skeleton king", 1.0],
             ["questitem", "crown", 1.0],
             ["monster", "a skeleton warrior", 1.0],
-            ["monster", "a skeleton warrior", 1.0],
+            ["monster", "a skeleton", 1.0],
             ["monster", "a skeleton mage", 1.0],
             ["monster", "a skeleton mage", 1.0],
             ["item", "g", 1.0],
@@ -188,9 +191,9 @@ export let quests: {[key:string]: Quest} = {
         itemCount: 1,
         giver: "The Count",
         giveDescription: "Ready for more?  Splendid, it’s so rare to see a good work ethic these days.<br/><br/>My scholars tell me of an old crown in the deepest part of the crypt, that once belonged to the old witch-king Yendor.<br/><br/><span class='nes-text is-warning'>[Target: 1x Yendor's Crown, Crypt Level 6]</span>",
-        handInDescription: "Fine work. <br/><br/> Now begone! <br/><br/> CONGRATULATIONS, you have FINISHED the test build of Barrow 2. <br/><br/> Check back soon to find out what the sinister Count does with the amulet and crown of Yendor!",
+        handInDescription: "Fine work. <br/><br/> Now begone! <br/><br/> <span class='nes-text is-primary'>CONGRATULATIONS, you have FINISHED the test build of Barrow 2. <br/><br/> Check back soon to find out what the sinister Count does with the amulet and crown of Yendor!</span>",
         rewardFunction: (game) => {
-            console.log("swords quest COMPLETED")
+            console.log("crown quest COMPLETED")
         }
     },
 }
