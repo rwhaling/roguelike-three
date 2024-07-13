@@ -50,16 +50,17 @@ const tileOptions = {
     "@": [0, 0],  // player
     ".": [272, 64], // floor
     "M": [0, 96],  // monster
-    "*": [288, 192], // treasure chest
-    "g": [304, 192], // gold
+    "*": [256, 192], // barrel
+    "&": [272, 192], // empty barrel
+    "g": [448, 448], // gold
     "<": [464, 0], // stairs up
     ">": [448, 0], // stairs down
 
     "x": [256, 192], // axe
     "p": [256, 192], // potion
-    "f": [288, 192], // food (chest)
+    "f": [256, 192], // food (chest)
     "h": [464, 432], // food (opened)
-    "r": [288, 192], // ammo (chest)
+    "r": [256, 192], // ammo (chest)
     "s": [400, 480], // ammo (opened)
     "t": [224, 672], // reticle
 
@@ -113,7 +114,23 @@ function setup(game) {
           console.log("Crypto:",Crypto);
           var dec = Crypto.AES.decrypt(data.responseText, process.env.ASSET_KEY);
           var plain = Crypto.enc.Base64.stringify( dec );
-          tileSet.src = "data:image/png;base64,"+plain;
+
+          // tileSet.src = "data:image/png;base64,"+plain;
+ 
+          // const src = dec.toString()
+          // const src = Crypto.enc.Base64.parse(plain).toString();
+          let bytes = atob(plain)
+          const binary = new Array(bytes.length);
+          for (let i = 0; i < bytes.length; i++) {
+            binary[i] = bytes.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(binary);
+
+          const blob = new Blob([byteArray])
+          const url = URL.createObjectURL(blob, { type: "image/png"})
+          tileSet.src = url;
+          console.log('image url:',url)
+          console.log('tileSet:',tileSet)
 
           // first create a ROT.js display manager
           // TODO: picking up map width as display width, not ideal

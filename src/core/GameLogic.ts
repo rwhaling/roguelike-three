@@ -11,7 +11,7 @@ import { makePlayer } from "../entities/player";
 import GameState from "../gamestate";
 import { AllCellContents, DecorItemContent, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
-import { music } from "../sound/music";
+import { music, musicState, setMusicState } from "../sound/music";
 import Display from "../mydisplay";
 import MyDisplay from "../myglbackend";
 
@@ -127,8 +127,13 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   }
 
   requestAnimationFrame(drawScene);
-  music.stop();
-  music.play("dungeon");
+  if (musicState != "dungeon") {
+    music.stop();
+    music.play("dungeon");  
+    setMusicState("dungeon");
+  }
+  // music.stop();
+  // music.play("dungeon");  
 
 }
 
@@ -425,15 +430,16 @@ export function checkItem(game:GameState, entity) {
         sfx["win"].play();
         delete game.items[key];            
       } else if (item.item == "*") {
-        toast(game, "This chest is empty.");
+        toast(game, "This barrel is empty.");
         sfx["empty"].play();
-        delete game.items[key];    
+        game.items[key] = "&"
+        // delete game.items[key];    
       } else if (item.item == "<") {
-        toast(game, "These are the stairs up");
+        toast(game, "These are the stairs up (press USE to RETURN to TOWN)");
         stairs = "<"
         newContents.push(item)
       } else if (item.item == ">") {
-        toast(game, "These are the stairs down");
+        toast(game, "These are the stairs down (press USE)");
         stairs = ">"
         newContents.push(item)
       }

@@ -297,7 +297,7 @@ export const sfx = {
 
 for (let sound in sfx) {
   console.log(sound, sfx[sound])
-  sfx[sound].setVolume(0.1)
+  sfx[sound].setVolume(0.05)
 }
 
 export function setVolume(vol:number) {

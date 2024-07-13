@@ -20,7 +20,7 @@ export interface TownState {
 
 export function getTownState(game,zone):TownState {
   let i = "town";  
-  let d = `<p>zone: ${zone}</p>
+  let d = `<p>Location: ${zone.charAt(0).toUpperCase() + zone.slice(1)}</p>
   <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
   <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}`
   return {
@@ -130,11 +130,11 @@ export function handleInn(game, choice):TownState {
     ["nav","town","Return"]
   ]
 
-  let d = `<p>zone: inn</p>
+  let d = `<p>Location: Inn</p>
   <p>Welcome! You can recover here <br/>before you go back</p>
-  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
-  <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
-  <p>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
+  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}
+  <br/>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
+  <br/>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
 
   return {
     zone: "inn",
@@ -285,7 +285,7 @@ export function handleShop(game, choice):TownState {
     options.push(["shop","sword",`Increase STR +1<br/>${game.player.stats.STR} -> ${prices["str"][1]} [${prices["str"][0]} GP]`, readystate])
   }
 
-  options.push(["nav","town","return"])
+  options.push(["nav","town","Return"])
   let p = game.player;
 
   if (choice == "maxfood") {
@@ -329,11 +329,11 @@ export function handleShop(game, choice):TownState {
 
 
   let i = "town";
-  let d = `<p>zone: shop</p>
+  let d = `<p>Location: Shop</p>
   <p>Spend GP to improve your gear.</p>
-  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
-  <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
-  <p>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
+  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}
+  <br/>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
+  <br/>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
 
   return {
     zone: "shop",
@@ -350,7 +350,7 @@ export function handleCastle(game:GameState, choice): TownState {
   let hasAmulet = game.player.inventory.map( i => i[0]).indexOf("amulet") != -1;
   console.log("loading town, has amulet:", hasAmulet, "inventory:", game.player.inventory);
 
-  let d = `<p>zone: castle</p>`
+  let d = `<p>Location: The Castle</p>`
 
   let options: TownChoice[] = []
 
@@ -392,7 +392,7 @@ export function handleCastle(game:GameState, choice): TownState {
     }
   }
 
-  options = options.concat([["nav","town","return"]])
+  options = options.concat([["nav","town","Return"]])
   console.log(options);
   let i = "castle"  
 
@@ -488,11 +488,11 @@ export function handleTrain(game, choice):TownState {
   }
 
   let i = "town";
-  let d = `<p>zone: train</p>
+  let d = `<p>Location: Barracks</p>
   <p>Spend XP to improve your stats.</p>
-  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}</p>
-  <p>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
-  <p>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
+  <p>hp:${game.player.stats.hp}/${game.player.stats.maxHP} gp:${game.player.stats.gold} xp:${game.player.stats.xp}
+  <br/>food:${game.player.stats.food}/${game.player.stats.maxFood} arrows:${game.player.stats.arrows}/${game.player.stats.maxArrows}
+  <br/>STR:${game.player.stats.STR} DEF:${game.player.stats.DEF} DEX:${game.player.stats.DEX} AGI:${game.player.stats.AGI}</p>`
 
   return {
     zone: "train",

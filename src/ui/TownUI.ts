@@ -13,8 +13,9 @@ export function renderTown(game:GameState, town:any) {
     town_el.innerHTML = "";
     let content = `<table class="nes-table is-dark is-bordered" style="margin: 0 auto 0 auto; background-color: #000;">
     <tr>
-      <td colspan="4"><div class="sprite ${town.icon}"></div>
+      <td colspan="4"><div class="sprite ${town.icon}"></div><div class="town-description">
         <p>${town.description}</p>
+        </div>
       </td>
     </tr>`
     let trailing_content = ""

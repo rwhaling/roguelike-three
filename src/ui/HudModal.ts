@@ -247,26 +247,30 @@ export function renderHelpModal(game,page) {
   table_body.append(contents)
 
   if (page == "help_modal_basics") {
-    contents.innerHTML = "<td colspan=6>Barrow 2: The Three is an accessible take on a traditional roguelike<br/>" +
-                         "If the monsters are too hard, upgrade your gear and skills in TOWN!<br/>" +
-                         "To return to TOWN, find the STAIRS up, and press the USE button [1]<br/>" + 
-                         "In TOWN, you can exchange GOLD for items and gear upgrades, or XP for stat and skill upgrades.<br/>" + 
+    contents.innerHTML = "<td colspan=6>Barrow 2: The Three is an accessible take on a traditional roguelike:<br/><br/><ul>" +
+                         "<li/>Use the direction keys to move, or to attack if you are next to an enemy" +
+                         "<li/>Note the skill palette at the bottom of your screen.  QWERTY and 123456 keys each have a different function" +                       
+                         "<li/>If the monsters are too hard, upgrade your gear and skills in TOWN!<br/>" +
+                         "<li/>To return to TOWN, find the STAIRS up, and press the USE button [1]<br/>" + 
+                         "<li/>In TOWN, you can exchange GOLD for items and gear upgrades, or XP for stat and skill upgrades.</ul>" + 
                          "If you are well prepared, you can overcome any obstacle.</td>"
   } else if (page == "help_modal_combat_1") {
-    contents.innerHTML = "<td colspan=6>Healing is powerful! Press EAT to consume 1 food and fully restore your hitpoints - but food is scarce, so time it well.<br/>" +
-                         "Your character can eventually unlock three combat skills - BASH, BOW, and DASH - all are very powerful!<br/>" +
-                         "BASH and DASH have cooldowns - if you use them often, you’ll get the most value - and you can shorten their cooldown, if you have enough XP<br/>" + 
-                         "</td>"
+    contents.innerHTML = "<td colspan=6><ul><li/>Healing is powerful! Press EAT to consume 1 food and fully restore your hitpoints - but food is scarce, so time it well.<br/>" +
+                         "<li/>Your character can eventually unlock three combat skills - BASH, BOW, and DASH - all are very powerful!<br/>" +
+                         "<li/>BASH and DASH have cooldowns - if you use them often, you’ll get the most value - and you can shorten their cooldown, if you have enough XP<br/>" + 
+                         "</ul></td>"
   } else if (page == "help_modal_combat_2") {
-    contents.innerHTML = "<td colspan=6>BOW consumes 1 arrow - arrows are scarce, so use them wisely.<br/>" + 
-                         "Press DFND [5] to use your defensive buff - this can be very helpful against the strongest enemies!<br/>" +
-                         "DFND has a lengthy cooldown, but you can shorten it with XP in town." +
-                         "</td>"
+    contents.innerHTML = "<td colspan=6><ul><li/>BOW consumes 1 arrow - arrows are scarce, so use them wisely.<br/>" + 
+                         "<li/>If you want to target a specific enemy, try using the I and K keys to toggle targets." +
+                         "<li/>If you are doing it right, you'll see the target display in the upper-right corner change."  +
+                         "<li/>Press DFND [5] to use your defensive buff - this can be very helpful against the strongest enemies!<br/>" +
+                         "<li/>DFND has a lengthy cooldown, but you can shorten it with XP in town." +
+                         "</ul></td>"
   } else if (page == "help_modal_exploration") {
-    contents.innerHTML = "<td colspan=6>Barrow 2 has an advanced auto-explore functionality.  Try holding down the SEARCH button, and see what happens.  Try holding FLEE as well!<br/>" + 
-                         "There are multiple dungeons to explore!  Advance the Quartermaster’s quest-line to gain access to the CRYPT, and then use the Level Select function in TOWN to enter the CRYPT.<br/>" +
-                         "As you go deeper into any dungeon, the monsters will become harder, and more numerous - but there are greater treasures to discover as well!" +
-                         "</td>"
+    contents.innerHTML = "<td colspan=6><ul><li/>Barrow 2 has an advanced auto-explore functionality.  Try holding down the SEARCH button, and see what happens.  <li/>Try holding FLEE as well!<br/>" + 
+                         "<li/>There are multiple dungeons to explore!  Advance the Quartermaster’s quest-line to gain access to the CRYPT, and then use the Level Select function in TOWN to enter the CRYPT.<br/>" +
+                         "<li/>As you go deeper into any dungeon, the monsters will become harder, and more numerous - but there are greater treasures to discover as well!" +
+                         "</ul></td>"
   } else if (page == "help_modal_advanced") {
     contents.innerHTML = "<td colspan=6></td>"
   } else {

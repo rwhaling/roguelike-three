@@ -35,7 +35,7 @@ export let quests: {[key:string]: Quest} = {
         itemCount: 0,
         giver: "Steward",
         giveDescription: "Descend into the barrow, and return to tell the tale!",
-        handInDescription: "So you’ve been down into the barrow, eh?  Piles of treasure in there, but evil, too. If you’re going back, make sure to stock up on food - the old ruins go deep, you’ll need supplies. Might want to talk to the master-at-arms in the barracks, too - your gear might need some work.",
+        handInDescription: "So you’ve been down into the barrow, eh?  <br/><br/> Piles of treasure in there, but evil, too. <br/><br/> If you’re going back, make sure to stock up on food - the old ruins go deep, you’ll need supplies. <br/><br/> Might want to talk to the master-at-arms in the barracks, too - your gear might need some work.",
         rewardFunction: (game) => {
             console.log("tutorial quest COMPLETED")
         }
@@ -83,8 +83,8 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 2,
         giver: "Quartermaster",
-        giveDescription: "You might have seen the goblin elites further down in the barrow - mean little guys, and those spears are no joke.\n\nIf you can bring me two of their shields, I can use it to reinforce that board you’ve got - if you’re serious about this line of work, you’ll need it.\n\nMight want to train some first, though.",
-        handInDescription: "There you go.\n\nStay safe down there.",
+        giveDescription: "You might have seen the goblin elites further down in the barrow - mean little guys, and those spears are no joke. <br/><br/> If you can bring me two of their shields, I can use it to reinforce that board you’ve got - if you’re serious about this line of work, you’ll need it. <br/><br/> Might want to train some first, though. <br/><br/><span class='nes-text is-warning'>[Target: 2x Goblin Peltast, Dungeon Level 3]</span>",
+        handInDescription: "There you go. <br/><br/> Stay safe down there. <br/><br/><span class='nes-text is-warning'>[+1 DEF]</span>",
         rewardFunction: (game) => {
             console.log("staves quest COMPLETED")
         }
@@ -106,8 +106,8 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 1,
         giver: "The Count",
-        giveDescription: "Oh, another adventurer?  If you’re looking for work, there’s an old amulet deep in the barrow - bring it back and I’ll pay you well.  Well?  What are you waiting for?",
-        handInDescription: "Magnificent.  A mysterious warrior had it, you say?  Hmm, can’t imagine how anyone could have been living down there alone.\n\n",
+        giveDescription: "Oh, another adventurer?  <br/><br/> If you’re looking for work, there’s an old amulet deep in the barrow - bring it back and I’ll pay you well.  <br/><br/> Well?  What are you waiting for?<br/><br/><span class='nes-text is-warning'>[Target: 1x Amulet, Dungeon Level 6]</span>",
+        handInDescription: "Magnificent.  <br/><br/> A mysterious warrior had it, you say?  <br/><br/> Hmm, can’t imagine how anyone could have been living down there alone.\n\n",
         rewardFunction: (game) => {
             console.log("amulet quest COMPLETED")
         }
@@ -131,8 +131,8 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 2,
         giver: "Quartermaster",
-        giveDescription: "Have you been in the old crypt?\n\nThe ancient warriors down there have this armor, never seen an alloy quite like it.\n\nBring me a few pieces of that armor, and we can see about making some proper protection for you!",
-        handInDescription: "Look at that - cold iron.\n\nLet’s take it over to the smith.",
+        giveDescription: "Have you been in the old crypt?<br/><br/>The ancient warriors down there have this armor, never seen an alloy quite like it.<br/><br/>Bring me a few pieces of that armor, and we can see about making some proper protection for you! <br/><br/><span class='nes-text is-warning'>[CRYPT dungeon unlocked!]</span><br/><br/><span class='nes-text is-warning'>[Target: 2x Skeleton Armor, Crypt Level 1]</span>",
+        handInDescription: "Look at that - cold iron.<br/><br/>Let’s take it over to the smith.<br/><br/><span class='nes-text is-warning'>[+2 DEF]</span>",
         rewardFunction: (game) => {
             console.log("armor quest COMPLETED")
         }
@@ -187,8 +187,8 @@ export let quests: {[key:string]: Quest} = {
         questMonster: null,
         itemCount: 1,
         giver: "The Count",
-        giveDescription: "Ready for more?  Splendid, it’s so rare to see a good work ethic these days.\n\nMy scholars tell me of an old crown in the deepest part of the crypt, that once belonged to the old witch-king Yendor.",
-        handInDescription: "Fine work.  Now begone!",
+        giveDescription: "Ready for more?  Splendid, it’s so rare to see a good work ethic these days.<br/><br/>My scholars tell me of an old crown in the deepest part of the crypt, that once belonged to the old witch-king Yendor.<br/><br/><span class='nes-text is-warning'>[Target: 1x Yendor's Crown, Crypt Level 6]</span>",
+        handInDescription: "Fine work. <br/><br/> Now begone! <br/><br/> CONGRATULATIONS, you have FINISHED the test build of Barrow 2. <br/><br/> Check back soon to find out what the sinister Count does with the amulet and crown of Yendor!",
         rewardFunction: (game) => {
             console.log("swords quest COMPLETED")
         }

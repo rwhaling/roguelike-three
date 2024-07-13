@@ -233,16 +233,16 @@ export function renderStats(player:Player) {
   const playerStats = $("#playerdata");
   playerStats.innerHTML = "";
   attach(playerStats, el("tr", {}, [`NAME: ${player.name}`]));
-  attach(playerStats, el("tr", {}, [`CLASS: ${player.class}`]));
-  attach(playerStats, el("tr", {}, [`HP: ${player.stats.hp}`]));
+  attach(playerStats, el("tr", {}, [`CLASS: ${player.class.charAt(0).toUpperCase() + player.class.slice(1)}`]));
+  attach(playerStats, el("tr", {}, [`HP: ${player.stats.hp}/${player.stats.maxHP}`]));
   attach(playerStats, el("tr", {}, [`STR: ${player.stats.STR}`]));
   attach(playerStats, el("tr", {}, [`DEF: ${player.stats.DEF}`]));
   attach(playerStats, el("tr", {}, [`DEX: ${player.stats.DEX}`]));
   attach(playerStats, el("tr", {}, [`AGI: ${player.stats.AGI}`]));
   attach(playerStats, el("tr", {}, [`XP: ${player.stats.xp}`]));
   attach(playerStats, el("tr", {}, [`GOLD: ${player.stats.gold}`]));
-  attach(playerStats, el("tr", {}, [`FOOD: ${player.stats.food}`]));
-  attach(playerStats, el("tr", {}, [`AMMO: ${player.stats.arrows}`]));
+  attach(playerStats, el("tr", {}, [`FOOD: ${player.stats.food}/${player.stats.maxFood}`]));
+  attach(playerStats, el("tr", {}, [`AMMO: ${player.stats.arrows}/${player.stats.maxArrows}`]));
 
   const st = $("#hud");
   st.innerHTML = "";
@@ -335,7 +335,7 @@ export function renderTargets(game:GameState) {
     }  
   }
 
-  map_st.innerHTML = `<table><tr><td>${game.currentBiome} Level: ${game.currentLevel}</td></tr>
+  map_st.innerHTML = `<table><tr><td>${game.currentBiome.charAt(0).toUpperCase() + game.currentBiome.slice(1)} Level: ${game.currentLevel}</td></tr>
   <tr><td>Enemies: ${game.monsters.length}</td></tr>
   <tr><td>Items: ${Object.values(game.items).length - 2}</td></tr>
   <tr><td>${objective}</table>`
