@@ -3,6 +3,8 @@ import * as glu from "./display/GLUtils";
 import fooShader from "./display/shaders/foo.glsl";
 import fgVertexShaderSource from "./display/shaders/fgVertexShader.glsl";
 import fgFragmentShaderSource from "./display/shaders/fgFragmentShader.glsl";
+import bgVertexShaderSource from "./display/shaders/bgVertexShader.glsl";
+import bgFragmentShaderSource from "./display/shaders/bgFragmentShader.glsl";
 
 function init() {
     // var picture = document.getElementById("picture");
@@ -66,15 +68,31 @@ function setup(tilesetBlobUrl:string) {
         let fgVertexShader = glu.createShader(gl,gl.VERTEX_SHADER,fgVertexShaderSource);
         let fgFragmentShader = glu.createShader(gl,gl.FRAGMENT_SHADER,fgFragmentShaderSource);
         let fgProgram = glu.createProgram(gl,fgVertexShader,fgFragmentShader);
-    
+
+        let bgVertexShader = glu.createShader(gl,gl.VERTEX_SHADER,bgVertexShaderSource);
+        let bgFragmentShader = glu.createShader(gl,gl.FRAGMENT_SHADER,bgFragmentShaderSource);
+        let bgProgram = glu.createProgram(gl,bgVertexShader,bgFragmentShader);
+
         let tileSetTexture = glu.createTexture(gl, tileSet);
+
+        let map = makeMap();
+        let tileMap = makeTilemap(gl,map);
+
 
         let random_sprite_x = Math.floor(Math.random() * 16)
         let random_sprite_y = Math.floor(Math.random() * 32)
         let random_grid_x = Math.floor(Math.random() * 8)
         let random_grid_y = Math.floor(Math.random() * 8)
 
-        draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
+        // draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
+
+        let draw_frame = (timestamp) => {
+            draw_bg(gl,bgProgram,tileSetTexture,tileMap);
+            draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
+            requestAnimationFrame(draw_frame);
+
+        };
+        requestAnimationFrame(draw_frame);
 
     
     };
@@ -189,8 +207,8 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     gl.viewport(0,0,600,600);
     
     // Clear the canvas
-    gl.clearColor(0.3, 0.3, 0.3, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    // gl.clearColor(0.3, 0.3, 0.3, 1.0);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
   
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
@@ -215,6 +233,155 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     var offset = 0;
     var count = 4;
     gl.drawArrays(primitiveType, offset, count);
+}
+
+function makeMap() {
+    let options = [
+        [27,7],
+        [28,7],
+        [29,7],
+        [30,7],
+        [31,7],
+        [22,7],
+        [22,7],
+        [22,7]
+      ]
+    
+      let grid_size = 64
+    
+      let map = []
+      
+      for (let i = 0; i < grid_size; i++) {
+        let r = Math.floor(Math.random() * options.length);
+        // console.log("r",r);
+        let o = options[r];
+        // console.log("o",o);
+        map.push(o[0],o[1]);      
+      }
+    
+      return map;    
+}
+
+function makeTilemap(gl, map) {
+    const mapWidth = 8;
+    const mapHeight = 8;
+    const tilemap = new Uint32Array(mapWidth * mapHeight);
+    const tilemapU8 = new Uint8Array(tilemap.buffer);
+    const totalTiles = mapWidth * mapHeight;
+    for (let i = 0; i < tilemap.length; ++i) {
+      const off = i * 4;
+      const grid_off = i * 2;
+  
+      tilemapU8[off + 0] = map[grid_off + 0];
+      tilemapU8[off + 1] = map[grid_off + 1];
+      tilemapU8[off + 2] = 0;
+      tilemapU8[off + 3] = 1.0;
+    }
+  
+    let t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+      // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 8,8,0, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
+    return t;
+}
+
+function draw_bg(gl,bgProgram, tileset, tilemap) { 
+    var positionAttributeLocation = gl.getAttribLocation(bgProgram, "a_position");
+    var texcoordAttributeLocation = gl.getAttribLocation(bgProgram, "a_texcoord");
+    var textureUniformLocation = gl.getUniformLocation(bgProgram, "u_texture");
+    var tilemapLocation = gl.getUniformLocation(bgProgram, "u_tilemap");
+  
+    // Create a buffer and put three 2d clip space points in it
+    var positionBuffer = gl.createBuffer();
+  
+    // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  
+    let grid_size = 8;
+  
+    var positions = [
+      -1.0, -1.0,
+      1.0, -1.0,
+      -1.0,1.0,
+      1.0,1.0
+    ];
+  
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+  
+    // Create a vertex array object (attribute state)
+    var vao = gl.createVertexArray();
+  
+    // and make it the one we're currently working with
+    gl.bindVertexArray(vao);
+  
+    // Turn on the attribute
+    gl.enableVertexAttribArray(positionAttributeLocation);
+  
+    // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        positionAttributeLocation, size, type, normalize, stride, offset);
+  
+    // create the texcoord buffer, make it the current ARRAY_BUFFER
+    // and copy in the texcoord values
+    var texcoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([0,0,0,0,0,0,0,0]),
+         gl.STATIC_DRAW);
+     
+    // Turn on the attribute
+    gl.enableVertexAttribArray(texcoordAttributeLocation);
+     
+    // Tell the attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floating point values
+    var normalize = true;  // convert from 0-255 to 0.0-1.0
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next texcoord
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        texcoordAttributeLocation, size, type, normalize, stride, offset);  
+    
+    // Tell WebGL how to convert from clip space to pixels
+    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0,0,600,600);
+    
+    // Clear the canvas
+    gl.clearColor(0.3, 0.3, 0.3, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(bgProgram);
+  
+    // Bind the attribute/buffer set we want.
+    gl.bindVertexArray(vao);
+  
+    var texUnit = 0;
+    gl.activeTexture(gl.TEXTURE0 + texUnit);
+    gl.bindTexture(gl.TEXTURE_2D, tileset);
+    gl.uniform1i(textureUniformLocation, texUnit);
+  
+    texUnit = 1;
+    gl.activeTexture(gl.TEXTURE0 + texUnit);
+    gl.bindTexture(gl.TEXTURE_2D, tilemap);
+    gl.uniform1i(tilemapLocation, texUnit);
+    
+    // draw
+    var primitiveType = gl.TRIANGLE_STRIP;
+    var offset = 0;
+    var count = 4;
+    gl.drawArrays(primitiveType, offset, count);      
 }
 
 console.log("hello test world?");
