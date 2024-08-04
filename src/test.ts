@@ -5,6 +5,8 @@ import fgVertexShaderSource from "./display/shaders/fgVertexShader.glsl";
 import fgFragmentShaderSource from "./display/shaders/fgFragmentShader.glsl";
 import bgVertexShaderSource from "./display/shaders/bgVertexShader.glsl";
 import bgFragmentShaderSource from "./display/shaders/bgFragmentShader.glsl";
+import lightVertexShaderSource from "./display/shaders/lightVertexShader.glsl";
+import lightFragmentShaderSource from "./display/shaders/lightFragmentShader.glsl";
 
 function init() {
     // var picture = document.getElementById("picture");
@@ -73,6 +75,10 @@ function setup(tilesetBlobUrl:string) {
         let bgFragmentShader = glu.createShader(gl,gl.FRAGMENT_SHADER,bgFragmentShaderSource);
         let bgProgram = glu.createProgram(gl,bgVertexShader,bgFragmentShader);
 
+        let lightVertexShader = glu.createShader(gl,gl.VERTEX_SHADER,lightVertexShaderSource);
+        let lightFragmentShader = glu.createShader(gl,gl.FRAGMENT_SHADER,lightFragmentShaderSource);
+        let lightProgram = glu.createProgram(gl,lightVertexShader,lightFragmentShader);
+
         let tileSetTexture = glu.createTexture(gl, tileSet);
 
         let map = makeMap();
@@ -89,6 +95,7 @@ function setup(tilesetBlobUrl:string) {
         let draw_frame = (timestamp) => {
             draw_bg(gl,bgProgram,tileSetTexture,tileMap);
             draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
+            draw_light(gl,lightProgram);
             requestAnimationFrame(draw_frame);
 
         };
@@ -382,6 +389,101 @@ function draw_bg(gl,bgProgram, tileset, tilemap) {
     var offset = 0;
     var count = 4;
     gl.drawArrays(primitiveType, offset, count);      
+}
+
+function draw_light(gl,program) {
+    var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+    var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
+
+    let width = 600;
+    let height = 600;
+    let now = Date.now();
+  
+    // Create a buffer and put three 2d clip space points in it
+    var positionBuffer = gl.createBuffer();
+  
+    // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    var positions = [
+      0, 0.0,
+      1.0, 0.0,
+      0.0,1.0,
+      1.0,1.0
+    ];
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+        // Create a vertex array object (attribute state)
+    var vao = gl.createVertexArray();
+  
+    // and make it the one we're currently working with
+    gl.bindVertexArray(vao);
+  
+    // Turn on the attribute
+    gl.enableVertexAttribArray(positionAttributeLocation);
+  
+    // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        positionAttributeLocation, size, type, normalize, stride, offset);
+  
+  
+    // create the texcoord buffer, make it the current ARRAY_BUFFER
+    // and copy in the texcoord values
+    var texcoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array(spriteCoords(0,0)),
+         gl.STATIC_DRAW);
+     
+    // Turn on the attribute
+    gl.enableVertexAttribArray(texcoordAttributeLocation);
+     
+    // Tell the attribute how to get data out of texcoordBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floating point values
+    var normalize = true;  // convert from 0-255 to 0.0-1.0
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next texcoord
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
+        texcoordAttributeLocation, size, type, normalize, stride, offset);  
+    
+    // Tell WebGL how to convert from clip space to pixels
+    // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    gl.viewport(0,0,600,600);
+    
+    // Clear the canvas
+    // gl.clearColor(0.3, 0.3, 0.3, 1.0);
+    // gl.clear(gl.COLOR_BUFFER_BIT);
+  
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
+  
+    // Bind the attribute/buffer set we want.
+    gl.bindVertexArray(vao);
+  
+    let t_location = gl.getUniformLocation(program, 't');    
+    let t = (Math.sin(now / 200) + 1.0) / 2.0;
+    gl.uniform1f(t_location, t);
+  
+    let t_raw =  now / 500 % 100;
+    // console.log(t,t_raw);
+    
+  
+    let t_raw_location = gl.getUniformLocation(program, 't_raw');  
+    gl.uniform1f(t_raw_location, t_raw);
+  
+    
+    // draw
+    var primitiveType = gl.TRIANGLE_STRIP;
+    var offset = 0;
+    var count = 4;
+    gl.drawArrays(primitiveType, offset, count);
+
 }
 
 console.log("hello test world?");
