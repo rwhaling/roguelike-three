@@ -151,7 +151,7 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     let grid_y_b = ((width / grid_size) * grid_y / width) * 2 - 1
     let grid_y_u = ((width / grid_size) * (grid_y + 1) / width) * 2 - 1
 
-    console.log("grid pos:", grid_x, grid_y, "gl pos:", grid_x_l, grid_y_b);
+    // console.log("grid pos:", grid_x, grid_y, "gl pos:", grid_x_l, grid_y_b);
   
     let positions = [
       grid_x_l, grid_y_b,
@@ -160,7 +160,7 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
       grid_x_r, grid_y_u
     ]
 
-    console.log(positions)
+    // console.log(positions)
     // var positions = [
     //   0, 0.0,
     //   1.0, 0.0,
@@ -405,12 +405,12 @@ function draw_light(gl,program) {
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     var positions = [
-      0, 0.0,
-      1.0, 0.0,
-      0.0,1.0,
-      1.0,1.0
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+        -1.0, -1.0,
+        1.0, -1.0,
+        -1.0,1.0,
+        1.0,1.0
+      ];
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
         // Create a vertex array object (attribute state)
     var vao = gl.createVertexArray();
@@ -437,8 +437,9 @@ function draw_light(gl,program) {
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
     gl.bufferData(
         gl.ARRAY_BUFFER,
-        new Float32Array(spriteCoords(0,0)),
-         gl.STATIC_DRAW);
+        // new Float32Array(spriteCoords(0,0)),
+        new Float32Array(positions),
+        gl.STATIC_DRAW);
      
     // Turn on the attribute
     gl.enableVertexAttribArray(texcoordAttributeLocation);
