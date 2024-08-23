@@ -8,6 +8,7 @@ in vec2 v_texcoord;
 uniform sampler2D u_texture;
 uniform float t;
 uniform float t_raw;
+uniform vec2 u_lightcoords[2];
 // we need to declare an output for the fragment shader
 out vec4 outColor;
 
@@ -38,7 +39,16 @@ float noise(vec3 p){
 }
 
 void main() {
-  float dist = length(floor(v_texcoord * 16.0) / 16.0);
+  float dist = 1.0;
+  int i;
+  for (i = 0; i < 2; i++) {
+      float this_dist = length((floor((v_texcoord) * 16.0) - floor((u_lightcoords[i]) * 16.0)) / 16.0);
+      if (this_dist < dist) {
+        dist = this_dist;
+      }
+  }
+//   float dist = length(floor((v_texcoord - u_lightcoords[0]) * 16.0) / 16.0);
+//   float dist = min_dist;
   float trans = 0.0;
   if (dist < 0.30) {
     trans = 0.0;

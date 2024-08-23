@@ -104,7 +104,7 @@ function setup(tilesetBlobUrl:string) {
             draw_bg(gl,bgProgram,tileSetTexture,tileMap);
             draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
             draw(gl,fgProgram,random_sprite_2_x,random_sprite_2_y,random_grid_2_x,random_grid_2_y);
-            draw_light(gl,lightProgram);
+            draw_light(gl,lightProgram, random_grid_x, random_grid_y, random_grid_2_x, random_grid_2_y);
             requestAnimationFrame(draw_frame);
 
         };
@@ -153,9 +153,9 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    let grid_x_adj = noise.simplex2(grid_x,now / 1000);
+    let grid_x_adj = noise.simplex2(grid_x,now / 2000) * 0.5;
 
-    let grid_y_adj = noise.simplex2(grid_y,now / 1000);
+    let grid_y_adj = noise.simplex2(grid_y,now / 2000) * 0.5;
 
     grid_x = grid_x + grid_x_adj;
     grid_y = grid_y + grid_y_adj;
@@ -408,9 +408,10 @@ function draw_bg(gl,bgProgram, tileset, tilemap) {
     gl.drawArrays(primitiveType, offset, count);      
 }
 
-function draw_light(gl,program) {
+function draw_light(gl,program, random_x_1, random_y_1, random_x_2, random_y_2) {
     var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
+    var lightcoordUniformLocation = gl.getUniformLocation(program, "u_lightcoords");
 
     let width = 600;
     let height = 600;
@@ -469,7 +470,7 @@ function draw_light(gl,program) {
     var offset = 0;        // start at the beginning of the buffer
     gl.vertexAttribPointer(
         texcoordAttributeLocation, size, type, normalize, stride, offset);  
-    
+
     // Tell WebGL how to convert from clip space to pixels
     // gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.viewport(0,0,600,600);
@@ -495,6 +496,28 @@ function draw_light(gl,program) {
     let t_raw_location = gl.getUniformLocation(program, 't_raw');  
     gl.uniform1f(t_raw_location, t_raw);
   
+    let grid_x_adj = noise.simplex2(random_x_1,now / 2000) * 0.5;
+    let grid_y_adj = noise.simplex2(random_y_1,now / 2000) * 0.5;
+
+    random_x_1 = random_x_1 + grid_x_adj;
+    random_y_1 = random_y_1 + grid_y_adj;
+
+    let grid_x_2_adj = noise.simplex2(random_x_2,now / 2000) * 0.5;
+    let grid_y_2_adj = noise.simplex2(random_y_2,now / 2000) * 0.5;
+
+    random_x_2 = random_x_2 + grid_x_2_adj;
+    random_y_2 = random_y_2 + grid_y_2_adj;
+
+
+    // pass the actual light locations
+    let lightcoords = [
+        (2 * random_x_1 / 8.0) - 1,
+        (2 * random_y_1 / 8.0) - 1,
+        (2 * random_x_2 / 8.0) - 1,
+        (2 * random_y_2 / 8.0) - 1
+    ]
+    gl.uniform2fv(lightcoordUniformLocation, lightcoords);
+
     
     // draw
     var primitiveType = gl.TRIANGLE_STRIP;
