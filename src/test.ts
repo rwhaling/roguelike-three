@@ -1,5 +1,6 @@
 import * as Crypto from "crypto-js";
 import * as glu from "./display/GLUtils";
+import { noise } from "./perlin.js";
 import fooShader from "./display/shaders/foo.glsl";
 import fgVertexShaderSource from "./display/shaders/fgVertexShader.glsl";
 import fgFragmentShaderSource from "./display/shaders/fgFragmentShader.glsl";
@@ -9,6 +10,7 @@ import lightVertexShaderSource from "./display/shaders/lightVertexShader.glsl";
 import lightFragmentShaderSource from "./display/shaders/lightFragmentShader.glsl";
 
 function init() {
+    console.log(noise);
     // var picture = document.getElementById("picture");
     console.log("about to retrieve encrypted image")
     var data = new XMLHttpRequest();
@@ -90,11 +92,18 @@ function setup(tilesetBlobUrl:string) {
         let random_grid_x = Math.floor(Math.random() * 8)
         let random_grid_y = Math.floor(Math.random() * 8)
 
+        let random_sprite_2_x = Math.floor(Math.random() * 16)
+        let random_sprite_2_y = Math.floor(Math.random() * 32)
+        let random_grid_2_x = Math.floor(Math.random() * 8)
+        let random_grid_2_y = Math.floor(Math.random() * 8)
+
+
         // draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
 
         let draw_frame = (timestamp) => {
             draw_bg(gl,bgProgram,tileSetTexture,tileMap);
             draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
+            draw(gl,fgProgram,random_sprite_2_x,random_sprite_2_y,random_grid_2_x,random_grid_2_y);
             draw_light(gl,lightProgram);
             requestAnimationFrame(draw_frame);
 
@@ -143,7 +152,15 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
   
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-  
+
+    let grid_x_adj = noise.simplex2(grid_x,now / 1000);
+
+    let grid_y_adj = noise.simplex2(grid_y,now / 1000);
+
+    grid_x = grid_x + grid_x_adj;
+    grid_y = grid_y + grid_y_adj;
+
+    
     let grid_size = 8;
   
     let grid_x_l = ((width / grid_size) * grid_x / width) * 2 - 1
