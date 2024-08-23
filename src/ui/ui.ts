@@ -4,7 +4,6 @@ import GameState from "../gamestate";
 import { destroy, init } from "../core/GameLogic";
 import { renderTown } from "./TownUI";
 import { sfx, setVolume } from "../sound/sfx";
-import { music } from "../sound/music";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 import { setup } from "../game.js";
 

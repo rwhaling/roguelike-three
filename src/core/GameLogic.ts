@@ -11,7 +11,7 @@ import { makePlayer } from "../entities/player";
 import GameState from "../gamestate";
 import { AllCellContents, DecorItemContent, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
-import { music, musicState, setMusicState } from "../sound/music";
+import { play, musicState } from "../sound/music";
 import Display from "../mydisplay";
 import MyDisplay from "../myglbackend";
 
@@ -128,9 +128,11 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
 
   requestAnimationFrame(drawScene);
   if (musicState != "dungeon") {
-    music.stop();
-    music.play("dungeon");  
-    setMusicState("dungeon");
+    play("dungeon");
+    // music.stop();
+    // music.play("dungeon");  
+    // setMusicState("dungeon");
+
   }
   // music.stop();
   // music.play("dungeon");  

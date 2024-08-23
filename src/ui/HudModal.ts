@@ -2,7 +2,7 @@ import { handleTownAction, TownState } from "../core/TownLogic";
 import { Player } from "../entities/player";
 import GameState from "../gamestate";
 import { sfx, setVolume } from "../sound/sfx";
-import { music } from "../sound/music";
+import { setMusicVolume } from "../sound/music";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 import { UI } from "./ui"
 
@@ -172,11 +172,11 @@ let menus: [string, string][] = [
         if (parent_input) {
           console.log("clicked modal body:", parent_input, parent_input.name, parent_input.value);
           if (parent_input.value == "music_vol_full") {
-            music.volume(0.25);
+            setMusicVolume(0.25);
           } else if (parent_input.value == "music_vol_quiet") {
-            music.volume(0.1);
+            setMusicVolume(0.1);
           } else if (parent_input.value == "music_vol_off") {
-            music.volume(0);
+            setMusicVolume(0);
           } else if (parent_input.value == "sound_vol_full") {
             setVolume(1.0);
           } else if (parent_input.value == "sound_vol_quiet") {

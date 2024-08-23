@@ -9,7 +9,7 @@ import { getTownState } from "../core/TownLogic";
 import { BehaviorState, Monster } from "./monster";
 import { dijkstraMap, Entity, fullMap, getActiveMonsters, getBoundingBox, get_neighbors, manhattan } from '../core/Pathfinding';
 import { getCell, getRoomItems } from '../mapgen/Level';
-import { music, musicState, setMusicState }from "../sound/music";
+import { musicState, play }from "../sound/music";
 import { hideHudModal, renderHelpModal, toggleHudModal } from "../ui/HudModal";
 
 interface Buff {
@@ -547,9 +547,10 @@ function useAction(game, player): boolean {
             console.log("stairs up")
             unload(game);
             if (musicState != "town") {
-                music.stop();
-                music.play("town");  
-                setMusicState("town");
+                // music.stop();
+                // music.play("town");  
+                // setMusicState("town");
+                play("town");
               }
             
             // music.stop();
