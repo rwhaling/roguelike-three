@@ -165,18 +165,25 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     
     let grid_size = 8;
   
-    let grid_x_l = ((width / grid_size) * grid_x / width) * 2 - 1
-    let grid_x_r = ((width / grid_size) * (grid_x + 1) / width) * 2 - 1
-    let grid_y_b = ((width / grid_size) * grid_y / width) * 2 - 1
-    let grid_y_u = ((width / grid_size) * (grid_y + 1) / width) * 2 - 1
+    // let grid_x_l = ((width / grid_size) * grid_x / width) * 2 - 1
+    // let grid_x_r = ((width / grid_size) * (grid_x + 1) / width) * 2 - 1
+    // let grid_y_b = ((width / grid_size) * grid_y / width) * 2 - 1
+    // let grid_y_u = ((width / grid_size) * (grid_y + 1) / width) * 2 - 1
 
     // console.log("grid pos:", grid_x, grid_y, "gl pos:", grid_x_l, grid_y_b);
   
+    // let positions = [
+    //   grid_x_l, grid_y_b,
+    //   grid_x_r, grid_y_b,
+    //   grid_x_l, grid_y_u,
+    //   grid_x_r, grid_y_u
+    // ]
+
     let positions = [
-      grid_x_l, grid_y_b,
-      grid_x_r, grid_y_b,
-      grid_x_l, grid_y_u,
-      grid_x_r, grid_y_u
+        grid_x, grid_y,
+        grid_x + 1, grid_y,
+        grid_x, grid_y + 1,
+        grid_x + 1, grid_y + 1
     ]
 
     // console.log(positions)
