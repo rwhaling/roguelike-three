@@ -94,11 +94,18 @@ function setup(tilesetBlobUrl:string) {
         let random_grid_x = Math.floor(Math.random() * 8)
         let random_grid_y = Math.floor(Math.random() * 8)
 
+        let sprite_1_target_x = random_grid_x - (1 - Math.floor(Math.random() * 3))
+        let sprite_1_target_y = random_grid_y - (1 - Math.floor(Math.random() * 3))
+        let sprite_1_target_time = Date.now() + 1000;
+
         let random_sprite_2_x = Math.floor(Math.random() * 16)
         let random_sprite_2_y = Math.floor(Math.random() * 32)
         let random_grid_2_x = Math.floor(Math.random() * 8)
         let random_grid_2_y = Math.floor(Math.random() * 8)
 
+        let sprite_2_target_x = random_grid_2_x - (1 - Math.floor(Math.random() * 3))
+        let sprite_2_target_y = random_grid_2_y - (1 - Math.floor(Math.random() * 3))
+        let sprite_2_target_time = Date.now() + 500;
 
         // draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
 
@@ -106,15 +113,64 @@ function setup(tilesetBlobUrl:string) {
             let now = Date.now();
             let cam_offset = noise.simplex3(4,4,now / 1000) * 4;
 
-            let grid_x_adj = noise.simplex2(random_grid_x,now / 2000);
-            let grid_y_adj = noise.simplex2(random_grid_y,now / 2000);
-            let grid_x_2_adj = noise.simplex2(random_grid_2_x,now / 2000);
-            let grid_y_2_adj = noise.simplex2(random_grid_2_y,now / 2000);
+            let grid_x_adj = noise.simplex2(random_grid_x,now / 3000) * 4;
+            let grid_y_adj = noise.simplex2(random_grid_y,now / 3000) * 4;
+            // let grid_x_2_adj = noise.simplex2(random_grid_2_x,now / 2000);
+            // let grid_y_2_adj = noise.simplex2(random_grid_2_y,now / 2000);
+            let grid_x_2_adj = 0
+            let grid_y_2_adj = 0
 
-            draw_bg(gl,bgProgram,tileSetTexture,tileMap,4 - grid_x_adj * 2,4 - grid_y_adj * 2);
-            draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x + grid_x_adj,random_grid_y + grid_y_adj);
-            draw(gl,fgProgram,random_sprite_2_x,random_sprite_2_y,random_grid_2_x + grid_x_2_adj,random_grid_2_y + grid_y_2_adj);
-            // draw_light(gl,lightProgram, random_grid_x, random_grid_y, random_grid_2_x, random_grid_2_y);
+            let sprite_1_progress = 1 - ((sprite_1_target_time - now) / 1000);
+            if (sprite_1_progress > 1) {
+                let new_target_x = sprite_1_target_x - (1 - Math.floor(Math.random() * 3))
+                if (new_target_x > 7) { new_target_x -= 2 }
+                let new_target_y = sprite_1_target_y - (1 - Math.floor(Math.random() * 3))
+                if (new_target_y > 7) { new_target_y -= 2 }
+
+                sprite_1_progress = 0
+                random_grid_x = sprite_1_target_x
+                random_grid_y = sprite_1_target_y
+                sprite_1_target_x = new_target_x
+                sprite_1_target_y = new_target_y
+                sprite_1_target_time = now + 1000
+                console.log("reached",random_grid_x, random_grid_y,"at",now)
+                console.log("new target",sprite_1_target_x,sprite_1_target_y,"at",sprite_1_target_time)
+            }
+
+            let sprite_1_pos_x = (random_grid_x * (1 - sprite_1_progress)) + (sprite_1_target_x * sprite_1_progress)
+            let sprite_1_pos_y = (random_grid_y * (1 - sprite_1_progress)) + (sprite_1_target_y * sprite_1_progress)
+
+            let camera_pos_x = sprite_1_pos_x
+            let camera_pos_y = sprite_1_pos_y
+
+            let sprite_2_progress = 1 - ((sprite_2_target_time - now) / 500);
+            if (sprite_2_progress > 1) {
+                let new_target_x = sprite_2_target_x - (1 - Math.floor(Math.random() * 3))
+                if (new_target_x > 7) { new_target_x -= 2 }
+                let new_target_y = sprite_2_target_y - (1 - Math.floor(Math.random() * 3))
+                if (new_target_y > 7) { new_target_y -= 2 }
+
+                sprite_2_progress = 0
+                random_grid_2_x = sprite_2_target_x
+                random_grid_2_y = sprite_2_target_y
+                sprite_2_target_x = new_target_x
+                sprite_2_target_y = new_target_y
+                sprite_2_target_time = now + 500
+                console.log("reached",random_grid_2_x, random_grid_2_y,"at",now)
+                console.log("new target",sprite_2_target_x,sprite_2_target_y,"at",sprite_2_target_time)
+            }
+
+            let sprite_2_pos_x = (random_grid_2_x * (1 - sprite_2_progress)) + (sprite_2_target_x * sprite_2_progress)
+            let sprite_2_pos_y = (random_grid_2_y * (1 - sprite_2_progress)) + (sprite_2_target_y * sprite_2_progress)
+
+            // draw_bg(gl,bgProgram,tileSetTexture,tileMap,4.0 + sprite_1_pos_x * 2,4.0 + sprite_1_pos_y * 2);
+            draw_bg(gl,bgProgram,tileSetTexture,tileMap,sprite_1_pos_x,sprite_1_pos_y);
+
+            draw(gl,fgProgram,random_sprite_x,random_sprite_y,sprite_1_pos_x,sprite_1_pos_y, camera_pos_x, camera_pos_y);
+
+            // draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x + grid_x_adj,random_grid_y + grid_y_adj);
+            draw(gl,fgProgram,random_sprite_2_x,random_sprite_2_y,sprite_2_pos_x,sprite_2_pos_y, camera_pos_x, camera_pos_y);
+            draw_light(gl,lightProgram, sprite_1_pos_x, sprite_1_pos_y, sprite_2_pos_x, sprite_2_pos_y, camera_pos_x, camera_pos_y);
             requestAnimationFrame(draw_frame);
 
         };
@@ -149,7 +205,7 @@ function spriteCoords(sprite_pos_x,sprite_pos_y) {
       ];
   }
 
-function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
+function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y, camera_x, camera_y) {
     var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
 
@@ -169,6 +225,9 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
 
     // grid_x = grid_x + grid_x_adj;
     // grid_y = grid_y + grid_y_adj;
+
+    grid_x = 4 + grid_x - camera_x
+    grid_y = 4 + grid_y - camera_y
   
     let grid_size = 8;
   
@@ -288,14 +347,14 @@ function makeMap() {
         [22,7]
       ]
     
-      let grid_size = 64
+      let grid_size = 100
     
       let map = []
       
       for (let i = 0; i < grid_size; i++) {
-        if ((i % 8 == 0) || (i % 8 == 7)) {
+        if ((i % 10 == 0) || (i % 10 == 9)) {
             map.push(22,5)
-        } else if (i <= 6) {
+        } else if (i <= 9) {
             map.push(17,5);                
         } else {
             let r = Math.floor(Math.random() * options.length);
@@ -310,8 +369,8 @@ function makeMap() {
 }
 
 function makeTilemap(gl, map) {
-    const mapWidth = 8;
-    const mapHeight = 8;
+    const mapWidth = 10;
+    const mapHeight = 10;
     const tilemap = new Uint32Array(mapWidth * mapHeight);
     const tilemapU8 = new Uint8Array(tilemap.buffer);
     const totalTiles = mapWidth * mapHeight;
@@ -334,7 +393,7 @@ function makeTilemap(gl, map) {
   
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
       // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 8,8,0, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 10,10,0, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
     return t;
 }
 
@@ -352,8 +411,8 @@ function draw_bg(gl,bgProgram, tileset, tilemap, offset_x, offset_y) {
   
     let grid_size = 8;
 
-    let offset_adj_x = (4.0 - offset_x) / 8.0;
-    let offset_adj_y = (4.0 - offset_y) / 8.0;
+    let offset_adj_x = (4.0 - offset_x * 2) / 8.0;
+    let offset_adj_y = (4.0 - offset_y * 2) / 8.0;
 
     // var positions = [
     //     -1.0, -1.0,
@@ -365,9 +424,9 @@ function draw_bg(gl,bgProgram, tileset, tilemap, offset_x, offset_y) {
 
     var positions = [
       -1.0 + offset_adj_x, -1.0 + offset_adj_y,
-      1.0 + offset_adj_x, -1.0 + offset_adj_y,
-      -1.0 + offset_adj_x,1.0 + offset_adj_y,
-      1.0 + offset_adj_x,1.0 + offset_adj_y
+      1.5 + offset_adj_x, -1.0 + offset_adj_y,
+      -1.0 + offset_adj_x,1.5 + offset_adj_y,
+      1.5 + offset_adj_x,1.5 + offset_adj_y
     ];
   
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -445,7 +504,7 @@ function draw_bg(gl,bgProgram, tileset, tilemap, offset_x, offset_y) {
     gl.drawArrays(primitiveType, offset, count);      
 }
 
-function draw_light(gl,program, random_x_1, random_y_1, random_x_2, random_y_2) {
+function draw_light(gl,program, random_x_1, random_y_1, random_x_2, random_y_2, camera_pos_x, camera_pos_y) {
     var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
     var lightcoordUniformLocation = gl.getUniformLocation(program, "u_lightcoords");
@@ -533,25 +592,34 @@ function draw_light(gl,program, random_x_1, random_y_1, random_x_2, random_y_2) 
     let t_raw_location = gl.getUniformLocation(program, 't_raw');  
     gl.uniform1f(t_raw_location, t_raw);
   
-    let grid_x_adj = noise.simplex2(random_x_1,now / 2000) * 0.5;
-    let grid_y_adj = noise.simplex2(random_y_1,now / 2000) * 0.5;
+    // let grid_x_adj = noise.simplex2(random_x_1,now / 2000) * 0.5;
+    // let grid_y_adj = noise.simplex2(random_y_1,now / 2000) * 0.5;
 
-    random_x_1 = random_x_1 + grid_x_adj + 0.5;
-    random_y_1 = random_y_1 + grid_y_adj + 0.5;
+    // random_x_1 = random_x_1 + grid_x_adj + 0.5;
+    // random_y_1 = random_y_1 + grid_y_adj + 0.5;
 
-    let grid_x_2_adj = noise.simplex2(random_x_2,now / 2000) * 0.5;
-    let grid_y_2_adj = noise.simplex2(random_y_2,now / 2000) * 0.5;
+    // let grid_x_2_adj = noise.simplex2(random_x_2,now / 2000) * 0.5;
+    // let grid_y_2_adj = noise.simplex2(random_y_2,now / 2000) * 0.5;
 
-    random_x_2 = random_x_2 + grid_x_2_adj + 0.5;
-    random_y_2 = random_y_2 + grid_y_2_adj + 0.5;
+    // random_x_2 = random_x_2 + grid_x_2_adj + 0.5;
+    // random_y_2 = random_y_2 + grid_y_2_adj + 0.5;
 
 
-    // pass the actual light locations
+    // // pass the actual light locations
+    // let lightcoords = [
+    //     (2 * random_x_1 / 8.0) - 1,
+    //     (2 * random_y_1 / 8.0) - 1,
+    //     (2 * random_x_2 / 8.0) - 1,
+    //     (2 * random_y_2 / 8.0) - 1
+    // ]
+
     let lightcoords = [
-        (2 * random_x_1 / 8.0) - 1,
-        (2 * random_y_1 / 8.0) - 1,
-        (2 * random_x_2 / 8.0) - 1,
-        (2 * random_y_2 / 8.0) - 1
+        (2 * (4 + random_x_1 - camera_pos_x) / 8.0) - 1,
+        (2 * (4 + random_y_1 - camera_pos_y) / 8.0) - 1,
+        (2 * (4 + random_x_2 - camera_pos_x) / 8.0) - 1,
+        (2 * (4 + random_y_2 - camera_pos_y) / 8.0) - 1,
+
+
     ]
     gl.uniform2fv(lightcoordUniformLocation, lightcoords);
 
