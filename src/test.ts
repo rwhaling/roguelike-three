@@ -14,8 +14,11 @@ function init() {
     // var picture = document.getElementById("picture");
     console.log("about to retrieve encrypted image")
     var data = new XMLHttpRequest();
+    data.overrideMimeType('image/png; charset=x-user-defined');
+
     // data.open('GET', 'tiny_dungeon_world_3.png.enc.b64', true);
-    data.open('GET', 'tiny_dungeon_world_3_dark_test_6.png.enc.b64', true);
+    data.open('GET', 'tiny_dungeon_world_3_dark_test_7.png.enc.b64', true);
+    data.open('GET', 'tiny_dungeon_world_3_dark_test_7.png', true);
 
     data.onreadystatechange = loaded;
     data.send(null);
@@ -24,26 +27,46 @@ function init() {
 function loaded() {
     console.log("ready?");
     if(this.readyState == 4 && this.status==200){
-        console.log("got back data", this.responseText.length, "bytes")
-        console.log("Crypto:",Crypto);
-        // let crypto:any = Crypto;
-        var dec = Crypto.AES.decrypt(this.responseText, process.env.ASSET_KEY);
-        var plain = Crypto.enc.Base64.stringify( dec );
+        console.log(this.responseURL,"got back data", this.responseText.length, "bytes")
+        if (this.responseURL.endsWith("png")) {
+            console.log("unencrypted", this.response)
+            // TODO: fix, not working sigh
+            var bytes = this.response
+            const blob = new Blob([bytes], { type: "image/png" })
+            const url = URL.createObjectURL(blob)
+            // let url = "data:image/png;base64,"+enc;
+            // let byteArray = new Uint8Array(bytes);
+            // for (let i = 0; i < byteArray.length; i++) {
+            //     byteArray[i] = bytes[i];
+            //   }
+      
+            // const blob = new Blob([byteArray], { type: "image/png" })
+            // const url = URL.createObjectURL(blob)
+            // console.log(url)
+            setup(url)
 
-        // tileSet.src = "data:image/png;base64,"+plain;
-
-        // const src = dec.toString()
-        // const src = Crypto.enc.Base64.parse(plain).toString();
-        let bytes = atob(plain)
-        const binary = new Array(bytes.length);
-        for (let i = 0; i < bytes.length; i++) {
-          binary[i] = bytes.charCodeAt(i);
+        } else {
+            console.log("encrypted")
+            console.log("Crypto:",Crypto);
+            // let crypto:any = Crypto;
+            var dec = Crypto.AES.decrypt(this.responseText, process.env.ASSET_KEY);
+            var plain = Crypto.enc.Base64.stringify( dec );
+    
+            // tileSet.src = "data:image/png;base64,"+plain;
+    
+            // const src = dec.toString()
+            // const src = Crypto.enc.Base64.parse(plain).toString();
+            let bytes = atob(plain)
+            const binary = new Array(bytes.length);
+            for (let i = 0; i < bytes.length; i++) {
+              binary[i] = bytes.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(binary);
+    
+            const blob = new Blob([byteArray])
+            const url = URL.createObjectURL(blob)    
+            setup(url)
         }
-        const byteArray = new Uint8Array(binary);
-
-        const blob = new Blob([byteArray])
-        const url = URL.createObjectURL(blob)
-        setup(url)
     } else {
         console.log("sad path",this);
     }
