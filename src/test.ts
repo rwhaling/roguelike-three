@@ -14,7 +14,9 @@ function init() {
     // var picture = document.getElementById("picture");
     console.log("about to retrieve encrypted image")
     var data = new XMLHttpRequest();
-    data.open('GET', 'tiny_dungeon_world_3.png.enc.b64', true);
+    // data.open('GET', 'tiny_dungeon_world_3.png.enc.b64', true);
+    data.open('GET', 'tiny_dungeon_world_3_dark_test_6.png.enc.b64', true);
+
     data.onreadystatechange = loaded;
     data.send(null);
 }
@@ -276,11 +278,17 @@ function makeMap() {
       let map = []
       
       for (let i = 0; i < grid_size; i++) {
-        let r = Math.floor(Math.random() * options.length);
-        // console.log("r",r);
-        let o = options[r];
-        // console.log("o",o);
-        map.push(o[0],o[1]);      
+        if ((i % 8 == 0) || (i % 8 == 7)) {
+            map.push(22,5)
+        } else if (i <= 6) {
+            map.push(17,5);                
+        } else {
+            let r = Math.floor(Math.random() * options.length);
+            // console.log("r",r);
+            let o = options[r];
+            // console.log("o",o);
+            map.push(o[0],o[1]);          
+        }
       }
     
       return map;    
@@ -499,14 +507,14 @@ function draw_light(gl,program, random_x_1, random_y_1, random_x_2, random_y_2) 
     let grid_x_adj = noise.simplex2(random_x_1,now / 2000) * 0.5;
     let grid_y_adj = noise.simplex2(random_y_1,now / 2000) * 0.5;
 
-    random_x_1 = random_x_1 + grid_x_adj;
-    random_y_1 = random_y_1 + grid_y_adj;
+    random_x_1 = random_x_1 + grid_x_adj + 0.5;
+    random_y_1 = random_y_1 + grid_y_adj + 0.5;
 
     let grid_x_2_adj = noise.simplex2(random_x_2,now / 2000) * 0.5;
     let grid_y_2_adj = noise.simplex2(random_y_2,now / 2000) * 0.5;
 
-    random_x_2 = random_x_2 + grid_x_2_adj;
-    random_y_2 = random_y_2 + grid_y_2_adj;
+    random_x_2 = random_x_2 + grid_x_2_adj + 0.5;
+    random_y_2 = random_y_2 + grid_y_2_adj + 0.5;
 
 
     // pass the actual light locations

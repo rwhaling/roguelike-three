@@ -20,6 +20,8 @@ void main() {
 //   vec2 lookup_2 = vec2((lookup_1.x + tilemap_offset.x) / 49.0, (lookup_1.y + tilemap_offset.y) / 22.0);
   vec2 lookup_2 = vec2((lookup_1.x + tilemap_offset.x) / 32.0, (lookup_1.y + tilemap_offset.y) / 48.0);
 
+  // HACK
+//   outColor = texture(u_texture,lookup_2) * vec4(0.5,0.5,0.5,1.0);
   outColor = texture(u_texture,lookup_2);
   return;
   if (length(outColor) <= 1.0) {
