@@ -103,10 +103,18 @@ function setup(tilesetBlobUrl:string) {
         // draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
 
         let draw_frame = (timestamp) => {
-            draw_bg(gl,bgProgram,tileSetTexture,tileMap);
-            draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x,random_grid_y);
-            draw(gl,fgProgram,random_sprite_2_x,random_sprite_2_y,random_grid_2_x,random_grid_2_y);
-            draw_light(gl,lightProgram, random_grid_x, random_grid_y, random_grid_2_x, random_grid_2_y);
+            let now = Date.now();
+            let cam_offset = noise.simplex3(4,4,now / 1000) * 4;
+
+            let grid_x_adj = noise.simplex2(random_grid_x,now / 2000);
+            let grid_y_adj = noise.simplex2(random_grid_y,now / 2000);
+            let grid_x_2_adj = noise.simplex2(random_grid_2_x,now / 2000);
+            let grid_y_2_adj = noise.simplex2(random_grid_2_y,now / 2000);
+
+            draw_bg(gl,bgProgram,tileSetTexture,tileMap,4 - grid_x_adj * 2,4 - grid_y_adj * 2);
+            draw(gl,fgProgram,random_sprite_x,random_sprite_y,random_grid_x + grid_x_adj,random_grid_y + grid_y_adj);
+            draw(gl,fgProgram,random_sprite_2_x,random_sprite_2_y,random_grid_2_x + grid_x_2_adj,random_grid_2_y + grid_y_2_adj);
+            // draw_light(gl,lightProgram, random_grid_x, random_grid_y, random_grid_2_x, random_grid_2_y);
             requestAnimationFrame(draw_frame);
 
         };
@@ -155,22 +163,28 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-    let grid_x_adj = noise.simplex2(grid_x,now / 2000) * 0.5;
+    // let grid_x_adj = noise.simplex2(grid_x,now / 2000) * 0.5;
 
-    let grid_y_adj = noise.simplex2(grid_y,now / 2000) * 0.5;
+    // let grid_y_adj = noise.simplex2(grid_y,now / 2000) * 0.5;
 
-    grid_x = grid_x + grid_x_adj;
-    grid_y = grid_y + grid_y_adj;
-
-    
+    // grid_x = grid_x + grid_x_adj;
+    // grid_y = grid_y + grid_y_adj;
+  
     let grid_size = 8;
   
+    let positions = [
+        grid_x, grid_y,
+        grid_x + 1, grid_y,
+        grid_x, grid_y + 1,
+        grid_x + 1, grid_y + 1
+    ]
+
     // let grid_x_l = ((width / grid_size) * grid_x / width) * 2 - 1
     // let grid_x_r = ((width / grid_size) * (grid_x + 1) / width) * 2 - 1
     // let grid_y_b = ((width / grid_size) * grid_y / width) * 2 - 1
     // let grid_y_u = ((width / grid_size) * (grid_y + 1) / width) * 2 - 1
 
-    // console.log("grid pos:", grid_x, grid_y, "gl pos:", grid_x_l, grid_y_b);
+    // console.log("grid pos:", grid_x, grid_y);
   
     // let positions = [
     //   grid_x_l, grid_y_b,
@@ -179,12 +193,6 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y) {
     //   grid_x_r, grid_y_u
     // ]
 
-    let positions = [
-        grid_x, grid_y,
-        grid_x + 1, grid_y,
-        grid_x, grid_y + 1,
-        grid_x + 1, grid_y + 1
-    ]
 
     // console.log(positions)
     // var positions = [
@@ -330,7 +338,7 @@ function makeTilemap(gl, map) {
     return t;
 }
 
-function draw_bg(gl,bgProgram, tileset, tilemap) { 
+function draw_bg(gl,bgProgram, tileset, tilemap, offset_x, offset_y) { 
     var positionAttributeLocation = gl.getAttribLocation(bgProgram, "a_position");
     var texcoordAttributeLocation = gl.getAttribLocation(bgProgram, "a_texcoord");
     var textureUniformLocation = gl.getUniformLocation(bgProgram, "u_texture");
@@ -343,12 +351,23 @@ function draw_bg(gl,bgProgram, tileset, tilemap) {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
   
     let grid_size = 8;
+
+    let offset_adj_x = (4.0 - offset_x) / 8.0;
+    let offset_adj_y = (4.0 - offset_y) / 8.0;
+
+    // var positions = [
+    //     -1.0, -1.0,
+    //     1.0, -1.0,
+    //     -1.0,1.0,
+    //     1.0,1.0
+    //   ];
   
+
     var positions = [
-      -1.0, -1.0,
-      1.0, -1.0,
-      -1.0,1.0,
-      1.0,1.0
+      -1.0 + offset_adj_x, -1.0 + offset_adj_y,
+      1.0 + offset_adj_x, -1.0 + offset_adj_y,
+      -1.0 + offset_adj_x,1.0 + offset_adj_y,
+      1.0 + offset_adj_x,1.0 + offset_adj_y
     ];
   
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -377,8 +396,11 @@ function draw_bg(gl,bgProgram, tileset, tilemap) {
     gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
     gl.bufferData(
         gl.ARRAY_BUFFER,
-        new Float32Array([0,0,0,0,0,0,0,0]),
-         gl.STATIC_DRAW);
+        new Float32Array([0,0,
+                          1,0,
+                          0,1,
+                          1,1]),
+        gl.STATIC_DRAW);
      
     // Turn on the attribute
     gl.enableVertexAttribArray(texcoordAttributeLocation);
@@ -397,7 +419,7 @@ function draw_bg(gl,bgProgram, tileset, tilemap) {
     gl.viewport(0,0,600,600);
     
     // Clear the canvas
-    gl.clearColor(0.3, 0.3, 0.3, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
   
     // Tell it to use our program (pair of shaders)
