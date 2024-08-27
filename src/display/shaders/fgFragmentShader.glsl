@@ -6,6 +6,8 @@ precision highp float;
 
 in vec2 v_texcoord;
 uniform sampler2D u_texture;
+uniform vec4 u_sprite_transp;
+uniform vec4 u_aura_color;
 uniform float t;
 uniform float t_raw;
 // we need to declare an output for the fragment shader
@@ -38,29 +40,65 @@ float noise(vec3 p){
 }
 
 void main() {
-  outColor = texture(u_texture, v_texcoord);
+//   vec4 sprite_transp = vec4 (1.0,1.0,1.0,1.0);
+  outColor = texture(u_texture, v_texcoord) * u_sprite_transp;
   // remove this when ready
   // return;
 
   if (outColor == vec4(0.0,0.0,0.0,0.0)) {
-    if (mod(v_texcoord.y * 352.0,16.0) > 14.0) {
+    // if (mod(v_texcoord.y * 352.0,16.0) > 14.0) {
+    //   return;         
+    // } else if (mod(v_texcoord.y * 352.0,16.0) < 2.0) {
+    //   return;         
+    // }
+
+    if (mod(v_texcoord.y * 768.0,16.0) > 15.0) {
       return;         
+    } else if (mod(v_texcoord.y * 768.0,16.0) < 1.0) {
+      return;         
+    } else if (mod(v_texcoord.x * 512.0,16.0) > 15.0) {
+      return;
+    } else if (mod(v_texcoord.x * 512.0,16.0) < 1.0) {
+      return;
     }
 
     // vec4 blurDown1 = texture(u_texture, v_texcoord + vec2(0.0, 0.00283));
     // vec4 blurDown2 = texture(u_texture, v_texcoord + vec2(0.0, 0.00567));
 
-    vec4 blurDown1 = texture(u_texture, v_texcoord + vec2(0.0, 0.00130));
-    vec4 blurDown2 = texture(u_texture, v_texcoord + vec2(0.0, 0.00260));
+    // vec4 blurDown1 = texture(u_texture, v_texcoord + vec2(0.0, 0.00130));
+    // vec4 blurDown2 = texture(u_texture, v_texcoord + vec2(0.0, 0.00260));
 
-    vec4 blurredColor = vec4(0,1.0,t,1.0) * (0.5 * blurDown1 + 0.3 * blurDown2);
+    vec4 blurredColor = vec4(0.0,0.0,0.0,0.0);
+
+    vec4 blurDown1 = texture(u_texture, v_texcoord + vec2(0.0, 0.00130));
+    if (mod(v_texcoord.y * 768.0 + 1.0,16.0) <= 15.0) {
+        blurredColor += blurDown1;
+    }
+    vec4 blurUp1 = texture(u_texture, v_texcoord + vec2(0.0, -0.00130));
+    if (mod(v_texcoord.y * 768.0 - 1.0,16.0) >= 1.0) {
+        blurredColor += blurUp1;
+    }
+    vec4 blurLeft1 = texture(u_texture, v_texcoord + vec2(0.00195, 0.0));
+    if (mod(v_texcoord.x * 512.0 + 1.0,16.0) <= 15.0) {
+        blurredColor += blurLeft1;
+    }
+    vec4 blurRight1 = texture(u_texture, v_texcoord + vec2(-0.00195, 0.0));
+    if (mod(v_texcoord.x * 512.0 - 1.0,16.0) >= 1.0) {
+        blurredColor += blurRight1;
+    }
+
+    // vec4 aura_color = vec4(1.0,0.0,0.0,1.0);
+    vec4 auraHighlightColor = u_aura_color * vec4(0.5,0.5,0.5,1.0);
+
+    // vec4 blurredColor = blurDown1 + blurUp1 + blurLeft1 + blurRight1;
     // outColor = blurredColor;
     if (blurredColor != vec4(0.0,0.0,0.0,0.0)) {
-      vec4 noiseColor = vec4(1.0 - t,1.0-t,1.0 - t,1) * (0.4 * blurDown1 + 0.6 * blurDown2) * abs(noise(vec3(floor(v_texcoord.x * 512.0),floor(v_texcoord.y * 768.0),t_raw)));
-
-      if (length(noiseColor) >= 0.6) {
-        outColor = noiseColor;
-      }
+      vec4 noiseColor = mix(u_aura_color,auraHighlightColor,abs(noise(vec3(floor(v_texcoord.x * 512.0),floor(v_texcoord.y * 768.0),t_raw * 5.0))));
+    //   vec4 noiseColor = vec4(1.0 - t,1.0-t,1.0 - t,1) * (0.4 * blurDown1 + 0.6 * blurDown2) * abs(noise(vec3(floor(v_texcoord.x * 512.0),floor(v_texcoord.y * 768.0),t_raw)));
+      outColor = noiseColor;
+    //   if (length(noiseColor) >= 0.6) {
+    //     outColor = noiseColor;
+    //   }
 
     } 
   } 

@@ -14,59 +14,60 @@ function init() {
     // var picture = document.getElementById("picture");
     console.log("about to retrieve encrypted image")
     var data = new XMLHttpRequest();
-    data.overrideMimeType('image/png; charset=x-user-defined');
 
-    // data.open('GET', 'tiny_dungeon_world_3.png.enc.b64', true);
-    data.open('GET', 'tiny_dungeon_world_3_dark_test_7.png.enc.b64', true);
-    data.open('GET', 'tiny_dungeon_world_3_dark_test_7.png', true);
-
-    data.onreadystatechange = loaded;
-    data.send(null);
+    let req_url = "tiny_dungeon_world_3_dark_test_7.png.enc.b64"
+    if (req_url.endsWith(".png")) {
+        console.log("unencrypted png")
+        data.responseType = 'blob';
+        data.open('GET', req_url, true);
+        data.onreadystatechange = load;
+        data.send(null);
+    } else {
+        data.open('GET', req_url, true);
+        data.onreadystatechange = load_encrypted;
+        data.send(null);
+    }
 }
 
-function loaded() {
+function load() {
     console.log("ready?");
     if(this.readyState == 4 && this.status==200){
-        console.log(this.responseURL,"got back data", this.responseText.length, "bytes")
+        console.log(this.responseURL,"got back data", this.response.length, "bytes")
         if (this.responseURL.endsWith("png")) {
             console.log("unencrypted", this.response)
             // TODO: fix, not working sigh
-            var bytes = this.response
-            const blob = new Blob([bytes], { type: "image/png" })
-            const url = URL.createObjectURL(blob)
-            // let url = "data:image/png;base64,"+enc;
-            // let byteArray = new Uint8Array(bytes);
-            // for (let i = 0; i < byteArray.length; i++) {
-            //     byteArray[i] = bytes[i];
-            //   }
-      
-            // const blob = new Blob([byteArray], { type: "image/png" })
-            // const url = URL.createObjectURL(blob)
-            // console.log(url)
-            setup(url)
-
-        } else {
-            console.log("encrypted")
-            console.log("Crypto:",Crypto);
-            // let crypto:any = Crypto;
-            var dec = Crypto.AES.decrypt(this.responseText, process.env.ASSET_KEY);
-            var plain = Crypto.enc.Base64.stringify( dec );
-    
-            // tileSet.src = "data:image/png;base64,"+plain;
-    
-            // const src = dec.toString()
-            // const src = Crypto.enc.Base64.parse(plain).toString();
-            let bytes = atob(plain)
-            const binary = new Array(bytes.length);
-            for (let i = 0; i < bytes.length; i++) {
-              binary[i] = bytes.charCodeAt(i);
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                console.log("reader returned", reader.result)
+                setup(reader.result as string);
             }
-            const byteArray = new Uint8Array(binary);
-    
-            const blob = new Blob([byteArray])
-            const url = URL.createObjectURL(blob)    
-            setup(url)
+            reader.readAsDataURL(this.response);
         }
+    } else {
+        console.log("sad path",this);
+    }
+}
+
+function load_encrypted() {
+    console.log("ready?");
+    if(this.readyState == 4 && this.status==200){
+        console.log(this.responseURL,"got back data", this.response.length, "bytes")
+        console.log("encrypted")
+        console.log("Crypto:",Crypto);
+        // let crypto:any = Crypto;
+        var dec = Crypto.AES.decrypt(this.responseText, process.env.ASSET_KEY);
+        var plain = Crypto.enc.Base64.stringify( dec );
+
+        let bytes = atob(plain)
+        const binary = new Array(bytes.length);
+        for (let i = 0; i < bytes.length; i++) {
+            binary[i] = bytes.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(binary);
+
+        const blob = new Blob([byteArray])
+        const url = URL.createObjectURL(blob)    
+        setup(url)
     } else {
         console.log("sad path",this);
     }
@@ -231,6 +232,8 @@ function spriteCoords(sprite_pos_x,sprite_pos_y) {
 function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y, camera_x, camera_y) {
     var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
     var texcoordAttributeLocation = gl.getAttribLocation(program, "a_texcoord");
+    var spriteTranspUniformLocation = gl.getUniformLocation(program,"u_sprite_transp");
+    var auraColorUniformLocation = gl.getUniformLocation(program,"u_aura_color");
 
     let width = 600;
     let height = 600;
@@ -349,6 +352,9 @@ function draw(gl,program,sprite_x, sprite_y, grid_x, grid_y, camera_x, camera_y)
   
     let t_raw_location = gl.getUniformLocation(program, 't_raw');  
     gl.uniform1f(t_raw_location, t_raw);
+
+    gl.uniform4f(spriteTranspUniformLocation,1.0,1.0,1.0,0.0);
+    gl.uniform4f(auraColorUniformLocation,1.0,0.0,1.0,1.0);
   
     
     // draw
@@ -416,7 +422,7 @@ function makeTilemap(gl, map) {
   
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
       // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 10,10,0, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 10, 10, 0, gl.RGBA, gl.UNSIGNED_BYTE, tilemapU8);
     return t;
 }
 
