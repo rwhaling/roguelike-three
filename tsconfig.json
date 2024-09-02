@@ -9,6 +9,6 @@
         "typeRoots": ["src/@types", "node_modules/@types"]
     },
     "include": [
-        "src/*","src/@types"
+        "src/*","src/@types","src/**/*"
     ]
 }

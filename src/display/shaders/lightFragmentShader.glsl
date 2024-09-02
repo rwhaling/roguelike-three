@@ -42,7 +42,7 @@ void main() {
   float dist = 1.0;
   int i;
   for (i = 0; i < 2; i++) {
-      float this_dist = length((floor((v_texcoord) * 16.0) - floor((u_lightcoords[i]) * 16.0)) / 16.0);
+      float this_dist = length((round((v_texcoord) * 16.0) - round((u_lightcoords[i]) * 16.0)) / 16.0);
       if (this_dist < dist) {
         dist = this_dist;
       }
@@ -54,10 +54,10 @@ void main() {
     trans = 0.0;
   } else if (dist < 0.50) {
     trans = (dist - 0.30) * 1.5;
-    trans = trans + (trans * abs(noise(vec3(floor(v_texcoord.x * 16.0),floor(v_texcoord.y * 16.0),floor(t_raw * 50.0) / 10.0))));    
+    trans = trans + (trans * abs(noise(vec3(round(v_texcoord.x * 16.0),round(v_texcoord.y * 16.0),round(t_raw * 50.0) / 10.0))));    
   } else {
     trans = 0.30 + (dist - 0.50) * 0.6;
-    trans = trans + (trans * abs(noise(vec3(floor(v_texcoord.x * 16.0),floor(v_texcoord.y * 16.0),floor(t_raw * 50.0) / 10.0))));
+    trans = trans + (trans * abs(noise(vec3(round(v_texcoord.x * 16.0),round(v_texcoord.y * 16.0),round(t_raw * 50.0) / 10.0))));
   }
   outColor = vec4(0.0,0.0,0.0,trans);
 }
