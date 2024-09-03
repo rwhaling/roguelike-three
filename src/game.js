@@ -12,6 +12,7 @@ import { getTownState } from "./core/TownLogic";
 
 // import Crypto from "cryptojs";
 import * as Crypto from "crypto-js";
+import { WebGLDisplay } from "./display/WebGLDisplay";
 
 const gametitle = "Barrow 2";
   
@@ -132,26 +133,39 @@ function setup(game) {
           console.log('image url:',url)
           console.log('tileSet:',tileSet)
 
-          // first create a ROT.js display manager
-          // TODO: picking up map width as display width, not ideal
-          game.display = new MyDisplay(tileOptions);
-          game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
-
-          init(game,1)
-
-          // first create a ROT.js display manager
-          // TODO: picking up map width as display width, not ideal
-          // game.display = new MyDisplay(tileOptions);
-          resetCanvas(game, game.display.getContainer());
-          // let mapDisplay = new Display({width: 80, height: 60, fontSize:3, });
-
-          $("#mapcanvas").innerHTML = "";
-          $("#mapcanvas").appendChild(game.mapDisplay.getContainer());  
-    } else {
-        console.log("bad response: ", this)
+          // Call innerSetup with a callback
+          innerSetup(game, url, function() {
+            console.log("Inner setup completed");
+            // Any additional code that needs to run after innerSetup
+          });
+      } else {
+          console.log("bad response: ", this)
       }
   };
   data.send(null);
+}
+
+function innerSetup(game, tilesetBlobUrl, callback) {
+  console.log("initializing canvas")
+  let canvas = document.createElement("canvas");
+  $("#canvas").innerHTML = "";
+  $("#canvas").appendChild(canvas);
+
+  game.glDisplay = new WebGLDisplay(canvas, {});
+  game.glDisplay.initGL(tilesetBlobUrl);
+
+  game.glDisplay.initialize(tilesetBlobUrl).then(() => {
+    console.log("WebGLDisplay initialized");
+    game.glDisplay.resize(600, 600);
+
+    game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });  
+    init(game,1);
+    resetCanvas(game, canvas);
+    $("#mapcanvas").innerHTML = "";
+    $("#mapcanvas").appendChild(game.mapDisplay.getContainer());  
+
+    if (callback) callback();
+  });
 }
 
 function runGame(w,mydisplay) {

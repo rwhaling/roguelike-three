@@ -14,6 +14,7 @@ import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 import { play, musicState } from "../sound/music";
 import Display from "../mydisplay";
 import MyDisplay from "../myglbackend";
+import { createMapArray } from "../display/WebGLDisplay";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -60,40 +61,70 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   }
   
   let levels = dungeonLevels
-  if (biome == "crypt") {
-    levels = cryptLevels;
-    game.display._options.tileMap["."] = [272,80]
 
-    game.display._options.tileMap["╔"] = [352,32]
-    game.display._options.tileMap["╗"] = [368,32]
-    game.display._options.tileMap["╝"] = [272,32]
-    game.display._options.tileMap["╚"] = [288,32]
-    game.display._options.tileMap["═"] = [256,32]
-    game.display._options.tileMap["║"] = [368,32]
-    game.display._options.tileMap["o"] = [384,32]
+  // // new small-grid tiles 
+  // game.display._options.tileMap["."] = [27,7]
+  // game.display._options.tileMap["╔"] = [22,5]
+  // game.display._options.tileMap["╗"] = [22,5]
+  // game.display._options.tileMap["╝"] = [22,5]
+  // game.display._options.tileMap["╚"] = [22,5]
+  // game.display._options.tileMap["═"] = [22,5]
+  // game.display._options.tileMap["║"] = [22,5]
+  // game.display._options.tileMap["o"] = [22,5]
 
-  } else {
-    game.display._options.tileMap["."] = [400,64]
+    // // new small-grid tiles 
+    let newTileset: {[key:string]:[number,number]} = {
+      ".":[27,7],
+      "╔":[22,5],
+      "╗":[22,5],
+      "╝":[22,5],
+      "╚":[22,5],
+      "═":[22,5],
+      "║":[22,5],
+      "o":[22,5]
+    }
 
-    game.display._options.tileMap["╔"] = [352,48]
-    game.display._options.tileMap["╗"] = [368,48]
-    game.display._options.tileMap["╝"] = [272,48]
-    game.display._options.tileMap["╚"] = [288,48]
-    game.display._options.tileMap["═"] = [256,48]
-    game.display._options.tileMap["║"] = [368,48]
-    game.display._options.tileMap["o"] = [384,48]
-  }
-  if (game.playerClass == "ranger") {
-    game.display._options.tileMap["@"] = [128,64]
-  } else if (game.playerClass == "bard") {
-    game.display._options.tileMap["@"] = [192,64]
-  }
+  // if (biome == "crypt") {
+  //   levels = cryptLevels;
+  //   game.display._options.tileMap["."] = [272,80]
+
+  //   game.display._options.tileMap["╔"] = [352,32]
+  //   game.display._options.tileMap["╗"] = [368,32]
+  //   game.display._options.tileMap["╝"] = [272,32]
+  //   game.display._options.tileMap["╚"] = [288,32]
+  //   game.display._options.tileMap["═"] = [256,32]
+  //   game.display._options.tileMap["║"] = [368,32]
+  //   game.display._options.tileMap["o"] = [384,32]
+
+  // } else {
+  //   game.display._options.tileMap["."] = [400,64]
+
+  //   game.display._options.tileMap["╔"] = [352,48]
+  //   game.display._options.tileMap["╗"] = [368,48]
+  //   game.display._options.tileMap["╝"] = [272,48]
+  //   game.display._options.tileMap["╚"] = [288,48]
+  //   game.display._options.tileMap["═"] = [256,48]
+  //   game.display._options.tileMap["║"] = [368,48]
+  //   game.display._options.tileMap["o"] = [384,48]
+  // }
+  // if (game.playerClass == "ranger") {
+  //   game.display._options.tileMap["@"] = [128,64]
+  // } else if (game.playerClass == "bard") {
+  //   game.display._options.tileMap["@"] = [192,64]
+  // }
   // this is where we populate the map data structure
   // with all of the background tiles, items,
   // player and the monster positions
   console.log(`spawning map (BIOME ${biome}), game state now:`,game);
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
+
+  console.log('generating new-style map array for texture');
+  let tilemapArray = createMapArray(game.map, width, height, newTileset);
+  console.log(tilemapArray)
+  let tilemapTexture = game.glDisplay.loadTilemap(tilemapArray,width,height)
+  console.log("loading into texture",tilemapTexture)
+  
   if (n <= 7) {
     spawnLevelFrom(game, digger, levels[n], quests[game.currentQuest]);
   } else {

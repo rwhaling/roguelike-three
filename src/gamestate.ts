@@ -6,6 +6,7 @@ import { Player } from "./entities/player";
 import { Monster } from "./entities/monster";
 import { Level } from "./mapgen/Level"
 import { Quest, quests } from "./mapgen/Quests";
+import { WebGLDisplay } from "./display/WebGLDisplay";
 
 export default class GameState {
     running: boolean
@@ -13,6 +14,7 @@ export default class GameState {
     currentLevel: number
     currentBiome: string
     tileOptions: any
+    glDisplay: WebGLDisplay
     display: Display
     mapDisplay: any
     map: Object
@@ -47,6 +49,7 @@ export default class GameState {
         this.currentLevel = null;
         this.currentBiome = null;
         this.tileOptions = null;
+        this.glDisplay = null;
         this.display = null;
         this.map = {};
         this.items = {};

@@ -140,7 +140,7 @@ function draw_frame(timestamp: number) {
     if (currentTime - lastMapUpdateTime >= 3000) {
         // Regenerate and reload the map every 3 seconds
         let newMap = makeMap();
-        display.createTilemap(newMap, 10, 10);
+        display.loadTilemap(newMap, 10, 10);
         console.log("regenerating map");
         lastMapUpdateTime = currentTime;
     }
@@ -201,7 +201,7 @@ async function setup(tilesetBlobUrl: string) {
     document.body.appendChild(performanceDiv);
 
     // Initialize WebGLDisplay
-    display = new WebGLDisplay(canvas);
+    display = new WebGLDisplay(canvas, {});
     await display.initialize(tilesetBlobUrl);
 
     console.log("WebGLDisplay initialized");
@@ -211,7 +211,7 @@ async function setup(tilesetBlobUrl: string) {
 
     // Create initial map
     let map = makeMap();
-    display.createTilemap(map, 10, 10);
+    display.loadTilemap(map, 10, 10);
 
     console.log("Tilemap created");
 

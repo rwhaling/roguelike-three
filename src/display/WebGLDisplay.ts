@@ -16,12 +16,18 @@ export class WebGLDisplay {
     public fgProgram: WebGLProgram;
     public bgProgram: WebGLProgram;
     public lightProgram: WebGLProgram;
+    public _options: object
 
-    constructor(canvas: HTMLCanvasElement) {
+    constructor(canvas: HTMLCanvasElement, options: object) {
+        this._options = options;
         this.canvas = canvas;
         const gl = canvas.getContext("webgl2", {antialias: false, depth: false, premultipliedAlpha: false});
         if (!gl) throw new Error("WebGL2 not supported");
         this.gl = gl;
+    }
+
+    public getContainer(): HTMLElement {
+        return this.canvas;
     }
 
     async initGL(tileSetBlobUrl: string) {
@@ -40,7 +46,7 @@ export class WebGLDisplay {
         this.adjustForDPR();
     }
 
-    public createTilemap(map: number[], mapWidth: number, mapHeight: number): WebGLTexture {
+    public loadTilemap(map: number[], mapWidth: number, mapHeight: number): WebGLTexture {
         // Delete existing tilemap texture if it exists
         if (this.tileMapTexture) {
             this.gl.deleteTexture(this.tileMapTexture);
@@ -91,6 +97,16 @@ export class WebGLDisplay {
         });
     }
 
+    public clear(r: number = 0, g: number = 0, b: number = 0, a: number = 1) {
+        const gl = this.gl;
+        
+        // Set clear color
+        gl.clearColor(r, g, b, a);
+        
+        // Clear the color buffer
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
     private createShaderProgram(vertexSource: string, fragmentSource: string): WebGLProgram {
         const vertexShader = glu.createShader(this.gl, this.gl.VERTEX_SHADER, vertexSource);
         const fragmentShader = glu.createShader(this.gl, this.gl.FRAGMENT_SHADER, fragmentSource);
@@ -138,6 +154,8 @@ export class WebGLDisplay {
     public drawBackground(offset_x: number, offset_y: number) {
         const gl = this.gl;
         const bgProgram = this.bgProgram;
+
+        console.log("bgProgram",bgProgram, "x",offset_x, "y",offset_y);
 
         var positionAttributeLocation = gl.getAttribLocation(bgProgram, "a_position");
         var texcoordAttributeLocation = gl.getAttribLocation(bgProgram, "a_texcoord");
@@ -455,4 +473,31 @@ export class WebGLDisplay {
             sprite_coord_r_x, sprite_coord_b_y
         ];
     }
+}
+
+export function createMapArray(map:object, width: number, height: number, tileset: {[key:string]:[number,number]}): number[] {
+    const result: number[] = new Array(width * height * 2);
+
+    // Initialize the array with default values
+    for (let i = 0; i < width * height * 2; i += 2) {
+        result[i] = 0;
+        result[i + 1] = 0;
+    }
+
+    // Fill in the known tiles from the map
+    for (const [key, value] of Object.entries(map)) {
+        const [x, y] = key.split(',').map(Number);
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            const index = (y * width + x) * 2;
+            const tileIndices = tileset[value];
+            if (tileIndices) {
+                result[index] = tileIndices[0];
+                result[index + 1] = tileIndices[1];
+            } else {
+                console.warn(`Unknown tile type: ${value}`);
+            }
+        }
+    }
+
+    return result;
 }

@@ -161,7 +161,7 @@ export function drawParticle(game, particle) {
     }
 }
 
-export function render(game,timestamp) {
+export function render(game:GameState,timestamp) {
     if (game.running == false) {
         return;
     }
@@ -175,19 +175,25 @@ export function render(game,timestamp) {
         game.lastFrameDur = elapsed;
         game.lastFrame = timestamp;
         game.frameCount += 1;
-        game.display.clear();
+        game.glDisplay.clear();
         // re-draw the player
+        game.glDisplay.drawBackground(game.player._x, game.player._y);
+        game.glDisplay.drawForeground(8,4,game.player._x, game.player._y, game.player._x, game.player._y);
 
-        for (let key in game.map) {
-            drawTile(game, key);
-        }
         for (let monster of game.monsters) {
-            drawMonster(game,monster);
+            game.glDisplay.drawForeground(monster.baseTile[0] / 16 ,monster.baseTile[1] / 16, monster._x, monster._y, game.player._x, game.player._y);
         }
-        drawPlayer(game);
-        for (let particle of game.particles) {
-            console.log("drawing particle", particle);
-            drawParticle(game, particle);
-        }
+
+        // for (let key in game.map) {
+        //     drawTile(game, key);
+        // }
+        // for (let monster of game.monsters) {
+        //     drawMonster(game,monster);
+        // }
+        // drawPlayer(game);
+        // for (let particle of game.particles) {
+        //     console.log("drawing particle", particle);
+        //     drawParticle(game, particle);
+        // }
     }
 }
