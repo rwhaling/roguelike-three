@@ -168,8 +168,8 @@ export class WebGLDisplay {
         // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       
-        let offset_adj_x = (4.0 - offset_x * 2) / 8.0;
-        let offset_adj_y = -1 * (4.0 - offset_y * 2) / 8.0;
+        let offset_adj_x = (10.0 - (offset_x + 1) * 2) / 8.0;
+        let offset_adj_y = -1 * (10.0 - (offset_y - 1) * 2) / 8.0;
     
         var positions = [
           -1.0 + offset_adj_x, -1.0 + offset_adj_y,
@@ -209,10 +209,13 @@ export class WebGLDisplay {
             //                   0,1,
             //                   1,1]),
             // TODO: calculate position/zoom here!
-            new Float32Array([0,0,
-            0.5,0,
-            0,0.5,
-            0.5,0.5]),
+            new Float32Array([
+                0,0.5,
+                0.5,0.5,
+                0,0,
+                0.5,0,
+
+            ]),
   
             gl.STATIC_DRAW);
          
@@ -493,7 +496,7 @@ export function createMapArray(map:object, width: number, height: number, tilese
     // Fill in the known tiles from the map
     for (const [key, value] of Object.entries(map)) {
         let [x, y] = key.split(',').map(Number);
-        // y = height - y;
+        y = height - y;
         if (x >= 0 && x < width && y >= 0 && y < height) {
             const index = (y * width + x) * 2;
             const tileIndices = tileset[value];
