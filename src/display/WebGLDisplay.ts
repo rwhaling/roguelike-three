@@ -190,11 +190,12 @@ export class WebGLDisplay {
 
         let grid_unit_ndc = 2.0 / screen_grid_width; // 0.25
         let level_width_ndc = this.mapWidth / screen_grid_width;
+        let level_height_ndc = this.mapHeight / screen_grid_height;
         
         let left_offset = -1 * level_width_ndc + offset_adj_x;
         let right_offset = level_width_ndc + offset_adj_x;
-        let top_offset = level_width_ndc + offset_adj_y;
-        let bottom_offset = -1 * level_width_ndc + offset_adj_y;
+        let top_offset = level_height_ndc + offset_adj_y;
+        let bottom_offset = -1 * level_height_ndc + offset_adj_y;
 
         
         var positions = [
