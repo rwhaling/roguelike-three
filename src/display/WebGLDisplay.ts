@@ -256,11 +256,8 @@ export class WebGLDisplay {
                 1.0,1.0,
                 0,0,
                 1.0,0,
-
-            ]),
-  
+            ]),  
             gl.STATIC_DRAW);
-         
         // Turn on the attribute
         gl.enableVertexAttribArray(texcoordAttributeLocation);
          

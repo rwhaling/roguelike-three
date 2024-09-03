@@ -178,7 +178,18 @@ export function render(game:GameState,timestamp) {
         game.glDisplay.clear(0.025,0.025,0.025,1.0);
         // re-draw the player
         game.glDisplay.drawBackground(game.player._x, game.player._y);
-        game.glDisplay.drawForeground(0,0,game.player._x, game.player._y, game.player._x, game.player._y);
+
+        if (game.animatingEntities[game.player.id]) {
+            let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[game.player.id])
+            game.display.setPlayerPos(posX, posY);
+            // game.display.draw(animX, animY, ["@"], null, null);
+            game.glDisplay.drawForeground(0,0,posX, posY, posX, posY);
+            if (isDone) {
+                delete game.animatingEntities[game.player.id];
+            }
+        } else {
+            game.glDisplay.drawForeground(0,0,game.player._x, game.player._y, game.player._x, game.player._y);
+        }
 
         for (let monster of game.monsters) {
             game.glDisplay.drawForeground(monster.baseTile[0] / 16 ,monster.baseTile[1] / 16, monster._x, monster._y, game.player._x, game.player._y);
