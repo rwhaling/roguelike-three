@@ -62,7 +62,7 @@ export class WebGLDisplay {
 
             tilemapU8[off + 0] = map[grid_off + 0];
             tilemapU8[off + 1] = map[grid_off + 1];
-            tilemapU8[off + 2] = 0;
+            tilemapU8[off + 2] = 0; 
             tilemapU8[off + 3] = 1.0;
         }
 
@@ -76,7 +76,7 @@ export class WebGLDisplay {
         this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, 1);
         this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, mapWidth, mapHeight, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, tilemapU8);
 
-        this.tileMapTexture = t;
+        this.tileMapTexture = t;    
         return t;
     }
 
@@ -168,14 +168,24 @@ export class WebGLDisplay {
         // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       
-        let offset_adj_x = (10.0 - (offset_x + 1) * 2) / 8.0;
-        let offset_adj_y = -1 * (10.0 - (offset_y - 1) * 2) / 8.0;
-    
+        let offset_adj_x = (10.0 - (offset_x)) / 4.0; // ((level_width / 2) - camera_pos) / (screen_grid_width / 2) 
+        let offset_adj_y = -1 * (9.0 - (offset_y)) / 4.0; // the +1 is probably an error from inverting the texture array's y
+
+        let grid_unit_ndc = 2.0 / 8.0; // 0.25
+        let level_width_ndc = 20.0 / 8.0; // 2.5 screens wide (actually 2x, from -1 to 1)
+   
+
+        
         var positions = [
-          -1.0 + offset_adj_x, -1.0 + offset_adj_y,
-          1.5 + offset_adj_x, -1.0 + offset_adj_y,
-          -1.0 + offset_adj_x, 1.5 + offset_adj_y,
-          1.5 + offset_adj_x, 1.5 + offset_adj_y
+        //   -1.0 + offset_adj_x, -1.0 + offset_adj_y,
+        //   1.5 + offset_adj_x, -1.0 + offset_adj_y,
+        //   -1.0 + offset_adj_x, 1.5 + offset_adj_y,
+        //   1.5 + offset_adj_x, 1.5 + offset_adj_y
+        -2.5 + offset_adj_x, 2.5 + offset_adj_y,
+        2.5 + offset_adj_x, 2.5 + offset_adj_y,
+        -2.5 + offset_adj_x, -2.5 + offset_adj_y,
+        2.5 + offset_adj_x, -2.5 + offset_adj_y
+
         ];
       
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -210,14 +220,14 @@ export class WebGLDisplay {
             //                   1,1]),
             // TODO: calculate position/zoom here!
             new Float32Array([
-                0,0.5,
-                0.5,0.5,
-                0,0,
-                0.5,0,
-                // 0,1.0,
-                // 1.0,1.0,
+                // 0,0.5,
+                // 0.5,0.5,
                 // 0,0,
-                // 1.0,0,
+                // 0.5,0,
+                0,1.0,
+                1.0,1.0,
+                0,0,
+                1.0,0,
 
             ]),
   
@@ -240,8 +250,8 @@ export class WebGLDisplay {
         // gl.viewport(0,0,600,600);
         
         // Clear the canvas
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        // gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        // gl.clear(gl.COLOR_BUFFER_BIT);
       
         // Tell it to use our program (pair of shaders)
         gl.useProgram(bgProgram);
@@ -351,7 +361,7 @@ export class WebGLDisplay {
         // pass the actual light locations
         let lightcoords = [
             (2 * (4.5 + light1_x - camera_x) / 8.0) - 1,
-            (2 * (4.5 + light1_y - camera_y) / 8.0) - 1,
+            (2 * (4.5 + light1_y - camera_y) / 8.0) - 1, // TODO flip y
             (2 * (4.5 + light2_x - camera_x) / 8.0) - 1,
             (2 * (4.5 + light2_y - camera_y) / 8.0) - 1,
         ];
@@ -389,7 +399,7 @@ export class WebGLDisplay {
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
         grid_x = 4 + grid_x - camera_x;
-        grid_y = 4 + grid_y - camera_y;
+        grid_y = 4 + camera_y - grid_y;
 
         let positions = [
             grid_x, grid_y,
@@ -500,7 +510,7 @@ export function createMapArray(map:object, width: number, height: number, tilese
     // Fill in the known tiles from the map
     for (const [key, value] of Object.entries(map)) {
         let [x, y] = key.split(',').map(Number);
-        y = height - y;
+        // y = height - y;
         if (x >= 0 && x < width && y >= 0 && y < height) {
             const index = (y * width + x) * 2;
             const tileIndices = tileset[value];

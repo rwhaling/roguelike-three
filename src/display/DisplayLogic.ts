@@ -175,7 +175,7 @@ export function render(game:GameState,timestamp) {
         game.lastFrameDur = elapsed;
         game.lastFrame = timestamp;
         game.frameCount += 1;
-        game.glDisplay.clear();
+        game.glDisplay.clear(0.025,0.025,0.025,1.0);
         // re-draw the player
         game.glDisplay.drawBackground(game.player._x, game.player._y);
         game.glDisplay.drawForeground(8,4,game.player._x, game.player._y, game.player._x, game.player._y);
