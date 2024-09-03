@@ -13,10 +13,13 @@ export class WebGLDisplay {
     public canvas: HTMLCanvasElement;
     public tileSetTexture: WebGLTexture | null = null;
     public tileMapTexture: WebGLTexture | null = null;
+    public mapWidth: number = 0;
+    public mapHeight: number = 0;
     public fgProgram: WebGLProgram;
     public bgProgram: WebGLProgram;
     public lightProgram: WebGLProgram;
     public _options: object
+
 
     constructor(canvas: HTMLCanvasElement, options: object) {
         this._options = options;
@@ -52,6 +55,9 @@ export class WebGLDisplay {
             this.gl.deleteTexture(this.tileMapTexture);
             this.tileMapTexture = null;
         }
+
+        this.mapWidth = mapWidth;
+        this.mapHeight = mapHeight;
 
         const tilemap = new Uint32Array(mapWidth * mapHeight);
         const tilemapU8 = new Uint8Array(tilemap.buffer);
@@ -161,6 +167,8 @@ export class WebGLDisplay {
         var texcoordAttributeLocation = gl.getAttribLocation(bgProgram, "a_texcoord");
         var textureUniformLocation = gl.getUniformLocation(bgProgram, "u_texture");
         var tilemapLocation = gl.getUniformLocation(bgProgram, "u_tilemap");
+        var mapGridSizeLocation = gl.getUniformLocation(bgProgram, "u_map_grid_size");
+        var screenGridSizeLocation = gl.getUniformLocation(bgProgram, "u_screen_grid_size");
       
         // Create a buffer and put three 2d clip space points in it
         var positionBuffer = gl.createBuffer();
@@ -168,12 +176,25 @@ export class WebGLDisplay {
         // Bind it to ARRAY_BUFFER (think of it as ARRAY_BUFFER = positionBuffer)
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
       
-        let offset_adj_x = (10.0 - (offset_x)) / 4.0; // ((level_width / 2) - camera_pos) / (screen_grid_width / 2) 
-        let offset_adj_y = -1 * (9.0 - (offset_y)) / 4.0; // the +1 is probably an error from inverting the texture array's y
+        // let offset_adj_x = (10.0 - (offset_x)) / 4.0; // ((level_width / 2) - camera_pos) / (screen_grid_width / 2) 
+        // let offset_adj_y = -1 * (9.0 - (offset_y)) / 4.0; // the +1 is probably an error from inverting the texture array's y
 
-        let grid_unit_ndc = 2.0 / 8.0; // 0.25
-        let level_width_ndc = 20.0 / 8.0; // 2.5 screens wide (actually 2x, from -1 to 1)
-   
+        let screen_grid_width = 8.0;
+        let screen_grid_height = 8.0;
+
+        let screen_grid_adj_x = screen_grid_width / 2.0;
+        let screen_grid_adj_y = screen_grid_height / 2.0;
+
+        let offset_adj_x = ((this.mapWidth / 2.0) - offset_x) / screen_grid_adj_x;
+        let offset_adj_y = -1 * (((this.mapHeight) / 2.0) - 1 - offset_y) / screen_grid_adj_y;
+
+        let grid_unit_ndc = 2.0 / screen_grid_width; // 0.25
+        let level_width_ndc = this.mapWidth / screen_grid_width;
+        
+        let left_offset = -1 * level_width_ndc + offset_adj_x;
+        let right_offset = level_width_ndc + offset_adj_x;
+        let top_offset = level_width_ndc + offset_adj_y;
+        let bottom_offset = -1 * level_width_ndc + offset_adj_y;
 
         
         var positions = [
@@ -181,10 +202,16 @@ export class WebGLDisplay {
         //   1.5 + offset_adj_x, -1.0 + offset_adj_y,
         //   -1.0 + offset_adj_x, 1.5 + offset_adj_y,
         //   1.5 + offset_adj_x, 1.5 + offset_adj_y
-        -2.5 + offset_adj_x, 2.5 + offset_adj_y,
-        2.5 + offset_adj_x, 2.5 + offset_adj_y,
-        -2.5 + offset_adj_x, -2.5 + offset_adj_y,
-        2.5 + offset_adj_x, -2.5 + offset_adj_y
+
+        // -2.5 + offset_adj_x, 2.5 + offset_adj_y,
+        // 2.5 + offset_adj_x, 2.5 + offset_adj_y,
+        // -2.5 + offset_adj_x, -2.5 + offset_adj_y,
+        // 2.5 + offset_adj_x, -2.5 + offset_adj_y
+
+            left_offset, top_offset,
+            right_offset, top_offset,
+            left_offset, bottom_offset,
+            right_offset, bottom_offset,
 
         ];
       
@@ -268,7 +295,9 @@ export class WebGLDisplay {
         gl.activeTexture(gl.TEXTURE0 + texUnit);
         gl.bindTexture(gl.TEXTURE_2D, this.tileMapTexture);
         gl.uniform1i(tilemapLocation, texUnit);
-        
+       
+        gl.uniform2f(screenGridSizeLocation, screen_grid_width, screen_grid_height);
+        gl.uniform2f(mapGridSizeLocation, this.mapWidth, this.mapHeight);
         // draw
         var primitiveType = gl.TRIANGLE_STRIP;
         var offset = 0;
@@ -361,9 +390,9 @@ export class WebGLDisplay {
         // pass the actual light locations
         let lightcoords = [
             (2 * (4.5 + light1_x - camera_x) / 8.0) - 1,
-            (2 * (4.5 + light1_y - camera_y) / 8.0) - 1, // TODO flip y
+            1 - (2 * (3.5 + light1_y - camera_y) / 8.0), // TODO flip y
             (2 * (4.5 + light2_x - camera_x) / 8.0) - 1,
-            (2 * (4.5 + light2_y - camera_y) / 8.0) - 1,
+            1 - (2 * (3.5 + light2_y - camera_y) / 8.0),
         ];
         gl.uniform2fv(lightcoordUniformLocation, lightcoords);
 

@@ -178,11 +178,12 @@ export function render(game:GameState,timestamp) {
         game.glDisplay.clear(0.025,0.025,0.025,1.0);
         // re-draw the player
         game.glDisplay.drawBackground(game.player._x, game.player._y);
-        game.glDisplay.drawForeground(8,4,game.player._x, game.player._y, game.player._x, game.player._y);
+        game.glDisplay.drawForeground(0,0,game.player._x, game.player._y, game.player._x, game.player._y);
 
         for (let monster of game.monsters) {
             game.glDisplay.drawForeground(monster.baseTile[0] / 16 ,monster.baseTile[1] / 16, monster._x, monster._y, game.player._x, game.player._y);
         }
+        game.glDisplay.drawLighting(game.player._x, game.player._y, game.player._x, game.player._y, game.player._x, game.player._y);
 
         // for (let key in game.map) {
         //     drawTile(game, key);
