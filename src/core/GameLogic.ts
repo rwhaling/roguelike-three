@@ -24,8 +24,8 @@ export const walkable = [".", "*", "g"]
 // the menu and get ready for next round
 
 export function init(game:GameState, n: number, biome:string = "dungeon") {
-  let width = 80
-  let height = 60
+  let width = 20
+  let height = 20
   game.map = {};
   game.mapDisplay.clear();
   game.items = {};
@@ -77,9 +77,9 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
       ".":[27,7],
       "╔":[22,5],
       "╗":[22,5],
-      "╝":[22,5],
-      "╚":[22,5],
-      "═":[22,5],
+      "╝":[27,5],
+      "╚":[27,5],
+      "═":[27,5],
       "║":[22,5],
       "o":[22,5]
     }
@@ -119,7 +119,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
 
-  console.log('generating new-style map array for texture');
+  console.log('generating new-style map array for texture with width', width, "height", height);
   let tilemapArray = createMapArray(game.map, width, height, newTileset);
   console.log(tilemapArray)
   let tilemapTexture = game.glDisplay.loadTilemap(tilemapArray,width,height)

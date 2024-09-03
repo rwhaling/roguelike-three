@@ -108,7 +108,7 @@ function setup(game) {
 
   // var picture = document.getElementById("picture");
   var data = new XMLHttpRequest();
-  data.open('GET', 'tiny_dungeon_world_3.png.enc.b64', true);
+  data.open('GET', 'tiny_dungeon_world_3_dark_test_7.png.enc.b64', true);
   data.onreadystatechange = function(){
       if(this.readyState == 4 && this.status==200){
           console.log("got back data", data.responseText.length, "bytes")

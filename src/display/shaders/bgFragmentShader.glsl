@@ -15,8 +15,12 @@ void main() {
   // outColor = texture(u_texture, v_texcoord);
 
   vec4 tilemap_coords = texture(u_tilemap, v_position);
-  vec2 tilemap_offset = 1.0 - fract(v_position.xy * 10.0); // 10.0 = map_size_x = map_size_y // TODO separate
+//  vec2 tilemap_offset = 1.0 - fract(v_position.xy * 10.0); // 10.0 = map_size_x = map_size_y // TODO separate
+  vec2 tilemap_offset = 1.0 - fract(v_position.xy * vec2(20.0,20.0)); // 10.0 = map_size_x = map_size_y // TODO separate
+
+//  vec2 lookup_1 = floor(tilemap_coords.xy * 256.0); // 256 = 8 * 16 = screen_grid_size * pixel grid size I think?
   vec2 lookup_1 = floor(tilemap_coords.xy * 256.0); // 256 = 8 * 16 = screen_grid_size * pixel grid size I think?
+
 //   vec2 lookup_2 = vec2((lookup_1.x + tilemap_offset.x) / 49.0, (lookup_1.y + tilemap_offset.y) / 22.0);
   vec2 lookup_2 = vec2((lookup_1.x + tilemap_offset.x) / 32.0, (lookup_1.y + tilemap_offset.y) / 48.0);
 
