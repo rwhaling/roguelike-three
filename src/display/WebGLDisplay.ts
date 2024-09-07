@@ -161,7 +161,6 @@ export class WebGLDisplay {
         const gl = this.gl;
         const bgProgram = this.bgProgram;
 
-        console.log("bgProgram",bgProgram, "x",offset_x, "y",offset_y);
 
         var positionAttributeLocation = gl.getAttribLocation(bgProgram, "a_position");
         var texcoordAttributeLocation = gl.getAttribLocation(bgProgram, "a_texcoord");
@@ -491,7 +490,7 @@ export class WebGLDisplay {
         gl.uniform1f(t_raw_location, t_raw);
 
         gl.uniform4f(spriteTranspUniformLocation, 1.0, 1.0, 1.0, 1.0);
-        gl.uniform4f(auraColorUniformLocation, 1.0, 0.0, 0.0, 1.0);
+        gl.uniform4f(auraColorUniformLocation, 0.0, 0.0, 0.0, 0.0);
 
         // draw
         var primitiveType = gl.TRIANGLE_STRIP;
@@ -540,12 +539,29 @@ export function createMapArray(map:object, width: number, height: number, tilese
         // y = height - y;
         if (x >= 0 && x < width && y >= 0 && y < height) {
             const index = (y * width + x) * 2;
-            const tileIndices = tileset[value];
-            if (tileIndices) {
-                result[index] = tileIndices[0];
-                result[index + 1] = tileIndices[1];
+            if (value == ".") {
+                console.log("found floor tile at", x, y);
+                const floorTileOptions: [number, number][] = [
+                    [27, 7],
+                    [28, 7],
+                    [29, 7],
+                    [30, 7],
+                    [31, 7],
+                    [22, 7],
+                    [22, 7],
+                    [22, 7]
+                ];
+                const randomFloorTile = floorTileOptions[Math.floor(Math.random() * floorTileOptions.length)];
+                result[index] = randomFloorTile[0];
+                result[index + 1] = randomFloorTile[1];
             } else {
-                console.warn(`Unknown tile type: ${value}`);
+                const tileIndices = tileset[value];
+                if (tileIndices) {
+                    result[index] = tileIndices[0];
+                    result[index + 1] = tileIndices[1];
+                } else {
+                    console.warn(`Unknown tile type: ${value}`);
+                }    
             }
         }
     }

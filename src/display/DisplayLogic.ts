@@ -127,7 +127,6 @@ export function drawMonster(game:GameState,m) {
         if (game.animatingEntities[m.id]) {
             let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[m.id])
             // game.display.draw(animX, animY, ["@"], null, null);
-            console.log
             game.display.draw_monster(posX, posY, m.baseTile,pose,orientation);
             if (m.id == game.player.controls.currentTarget) {
                 game.display.draw_immediate(posX, posY, "t",0,0);
@@ -177,24 +176,69 @@ export function render(game:GameState,timestamp) {
         game.frameCount += 1;
         game.glDisplay.clear(0.025,0.025,0.025,1.0);
         // re-draw the player
-        game.glDisplay.drawBackground(game.player._x, game.player._y);
+
+        let playerPos = [game.player._x, game.player._y];
 
         if (game.animatingEntities[game.player.id]) {
+            console.log("animating player");
             let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[game.player.id])
-            game.display.setPlayerPos(posX, posY);
-            // game.display.draw(animX, animY, ["@"], null, null);
-            game.glDisplay.drawForeground(0,0,posX, posY, posX, posY);
+            console.log("drawing player", posX, posY);
+            playerPos = [posX, posY];
             if (isDone) {
                 delete game.animatingEntities[game.player.id];
             }
-        } else {
-            game.glDisplay.drawForeground(0,0,game.player._x, game.player._y, game.player._x, game.player._y);
+        } 
+        game.glDisplay.drawBackground(playerPos[0], playerPos[1]);
+
+        for (let cell of game.level.cells) {
+            if (cell.contents.length > 0) {
+                console.log("cell", cell.x, cell.y, "has contents", cell.contents);
+                //TODO: set sprite at spawn time
+                let item_sprites = {
+                    "*": [256, 192], // barrel
+                    "&": [272, 192], // empty barrel
+                    "g": [448, 448], // gold
+                    "<": [464, 0], // stairs up
+                    ">": [448, 0], // stairs down
+                
+                    "x": [256, 192], // axe
+                    "p": [256, 192], // potion
+                    "f": [256, 192], // food (chest)
+                    "h": [464, 432], // food (opened)
+                    "r": [256, 192], // ammo (chest)
+                    "s": [400, 480], // ammo (opened)
+                    "t": [224, 672], // reticle
+
+                    "A": [256, 368], // arrow particle
+                    "F": [224, 640], // white flash
+                    "G": [192, 672], // red flash
+                    "H": [144, 672], // green flash
+                    "Q": [496, 462], // quest item (unopened)
+                    "T": [400, 192], // tombstone
+                    "U": [448, 208], // blood splatter
+                
+                }
+                if (cell.contents[0].item in item_sprites) {
+                    let cell_sprite = item_sprites[cell.contents[0].item];                
+                    game.glDisplay.drawForeground(cell_sprite[0] / 16, cell_sprite[1] / 16, cell.x, cell.y, playerPos[0], playerPos[1]);
+                }
+            }
         }
 
+        game.glDisplay.drawForeground(0, 0, playerPos[0], playerPos[1], playerPos[0], playerPos[1]);
+
         for (let monster of game.monsters) {
-            game.glDisplay.drawForeground(monster.baseTile[0] / 16 ,monster.baseTile[1] / 16, monster._x, monster._y, game.player._x, game.player._y);
+            let monsterPos = [monster._x, monster._y];
+            if (game.animatingEntities[monster.id]) {
+                let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[monster.id])
+                monsterPos = [posX, posY];
+                if (isDone) {
+                    delete game.animatingEntities[monster.id];
+                }
+            }
+            game.glDisplay.drawForeground(monster.baseTile[0] / 16 ,monster.baseTile[1] / 16, monsterPos[0], monsterPos[1], playerPos[0], playerPos[1]);
         }
-        game.glDisplay.drawLighting(game.player._x, game.player._y, game.player._x, game.player._y, game.player._x, game.player._y);
+        game.glDisplay.drawLighting(playerPos[0], playerPos[1], playerPos[0], playerPos[1], playerPos[0], playerPos[1]);
 
         // for (let key in game.map) {
         //     drawTile(game, key);

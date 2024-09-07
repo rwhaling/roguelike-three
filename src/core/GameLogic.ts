@@ -45,17 +45,17 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
 
 
   game.currentQuest = null;
-  let questRoom: RoomContents[] = null
+  let questRoom: RoomContents[] = null;
 
   for (let questName in quests) {
     let quest = quests[questName];
     if (quest.status == "accepted") {
-      console.log(`checking if accepted quest ${questName} is loadable`)
+      console.log(`checking if accepted quest ${questName} is loadable`);
       if (quest.biome == biome && quest.depth == n) {
-        console.log(`loading quest ${questName} for biome ${biome} level ${n}`)
-        game.currentQuest = questName
-        questRoom = quest.room
-        break
+        console.log(`loading quest ${questName} for biome ${biome} level ${n}`);
+        game.currentQuest = questName;
+        questRoom = quest.room;
+        break;
       }
     }
   }
