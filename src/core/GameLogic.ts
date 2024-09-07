@@ -466,6 +466,8 @@ export function checkItem(game:GameState, entity) {
         toast(game, "This barrel is empty.");
         sfx["empty"].play();
         game.items[key] = "&"
+        item.item = "&"
+        newContents.push(item);
         // delete game.items[key];    
       } else if (item.item == "<") {
         toast(game, "These are the stairs up (press USE to RETURN to TOWN)");
