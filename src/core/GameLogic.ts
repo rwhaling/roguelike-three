@@ -41,7 +41,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
 
   if (game.biomeUnlock[biome] < n) {
     game.biomeUnlock[biome] = n
-}
+  }
 
 
   game.currentQuest = null;
