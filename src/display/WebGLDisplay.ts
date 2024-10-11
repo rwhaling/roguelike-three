@@ -501,8 +501,8 @@ export class WebGLDisplay {
 
     // Add this helper method to the WebGLDisplay class
     private spriteCoords(sprite_pos_x: number, sprite_pos_y: number): number[] {
-        let t_width = 512; // 49 sprites
-        let t_height = 768; // 22 sprites
+        let t_width = 512; // 32 sprites
+        let t_height = 768; // 48 sprites
 
         let sprite_size = 16;
 

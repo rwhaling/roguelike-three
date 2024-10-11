@@ -25,6 +25,7 @@ export class Player {
     _y: number
     lastArrow: [number, number]
     character: string
+    sprite: [number, number]
     name: string
     class: string
     inventory: [string, string][]
@@ -809,12 +810,16 @@ export interface PlayerMove {
 export function makePlayer(game):Player {
     console.log("creating player.",game.playerClass)
     let name = "Player"
+    let sprite: [number, number] = [0,0]
     if (game.playerClass == "warrior") {
         name = "Ordis"
+        sprite = [0,0]
     } else if (game.playerClass == "ranger") {
         name = "Eleth"
+        sprite = [8,4]
     } else if (game.playerClass == "bard") {
         name = "Giaco"
+        sprite = [12,4]
     }
     return {
         // player's position
@@ -825,6 +830,7 @@ export function makePlayer(game):Player {
         lastArrow: [1,0],
         // which tile to draw the player with
         character: "@",
+        sprite: sprite,
         // the name to display in combat
         name: name,
         class: game.playerClass,

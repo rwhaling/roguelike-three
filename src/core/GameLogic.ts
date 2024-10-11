@@ -429,18 +429,20 @@ export function checkItem(game:GameState, entity) {
       delete game.items[key];  
     } else if (item.kind == "ItemContent") {
 
-      if (item.item == "f") {
-        toast(game, `You found food!`);
+      if (item.item == "f" || item.item == "h") {
         if (game.player.stats.food < game.player.stats.maxFood) {
-            game.player.stats.food += 1;
+          toast(game, `You found food!`);
+          game.player.stats.food += 1;
             // re-enable EAT
             sfx["win"].play();
             delete game.items[key];
         } else {
+          toast(game, "You found food! (But your bags are full)");
+          item.item = "h";
           newContents.push(item)
           game.items[key] = "h"
         }
-      } else if (item.item == "r") {
+      } else if (item.item == "r" || item.item == "s") {
         toast(game, `You found arrows!`);
         if (game.player.stats.arrows < game.player.stats.maxArrows) {
           game.player.stats.arrows += 2;
@@ -451,6 +453,7 @@ export function checkItem(game:GameState, entity) {
           sfx["win"].play();
           delete game.items[key];  
         } else {
+          item.item = "s";
           newContents.push(item)
           game.items[key] = "s";
         }
@@ -465,10 +468,14 @@ export function checkItem(game:GameState, entity) {
       } else if (item.item == "*") {
         toast(game, "This barrel is empty.");
         sfx["empty"].play();
-        game.items[key] = "&"
-        item.item = "&"
+        game.items[key] = "&";
+        item.item = "&";
         newContents.push(item);
         // delete game.items[key];    
+      } else if (item.item == "&") {
+        newContents.push(item);
+      } else if (item.item == "U") {
+        newContents.push(item);
       } else if (item.item == "<") {
         toast(game, "These are the stairs up (press USE to RETURN to TOWN)");
         stairs = "<"

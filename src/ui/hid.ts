@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { DIRS } from "rot-js/lib";
 import { UI } from "./ui";
+import { hideToast } from "./ui";
 // these are lookup tables mapping keycodes and
 // click/tap directions to game direction vectors
 
@@ -129,6 +130,7 @@ export function keyHandler(game,ev) {
     return;
   }
 
+  hideToast(true);
   game.player.controls.dirty = true;
   // prevent zoom
   if (code == 187 || code == 189) {

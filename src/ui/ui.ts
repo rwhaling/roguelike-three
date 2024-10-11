@@ -423,7 +423,7 @@ export function toast(game,message) {
   // or if we're hiding the messages anyway
   if (game.scheduler._current == game.player ||
       m.className.indexOf("show") == -1) {
-    m.innerHTML = "";
+    // m.innerHTML = "";
   }
   m.classList.remove("fade-out");
   m.classList.add("show");
@@ -434,8 +434,14 @@ export function toast(game,message) {
   }
 }
     
+export function clearToast() {
+  const m = $("#message");
+  m.innerHTML = "";
+}
+
 // hide the toast message
 export function hideToast(instant) {
+  clearToast();
   const m = $("#message");
   if (instant) {
     m.classList.remove("show");
