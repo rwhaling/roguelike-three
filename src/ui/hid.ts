@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { DIRS } from "rot-js/lib";
 import { UI } from "./ui";
 import { hideToast } from "./ui";
+import GameState from '../gamestate';
 // these are lookup tables mapping keycodes and
 // click/tap directions to game direction vectors
 
@@ -116,7 +117,7 @@ export function resolvePointing(game, ev) {
 
 // when keyboard input happens this even handler is called
 // and the position of the player is updated
-export function keyHandler(game,ev) {
+export function keyHandler(game:GameState,ev:KeyboardEvent) {
   const code = ev.keyCode;
 
   // tricky - how to catch #6 to toggle menu?
@@ -148,7 +149,8 @@ export function keyHandler(game,ev) {
     ev.preventDefault();
   }
 
-  if (code == 222) { // ' single quote - skip turn
+  if (code == 222) { // ' single quote - skip turn - TODO: remove
+    
     game.engine.unlock(); 
     return; 
   }

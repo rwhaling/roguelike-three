@@ -3,6 +3,7 @@ import { Monster, monsterAct } from "../entities/monster";
 import { getActiveMonsters, targetPath, fullMap} from "./Pathfinding"
 import { updateBuffs } from "../entities/player";
 import { animationDone } from "../display/Animation";
+import { keyHandler } from "../ui/hid";
 
 enum TurnState {
   WaitingForPlayer,
@@ -42,6 +43,14 @@ export function checkNextTurn(game:GameState) {
     currentTurn = TurnState.AnimatingPlayer
   } else if (animationDone(game)) {
     if (currentTurn == TurnState.WaitingForPlayer) {
+      console.log("checking for player input");
+      if (game.lastKeyDown) {
+        console.log("player input received");
+        keyHandler(game, game.lastKeyDown);
+        game.lastKeyDown = null;
+        // todo: check better
+        currentTurn = TurnState.AnimatingPlayer;
+      }
       return
     } else if (currentTurn == TurnState.AnimatingPlayer) {
       console.log("player turn done, beginning monster turn")

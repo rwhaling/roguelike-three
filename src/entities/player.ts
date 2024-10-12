@@ -892,6 +892,7 @@ export function makePlayer(game):Player {
             updateVisibility(game,game.player);
             updateActions(game,game.player);
             game.player.controls.dirty = true;
+            
             // if (!game.arrowListener) {
             //     game.arrowListener = true;
             // }

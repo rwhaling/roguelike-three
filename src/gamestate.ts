@@ -11,6 +11,8 @@ import { WebGLDisplay } from "./display/WebGLDisplay";
 export default class GameState {
     running: boolean
     level: Level
+    currentTurnState: string
+    lastKeyDown: KeyboardEvent
     currentLevel: number
     currentBiome: string
     tileOptions: any
@@ -46,6 +48,8 @@ export default class GameState {
     constructor() {
         this.running = false;
         this.level = null;
+        this.currentTurnState = "waitingForPlayer";
+        this.lastKeyDown = null;
         this.currentLevel = null;
         this.currentBiome = null;
         this.tileOptions = null;

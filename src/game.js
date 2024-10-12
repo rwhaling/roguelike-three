@@ -93,12 +93,16 @@ const tileOptions = {
 
 function resetCanvas(game, el) {
   // $("#canvas").replaceWith($("#canvas").clone());
-  $("#canvas").innerHTML = "";
-  $("#canvas").appendChild(el);
-  window.onkeydown = (e) => keyHandler(game, e);
+  // $("#canvas").innerHTML = "";
+  // $("#canvas").appendChild(el);
+
+  // window.onkeydown = (e) => keyHandler(game, e);
+  window.onkeydown = (e) => {
+    game.lastKeyDown = e;
+  }
   window.onkeyup = game.arrowHeld= null;
-  game.listening = true;
-  showScreen("game");
+
+  // game.listening = true;
 }
 
 function setup(game) {
@@ -160,9 +164,11 @@ function innerSetup(game, tilesetBlobUrl, callback) {
 
     game.mapDisplay = new Display({width: 80, height: 60, fontSize:3, });  
     init(game,1);
+    game.listening = true;
     resetCanvas(game, canvas);
     $("#mapcanvas").innerHTML = "";
     $("#mapcanvas").appendChild(game.mapDisplay.getContainer());  
+    showScreen("game");
 
     if (callback) callback();
   });
