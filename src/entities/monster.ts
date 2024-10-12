@@ -3,7 +3,7 @@ import GameState from "../gamestate";
 import { combat, damage, walkable } from "../core/GameLogic"
 import { RNG } from "rot-js/lib"
 import { Entity, fullMap, targetPath } from "../core/Pathfinding";
-import { Particle } from '../display/DisplayLogic';
+import { Particle } from '../display/Animation';
 /*******************
      *** The monster ***
      *******************/

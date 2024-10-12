@@ -1,5 +1,6 @@
 import GameState from "../gamestate";
-import { posFromKey } from "../utils"
+import { posFromKey } from "../utils";
+import { updateAnimation } from "./Animation";
 
 export function drawTile(game:GameState, key) {
     const map = game.map;
@@ -13,151 +14,108 @@ export function drawTile(game:GameState, key) {
     }
 }
 
-function lerp( a, b, alpha ) {
-    return a + alpha * ( b - a );
-}
-
-export class Animation {
-    id: string
-    startPos: [number, number]
-    endPos: [number, number]
-    startTime: number
-    endTime: number
-}
-
-export class Particle extends Animation {
-    id: string
-    char: string
-    orientation: number
-    startPos: [number, number]
-    endPos: [number, number]
-    startTime: number
-    endTime: number
-}
-
-export type AnimationResult = [number, number, boolean]
-
 export function drawPlayer(game:GameState) {
-    let playerPos = game.player._x + "," + game.player._y;
-    let pose = game.frameCount % 8 >= 4 ? 1 : 0;
-    let ori_string = game.player.lastArrow[0] + "," + game.player.lastArrow[1];
-    let orientation = 0;
+//     let playerPos = game.player._x + "," + game.player._y;
+//     let pose = game.frameCount % 8 >= 4 ? 1 : 0;
+//     let ori_string = game.player.lastArrow[0] + "," + game.player.lastArrow[1];
+//     let orientation = 0;
 
-    switch(ori_string) {
-        case "0,1":
-            orientation = 1;
-            break;
-        case "0,-1":
-            orientation = 2;
-            break;
-        case "-1,0":
-            orientation = 3;
-            break;
-        default:
-            orientation = 0;
-            break;
-    }
+//     switch(ori_string) {
+//         case "0,1":
+//             orientation = 1;
+//             break;
+//         case "0,-1":
+//             orientation = 2;
+//             break;
+//         case "-1,0":
+//             orientation = 3;
+//             break;
+//         default:
+//             orientation = 0;
+//             break;
+//     }
 
-    if (game.player.character != "@") {
-        orientation = 0;
-        pose = 0;
-    }
+//     if (game.player.character != "@") {
+//         orientation = 0;
+//         pose = 0;
+//     }
 
-    if (playerPos) {
-        if (game.animatingEntities[game.player.id]) {
-            let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[game.player.id])
-            game.display.setPlayerPos(posX, posY);
-            // game.display.draw(animX, animY, ["@"], null, null);
-            game.display.draw_immediate(posX, posY, game.player.character,pose,orientation);
-            if (isDone) {
-                delete game.animatingEntities[game.player.id];
-            }
-        } else {
-            drawTile(game, playerPos);
+//     if (playerPos) {
+//         if (game.animatingEntities[game.player.id]) {
+//             let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[game.player.id])
+//             game.display.setPlayerPos(posX, posY);
+//             // game.display.draw(animX, animY, ["@"], null, null);
+//             game.display.draw_immediate(posX, posY, game.player.character,pose,orientation);
+//             if (isDone) {
+//                 delete game.animatingEntities[game.player.id];
+//             }
+//         } else {
+//             drawTile(game, playerPos);
 
-            game.display.setPlayerPos(game.player._x, game.player._y);
-            game.display.draw_immediate(game.player._x, game.player._y, game.player.character,pose,orientation);
-        }
-    }                
-}
-
-function updateAnimation(game, animation):AnimationResult {
-    let animDuration = animation.endTime - animation.startTime;
-    let animElapsed = game.lastFrame - animation.startTime;
-    if (animElapsed < 0) {
-        return [animation.startPos[0], animation.startPos[1], false]
-    }
-    let animProgress = animElapsed / animDuration;
-    if (animProgress > 1.0) { animProgress = 1.0 };
-
-    let animX = lerp( animation.startPos[0], animation.endPos[0], animProgress);
-    let animY = lerp( animation.startPos[1], animation.endPos[1], animProgress);
-
-    if (game.lastFrame + game.lastFrameDur > animation.endTime) {
-        return [animX, animY, true]
-    } else {
-        return [animX, animY, false]
-    }
+//             game.display.setPlayerPos(game.player._x, game.player._y);
+//             game.display.draw_immediate(game.player._x, game.player._y, game.player.character,pose,orientation);
+//         }
+//     }                
 }
 
 export function drawMonster(game:GameState,m) {
-    let monsterPos = m._x + "," + m._y;
+//     let monsterPos = m._x + "," + m._y;
 
-    if (monsterPos) {
-        let pose = game.frameCount % 8 >= 4 ? 1 : 0;
+//     if (monsterPos) {
+//         let pose = game.frameCount % 8 >= 4 ? 1 : 0;
     
-        let ori_string = m.lastArrow[0] + "," + m.lastArrow[1]
-        let orientation = 0;
+//         let ori_string = m.lastArrow[0] + "," + m.lastArrow[1]
+//         let orientation = 0;
     
-        switch(ori_string) {
-            case "0,1":
-                orientation = 1;
-                break;
-            case "0,-1":
-                orientation = 2;
-                break;
-            case "-1,0":
-                orientation = 3;
-                break;
-            default:
-                orientation = 0;
-                break;
-        }
+//         switch(ori_string) {
+//             case "0,1":
+//                 orientation = 1;
+//                 break;
+//             case "0,-1":
+//                 orientation = 2;
+//                 break;
+//             case "-1,0":
+//                 orientation = 3;
+//                 break;
+//             default:
+//                 orientation = 0;
+//                 break;
+//         }
 
-        if (game.animatingEntities[m.id]) {
-            let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[m.id])
-            // game.display.draw(animX, animY, ["@"], null, null);
-            game.display.draw_monster(posX, posY, m.baseTile,pose,orientation);
-            if (m.id == game.player.controls.currentTarget) {
-                game.display.draw_immediate(posX, posY, "t",0,0);
-            }
-            if (isDone) {
-                delete game.animatingEntities[m.id];
-            }
-        } else {
-            // console.log(`monster at ${monsterPos}`);
-            drawTile(game, monsterPos);
-            // game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"], null, null);
-            game.display.draw_monster(m._x, m._y, m.baseTile,pose,orientation);
-            if (m.id == game.player.controls.currentTarget) {
-                game.display.draw_immediate(m._x, m._y, "t",0,0);
-            }
+//         if (game.animatingEntities[m.id]) {
+//             let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[m.id])
+//             // game.display.draw(animX, animY, ["@"], null, null);
+//             game.display.draw_monster(posX, posY, m.baseTile,pose,orientation);
+//             if (m.id == game.player.controls.currentTarget) {
+//                 game.display.draw_immediate(posX, posY, "t",0,0);
+//             }
+//             if (isDone) {
+//                 delete game.animatingEntities[m.id];
+//             }
+//         } else {
+//             // console.log(`monster at ${monsterPos}`);
+//             drawTile(game, monsterPos);
+//             // game.display.draw(game.monsters[0]._x, game.monsters[0]._y, ["M"], null, null);
+//             game.display.draw_monster(m._x, m._y, m.baseTile,pose,orientation);
+//             if (m.id == game.player.controls.currentTarget) {
+//                 game.display.draw_immediate(m._x, m._y, "t",0,0);
+//             }
 
-        }
-    }
+//         }
+//     }
 }
 
 export function drawParticle(game, particle) {
-    if (particle.startTime > game.lastFrame) {
-        console.log(`particle ${particle.id} delayed starttime ${particle.startTime} > ${game.lastFrame}`, );
-        return
-    }
-    let [posX, posY, isDone] = updateAnimation(game, particle);
-    game.display.draw_immediate(posX, posY, particle.char, 0, particle.orientation);
-    if (isDone) {
-        game.particles.splice(game.particles.indexOf(particle), 1);
-        // delete game.particles[game.particles.indexOf(particle)];
-    }
+    // if (particle.startTime > game.lastFrame) {
+    //     console.log(`particle ${particle.id} delayed starttime ${particle.startTime} > ${game.lastFrame}`, );
+    //     return
+    // }
+    // let [posX, posY, isDone] = updateAnimation(game, particle);
+    // game.display.draw_immediate(posX, posY, particle.char, 0, particle.orientation);
+    // if (isDone) {
+    //     game.particles.splice(game.particles.indexOf(particle), 1);
+    //     // delete game.particles[game.particles.indexOf(particle)];
+    // }
 }
 
 export function render(game:GameState,timestamp) {
@@ -208,12 +166,9 @@ export function render(game:GameState,timestamp) {
 
         if (game.animatingEntities[game.player.id]) {
             // console.log("animating player");
-            let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[game.player.id])
+            let [posX, posY] = updateAnimation(game, game.animatingEntities[game.player.id])
             // console.log("drawing player", posX, posY);
             playerPos = [posX, posY];
-            if (isDone) {
-                delete game.animatingEntities[game.player.id];
-            }
         } 
         game.glDisplay.drawBackground(playerPos[0], playerPos[1]);
 
@@ -247,9 +202,7 @@ export function render(game:GameState,timestamp) {
                 break;
         }
     
-        
         let pose = game.frameCount % 8 >= 4 ? 0.5 : 0; // why is this 0.5 and not 1?
-        
 
         let playerSprite = [game.player.sprite[0] + orientation, game.player.sprite[1] + pose];
         
@@ -258,11 +211,8 @@ export function render(game:GameState,timestamp) {
         for (let monster of game.monsters) {
             let monsterPos = [monster._x, monster._y];
             if (game.animatingEntities[monster.id]) {
-                let [posX, posY, isDone] = updateAnimation(game, game.animatingEntities[monster.id])
+                let [posX, posY] = updateAnimation(game, game.animatingEntities[monster.id])
                 monsterPos = [posX, posY];
-                if (isDone) {
-                    delete game.animatingEntities[monster.id];
-                }
             }
 
             let ori_string = monster.lastArrow[0] + "," + monster.lastArrow[1]
@@ -294,13 +244,9 @@ export function render(game:GameState,timestamp) {
                     console.log(`particle ${particle.id} delayed starttime ${particle.startTime} > ${game.lastFrame}`, );
                     return
                 }
-                let [posX, posY, isDone] = updateAnimation(game, particle);
+                let [posX, posY] = updateAnimation(game, particle);
                 let particle_sprite = item_sprites[particle.char];
                 game.glDisplay.drawForeground(particle_sprite[0] / 16, particle_sprite[1] / 16, posX, posY, playerPos[0], playerPos[1]);
-                if (isDone) {
-                    game.particles.splice(game.particles.indexOf(particle), 1);
-                    // delete game.particles[game.particles.indexOf(particle)];
-                }
             
             }
         }

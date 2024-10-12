@@ -2,7 +2,7 @@ import { sfx } from "../sound/sfx";
 import { v4 as uuidv4 } from 'uuid';
 import { RNG, Scheduler, Engine } from "rot-js/lib";
 import { battleMessage, createGhost, damageNum, hideToast, removeListeners, renderLoseScreen, renderStats, renderTargets, setEndScreenValues, showScreen, toast } from "../ui/ui";
-import { mkTurnLogic } from "../core/TurnLogic";
+import { checkNextTurn, mkTurnLogic } from "../core/TurnLogic";
 import { genMap } from "../mapgen/MapGen";
 import { RoomContents, spawnLevelFrom } from "../mapgen/Spawner";
 import { goldAmountTable, dungeonLevels, cryptLevels } from "../mapgen/Levels"
@@ -15,6 +15,7 @@ import { play, musicState } from "../sound/music";
 import Display from "../mydisplay";
 import MyDisplay from "../myglbackend";
 import { createMapArray } from "../display/WebGLDisplay";
+import { animationDone, purgeAnimations } from "../display/Animation";
 
 // these map tiles are walkable
 export const walkable = [".", "*", "g"]
@@ -24,8 +25,8 @@ export const walkable = [".", "*", "g"]
 // the menu and get ready for next round
 
 export function init(game:GameState, n: number, biome:string = "dungeon") {
-  let width = 20
-  let height = 20
+  let width = 40
+  let height = 40
   game.map = {};
   game.mapDisplay.clear();
   game.items = {};
@@ -133,9 +134,9 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
 
   // let ROT.js schedule the player and monster entities
   game.scheduler = new Scheduler.Simple();
-  let turnLogic = mkTurnLogic(game);
-  game.scheduler.add(game.player, true);
-  game.scheduler.add(turnLogic, true);
+  // let turnLogic = mkTurnLogic(game);
+  // game.scheduler.add(game.player, true);
+  // game.scheduler.add(turnLogic, true);
   // game.monsters.map((m) => game.scheduler.add(m, true));
 
   // kick everything off
@@ -154,7 +155,31 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
       renderTargets(game);
     }
     // TODO: check if key held and not animating player
+    // TODO: update all animations
     render(game,timestamp);
+    purgeAnimations(game);
+
+    checkNextTurn(game);
+
+    // TODO: purge done animations
+    /*
+      - if no more animations:
+        - if player_waiting stage: keep waiting
+        - if player_animating stage:
+          - create list of monster turns
+          - update state to monster_animating
+          - execute first monster turn
+        - if monster_animating:
+          - if there are remaining monster turns:
+            - ui dirty
+            - take next monster turn and execute
+          - if there are not:
+            - switch to player_waiting stage
+            - maybe check for player death?
+            - maybe check for a held key and/or interrupt?
+            - else set game.listening = true
+    */
+
   }
 
   requestAnimationFrame(drawScene);

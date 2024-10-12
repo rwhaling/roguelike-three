@@ -1,5 +1,5 @@
 import Display from "./mydisplay";
-import { Animation, Particle } from "./display/DisplayLogic"
+import { Animation, Particle } from "./display/Animation"
 import { Engine } from "rot-js/lib/index"
 import Simple from "rot-js/lib/scheduler/simple";
 import { Player } from "./entities/player";

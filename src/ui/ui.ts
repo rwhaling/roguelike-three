@@ -337,7 +337,10 @@ export function renderTargets(game:GameState) {
   map_st.innerHTML = `<table><tr><td>${game.currentBiome.charAt(0).toUpperCase() + game.currentBiome.slice(1)} Level: ${game.currentLevel}</td></tr>
   <tr><td>Enemies: ${game.monsters.length}</td></tr>
   <tr><td>Items: ${Object.values(game.items).length - 2}</td></tr>
-  <tr><td>${objective}</table>`
+  <tr><td></td></tr>
+  <tr><td>QUEST GOAL</td></tr>
+  <tr><td>----------</td></tr>
+  <tr><td>${objective}</td></tr></table>`
 }
     
 // toggles the inventory UI open or closed
