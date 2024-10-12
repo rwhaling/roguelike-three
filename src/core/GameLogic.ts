@@ -62,6 +62,9 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   }
   
   let levels = dungeonLevels
+  if (biome == "crypt") {
+    levels = cryptLevels
+  } 
 
   // // new small-grid tiles 
   // game.display._options.tileMap["."] = [27,7]
@@ -74,17 +77,29 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // game.display._options.tileMap["o"] = [22,5]
 
     // // new small-grid tiles 
-    let newTileset: {[key:string]:[number,number]} = {
-      ".":[27,7],
-      "╔":[22,5],
-      "╗":[22,5],
-      "╝":[27,5],
-      "╚":[27,5],
-      "═":[27,5],
-      "║":[22,5],
-      "o":[22,5]
+    let newTileset: {[key:string]:[number,number][]} = {
+      ".":[[27,7],[28,7],[29,7],[30,7],[31,7],[22,7],[22,7],[22,7]],
+      "╔":[[22,5]],
+      "╗":[[22,5]],
+      "╝":[[27,5]],
+      "╚":[[27,5]],
+      "═":[[27,5]],
+      "║":[[22,5]],
+      "o":[[22,5]]
     }
 
+    if (biome == "crypt") {
+      newTileset = {
+        ".":[[27,8],[28,8],[29,8],[30,8],[31,8],[22,8],[22,8],[22,8]],
+        "╔":[[22,6]],
+        "╗":[[22,6]],
+        "╝":[[27,6]],
+        "╚":[[27,6]],
+        "═":[[27,6]],
+        "║":[[22,6]],
+        "o":[[22,6]]  
+      }
+    }
   // if (biome == "crypt") {
   //   levels = cryptLevels;
   //   game.display._options.tileMap["."] = [272,80]
@@ -377,8 +392,9 @@ export function combat(game, hitter, receiver) {
         char: "F",
         startPos: [receiver._x, receiver._y],
         endPos: [receiver._x, receiver._y],
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 100
+        duration: 100,
+        delay: 0,
+        elapsed: 0
     }
     game.particles.push(particle);
   }
@@ -403,8 +419,9 @@ export function damage(game, hitter, receiver, amount) {
       char: "G",
       startPos: [receiver._x, receiver._y],
       endPos: [receiver._x, receiver._y],
-      startTime: game.lastFrame,
-      endTime: game.lastFrame + 100
+      duration: 100,
+      delay: 0,
+      elapsed: 0
   }
   game.particles.push(particle);
 

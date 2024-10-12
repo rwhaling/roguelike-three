@@ -365,8 +365,9 @@ function ranged_engaged_behavior(game: GameState, m:Monster, player_path:any[], 
         id: m.id,
         startPos: oldPos,
         endPos: newPos,
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 150
+        duration: 150,
+        delay: 0,
+        elapsed: 0
     }
     game.animatingEntities[m.id] = animation;
   } else if (player_path.length <= 3) {
@@ -411,8 +412,9 @@ function ranged_engaged_behavior(game: GameState, m:Monster, player_path:any[], 
       orientation: orientation,
       startPos: [m._x, m._y],
       endPos: [p._x, p._y],
-      startTime: game.lastFrame,
-      endTime: game.lastFrame + 200
+      duration: 200,
+      delay: 0,
+      elapsed: 0
     }
     game.particles.push(particle);
     let damageRoll = RNG.getUniformInt(m.stats.baseDAM, m.stats.baseDAM + m.stats.varDAM);
@@ -452,8 +454,9 @@ function melee_engaged_behavior(game: GameState, m:Monster, player_path:any[], a
         id: m.id,
         startPos: oldPos,
         endPos: newPos,
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 150
+        duration: 150,
+        delay: 0,
+        elapsed: 0
     }
     game.animatingEntities[m.id] = animation;
 
@@ -489,8 +492,9 @@ function return_behavior(game: GameState, m: Monster) {
       id: m.id,
       startPos: oldPos,
       endPos: newPos,
-      startTime: game.lastFrame,
-      endTime: game.lastFrame + 100
+      duration: 100,
+      delay: 0,
+      elapsed: 0
   }
   game.animatingEntities[m.id] = animation;
   return

@@ -132,8 +132,9 @@ export class PlayerControls {
             id: p.id,
             startPos: oldPos,
             endPos: newPos,
-            startTime: game.lastFrame,
-            endTime: game.lastFrame + 200
+            duration: 200,
+            delay: 0,
+            elapsed: 0
         }
         // Game.animating[newKey] = animation;
         game.animatingEntities[p.id] = animation;
@@ -411,8 +412,9 @@ function bowAction(game, player:Player, target): boolean {
           orientation: orientation,
           startPos: [player._x, player._y],
           endPos: [target._x, target._y],
-          startTime: game.lastFrame,
-          endTime: game.lastFrame + 300
+          duration: 200,
+          delay: 0,
+          elapsed: 0
         }
         game.particles.push(particle);
 
@@ -512,8 +514,9 @@ function dashAction(game, player, target, paths):boolean {
         id: player.id,
         startPos: oldPos,
         endPos: move_to,
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 100
+        duration: 100,
+        delay: 0,
+        elapsed: 0
     }
     // Game.animating[newKey] = animation;
     game.animatingEntities[player.id] = animation;
@@ -588,8 +591,9 @@ function eatAction(game, player:Player): boolean {
         char: "H",
         startPos: [player._x, player._y],
         endPos: [player._x, player._y],
-        startTime: game.lastFrame,
-        endTime: game.lastFrame + 100
+        duration: 100,
+        delay: 0,
+        elapsed: 0
     }
     game.particles.push(particle);
 
@@ -892,7 +896,7 @@ export function makePlayer(game):Player {
             updateVisibility(game,game.player);
             updateActions(game,game.player);
             game.player.controls.dirty = true;
-            
+
             // if (!game.arrowListener) {
             //     game.arrowListener = true;
             // }

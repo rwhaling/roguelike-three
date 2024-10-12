@@ -524,7 +524,7 @@ export class WebGLDisplay {
     }
 }
 
-export function createMapArray(map:object, width: number, height: number, tileset: {[key:string]:[number,number]}): number[] {
+export function createMapArray(map:object, width: number, height: number, tileset: {[key:string]:[number,number][]}): number[] {
     const result: number[] = new Array(width * height * 2);
 
     // Initialize the array with default values
@@ -539,30 +539,37 @@ export function createMapArray(map:object, width: number, height: number, tilese
         // y = height - y;
         if (x >= 0 && x < width && y >= 0 && y < height) {
             const index = (y * width + x) * 2;
-            if (value == ".") {
-                console.log("found floor tile at", x, y);
-                const floorTileOptions: [number, number][] = [
-                    [27, 7],
-                    [28, 7],
-                    [29, 7],
-                    [30, 7],
-                    [31, 7],
-                    [22, 7],
-                    [22, 7],
-                    [22, 7]
-                ];
-                const randomFloorTile = floorTileOptions[Math.floor(Math.random() * floorTileOptions.length)];
-                result[index] = randomFloorTile[0];
-                result[index + 1] = randomFloorTile[1];
-            } else {
-                const tileIndices = tileset[value];
-                if (tileIndices) {
-                    result[index] = tileIndices[0];
-                    result[index + 1] = tileIndices[1];
-                } else {
-                    console.warn(`Unknown tile type: ${value}`);
-                }    
+            let tileOptions = tileset[value];
+            if (!tileOptions) {
+                console.warn(`Unknown tile type: ${value}`);
             }
+            let randomTile = tileOptions[Math.floor(Math.random() * tileOptions.length)];
+            result[index] = randomTile[0];
+            result[index + 1] = randomTile[1];
+            // if (value == ".") {
+            //     console.log("found floor tile at", x, y);
+            //     const floorTileOptions: [number, number][] = [
+            //         [27, 7],
+            //         [28, 7],
+            //         [29, 7],
+            //         [30, 7],
+            //         [31, 7],
+            //         [22, 7],
+            //         [22, 7],
+            //         [22, 7]
+            //     ];
+            //     const randomFloorTile = floorTileOptions[Math.floor(Math.random() * floorTileOptions.length)];
+            //     result[index] = randomFloorTile[0];
+            //     result[index + 1] = randomFloorTile[1];
+            // } else {
+            //     const tileIndices = tileset[value];
+            //     if (tileIndices) {
+            //         result[index] = tileIndices[0];
+            //         result[index + 1] = tileIndices[1];
+            //     } else {
+            //         console.warn(`Unknown tile type: ${value}`);
+            //     }    
+            // }
         }
     }
 

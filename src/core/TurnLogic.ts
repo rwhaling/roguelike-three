@@ -43,7 +43,7 @@ export function checkNextTurn(game:GameState) {
     currentTurn = TurnState.AnimatingPlayer
   } else if (animationDone(game)) {
     if (currentTurn == TurnState.WaitingForPlayer) {
-      console.log("checking for player input");
+      // console.log("checking for player input");
       if (game.lastKeyDown) {
         console.log("player input received");
         keyHandler(game, game.lastKeyDown);
@@ -56,6 +56,7 @@ export function checkNextTurn(game:GameState) {
       console.log("player turn done, beginning monster turn")
       monsterTurn(game)
       currentTurn = TurnState.AnimatingMonster
+      // somehow check if any monsters are active?
       
     } else if (currentTurn == TurnState.AnimatingMonster) {
       console.log("monster turn done, waiting for player input")

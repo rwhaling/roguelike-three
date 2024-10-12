@@ -238,18 +238,20 @@ export function render(game:GameState,timestamp) {
 
             game.glDisplay.drawForeground(monsterSprite[0], monsterSprite[1], monsterPos[0], monsterPos[1], playerPos[0], playerPos[1]);
 
-            for (let particle of game.particles) {
-                console.log("drawing particle", particle);
-                if (particle.startTime > game.lastFrame) {
-                    console.log(`particle ${particle.id} delayed starttime ${particle.startTime} > ${game.lastFrame}`, );
-                    return
-                }
-                let [posX, posY] = updateAnimation(game, particle);
-                let particle_sprite = item_sprites[particle.char];
-                game.glDisplay.drawForeground(particle_sprite[0] / 16, particle_sprite[1] / 16, posX, posY, playerPos[0], playerPos[1]);
-            
-            }
         }
+        for (let particle of game.particles) {
+            console.log("drawing particle", particle);
+            // todo: implement
+            // if (particle.delay > particle.elapsed) {
+            //     console.log(`particle ${particle.id} delayed starttime ${particle.delay} > ${particle.elapsed}`, );
+            //     return
+            // }
+            let [posX, posY] = updateAnimation(game, particle);
+            let particle_sprite = item_sprites[particle.char];
+            game.glDisplay.drawForeground(particle_sprite[0] / 16, particle_sprite[1] / 16, posX, posY, playerPos[0], playerPos[1]);
+        
+        }
+
         game.glDisplay.drawLighting(playerPos[0], playerPos[1], playerPos[0], playerPos[1], playerPos[0], playerPos[1]);
 
         // for (let key in game.map) {
