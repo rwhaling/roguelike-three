@@ -461,7 +461,10 @@ function dashAction(game, player, target, paths):boolean {
     for (let [nx, ny] of neighbors) {
         let k_n = `${nx},${ny}`
         let path = paths[k_n]
+
         if (k_n in obstacles) {
+            continue
+        } else if (walkable.indexOf(game.map[k_n]) == -1) {
             continue
         } else if (move_to != null && min_dist < path) {
             continue
@@ -573,6 +576,19 @@ function useAction(game, player): boolean {
 
 function waitAction(game, player): boolean {
     console.log("WAITing");
+    let id = uuidv4();
+    let particle = {
+        id: id,
+        char: "F",
+        startPos: [player._x, player._y],
+        endPos: [player._x, player._y],
+        duration: 100,
+        delay: 0,
+        elapsed: 0
+    }
+    game.particles.push(particle);
+
+
     return true
 }
 
@@ -680,7 +696,7 @@ function searchAction(game:GameState, player:Player): boolean {
         let dir = [best_neighbor[0] - game.player._x, best_neighbor[1] - game.player._y];
         game.player.controls.movePlayer(game, dir)
         // weird here
-        return false;
+        return true;
     }
     return false;
 }
@@ -746,7 +762,7 @@ function fleeAction(game, player) {
         let dir = [best_neighbor[0] - game.player._x, best_neighbor[1] - game.player._y];
         game.player.controls.movePlayer(game, dir)
         // weird here
-        return false;
+        return true;
     }
     return false
 

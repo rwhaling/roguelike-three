@@ -7,6 +7,7 @@ import { keyHandler } from "../ui/hid";
 
 enum TurnState {
   WaitingForPlayer,
+  AnimatingIdlePlayer,
   AnimatingPlayer,
   AnimatingMonster
 }
@@ -44,13 +45,21 @@ export function checkNextTurn(game:GameState) {
   } else if (animationDone(game)) {
     if (currentTurn == TurnState.WaitingForPlayer) {
       // console.log("checking for player input");
-      if (game.lastKeyDown) {
+      if (game.lastKeyDown && game.listening) {
         console.log("player input received");
-        keyHandler(game, game.lastKeyDown);
+        let ret = keyHandler(game, game.lastKeyDown);
+        console.log("keyHandler returned", ret);
         game.lastKeyDown = null;
         // todo: check better
-        currentTurn = TurnState.AnimatingPlayer;
+        if (ret == false) {
+          currentTurn = TurnState.AnimatingIdlePlayer;
+        } else if (ret == true) {
+          currentTurn = TurnState.AnimatingPlayer;
+        }
       }
+      return
+    } else if (currentTurn == TurnState.AnimatingIdlePlayer) {
+      currentTurn = TurnState.WaitingForPlayer;
       return
     } else if (currentTurn == TurnState.AnimatingPlayer) {
       console.log("player turn done, beginning monster turn")
@@ -81,11 +90,11 @@ function monsterTurn(game:GameState) {
   let activeMonsters = getActiveMonsters(game, 16);
 
   for (let [pos,m] of Object.entries(activeMonsters)) {
-      console.log(`activating monster at ${pos} : ${m.id}`)
-      console.log("activeMonsters:",activeMonsters);
+      // console.log(`activating monster at ${pos} : ${m.id}`)
+      // console.log("activeMonsters:",activeMonsters);
 
       let player_path = targetPath(game, m, p, [], fullMap(game));
-      console.log("path from monster at ", m._x, m._y, " to player at ", p._x, p._y, player_path);
+      // console.log("path from monster at ", m._x, m._y, " to player at ", p._x, p._y, player_path);
       monsterAct(game, m as Monster, player_path, activeMonsters);
       let pos_after = `${m._x},${m._y}`;
       delete activeMonsters[pos];

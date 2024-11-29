@@ -27,12 +27,12 @@ export class Particle extends Animation {
 export type AnimationResult = [number, number]
 
 export function updateAnimation(game:GameState, animation:Animation):AnimationResult {
-    animation.elapsed += game.lastFrameDur * 1.25;
+    animation.elapsed += game.lastFrameDur * 1.75;
     if (animation.elapsed <= 0) {
         return [animation.startPos[0], animation.startPos[1]]
     }
     let animProgress = animation.elapsed / animation.duration;
-    console.log(`animProgress ${animProgress} = ${animation.elapsed} / ${animation.duration} for ${animation.id}`);
+    // console.log(`animProgress ${animProgress} = ${animation.elapsed} / ${animation.duration} for ${animation.id}`);
     if (animProgress > 1.0) { animProgress = 1.0 };
 
     let animX = lerp( animation.startPos[0], animation.endPos[0], animProgress);

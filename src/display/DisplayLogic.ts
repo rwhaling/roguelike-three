@@ -178,9 +178,17 @@ export function render(game:GameState,timestamp) {
                 //TODO: set sprite at spawn time
 
                 if (cell.contents[0].item in item_sprites) {
-                    let cell_sprite = item_sprites[cell.contents[0].item];                
+                    // let cell_contents = cell.contents[0];
+                    let cell_sprite = item_sprites[cell.contents[0].item];
                     game.glDisplay.drawForeground(cell_sprite[0] / 16, cell_sprite[1] / 16, cell.x, cell.y, playerPos[0], playerPos[1]);
+
                 }
+                else if (cell.contents[0].kind == "QuestItemContent") {
+                    let cell_sprite = item_sprites["Q"];
+                    game.glDisplay.drawForeground(cell_sprite[0] / 16, cell_sprite[1] / 16, cell.x, cell.y, playerPos[0], playerPos[1]);
+
+                }
+
             }
         }
 
@@ -240,7 +248,7 @@ export function render(game:GameState,timestamp) {
 
         }
         for (let particle of game.particles) {
-            console.log("drawing particle", particle);
+            // console.log("drawing particle", particle);
             // todo: implement
             // if (particle.delay > particle.elapsed) {
             //     console.log(`particle ${particle.id} delayed starttime ${particle.delay} > ${particle.elapsed}`, );

@@ -256,6 +256,8 @@ export function lose(game) {
   // change the player into a tombstone tile
   const p = game.player;
   p.character = "T";
+  let oldsprite = p.sprite;
+  p.sprite = [25,48];
   // create an animated div element over the top of the game
   // holding a rising ghost image above the tombstone
   const ghost = createGhost(16, 16, [p._x, p._y]);
@@ -275,7 +277,7 @@ export function lose(game) {
     showScreen("lose", null);
     renderLoseScreen(game);
     game.listening = false;
-
+    p.sprite = oldsprite;
   }, 2000);
 }
 
@@ -285,6 +287,16 @@ export function checkDeath(game:GameState,m) {
     if (m == game.player) {
       renderStats(game.player);
       toast(game, "You died!");
+      let cell = getCell(game.level, m._x, m._y)
+      let i:ItemContent = {
+        kind: "ItemContent",
+        x: m._x,
+        y: m._y,
+        item: "U",
+      }
+      cell.contents.push(i)
+      game.items[`${m._x},${m._y}`] = "U"
+
       lose(game);
     } else {
       let xp = m.stats["xpValue"];

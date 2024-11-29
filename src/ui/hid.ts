@@ -128,7 +128,7 @@ export function keyHandler(game:GameState,ev:KeyboardEvent) {
       }
     }
     ev.preventDefault();
-    return;
+    return false;
   }
 
   hideToast(true);
@@ -136,13 +136,13 @@ export function keyHandler(game:GameState,ev:KeyboardEvent) {
   // prevent zoom
   if (code == 187 || code == 189) {
     ev.preventDefault();
-    // return;
+    return false;
   }
   // full screen
   if (code == 70 && ev.altKey && ev.ctrlKey && ev.shiftKey) {
     document.body.requestFullscreen();
     console.log("Full screen pressed.");
-    return;
+    return false;
   }
 
   if (code == 13) {
@@ -158,35 +158,37 @@ export function keyHandler(game:GameState,ev:KeyboardEvent) {
   if (code in moveSelectMap) {
     console.log("move selector: ",code, moveSelectMap[code]);
     game.player.controls.selectMove(moveSelectMap[code]);
-    return;
+    return false;
   }
   if (code in targetSelectMap) {
     console.log("target selector:", code, targetSelectMap[code]);
     console.log("player:", game.player);
     console.log("current target:", game.player.controls.currentTarget);
     game.player.controls.cycleTarget(game, game.player, targetSelectMap[code]);
-    return;
+    return false;
   }
   if (code in actionMap) {
     console.log("ACTION!");
-    game.player.controls.attemptAction(game, game.player);
-    return;
+    let ret = game.player.controls.attemptAction(game, game.player);
+    return ret;
   }
   if (code in skillMap) {
     console.log("SKILL!", skillMap[code]);    
-    game.player.controls.tempAttemptSkillByName(game, game.player, skillMap[code]);
-    return;
+    let ret = game.player.controls.tempAttemptSkillByName(game, game.player, skillMap[code]);
+    return ret;
   }
   if (code in qwertyMap) {
     const move = qwertyMap[code]
     console.log("pressed qwerty key", code, move);
-    game.player.controls.tempAttemptSkillByName(game, game.player, move);
+    let ret = game.player.controls.tempAttemptSkillByName(game, game.player, move);
+    return ret;
   }
 
   if (code in numMap) {
     const move = numMap[code];
     console.log(`pressed number ${code} for ${move}`);
-    game.player.controls.tempAttemptSkillByName(game, game.player, move);
+    let ret = game.player.controls.tempAttemptSkillByName(game, game.player, move);
+    return ret;
 
   }
   if (code in keyMap) {
@@ -194,7 +196,8 @@ export function keyHandler(game:GameState,ev:KeyboardEvent) {
     if (game.display) {
       ev.preventDefault();
     }
-    arrowStart(game, dir);  
+    let ret =arrowStart(game, dir);  
+    return ret;
   }
 }
 

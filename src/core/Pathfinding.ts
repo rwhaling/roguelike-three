@@ -108,7 +108,7 @@ export function get_neighbors(i:[number, number]): [number,number][] {
 // }
 
 export function dijkstraMap(game:GameState, targets: any[], obstacles:[], box: BoundingBox) {
-  console.log("constructing dijkstra map in bounding box:", box, "targets:", targets);
+  // console.log("constructing dijkstra map in bounding box:", box, "targets:", targets);
   let frontier: [number, number][] = [];
   let cost_so_far: {[key:string]:number} = {}
   for (let target of targets) {

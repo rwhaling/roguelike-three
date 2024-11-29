@@ -31,7 +31,7 @@ export function getTownState(game,zone):TownState {
     ["nav","inn", "Inn"],
     ["nav","shop", "Shop"],
     ["nav","train", "Train"],
-    ["nav","castle", "The Castle"],
+    ["nav","castle", "The Castle [QUESTS]"],
     ["nav","levelselect", "Level Select"],
     ["nav","return", `Return (${levelDisplayName(game.levelSelect)})`]
   ]}
@@ -107,7 +107,7 @@ export function handleInn(game, choice):TownState {
       p.stats.hp = p.stats.maxHP;
     }
   } else if (choice == "resupply") {
-    if (p.stats.gold >= 10) {
+    if (p.stats.gold >= 10 || game.debugMode == true) {
       p.stats.gold -= 10;
       p.stats.food = p.stats.maxFood;
       p.stats.arrows = p.stats.maxArrows;
@@ -118,10 +118,16 @@ export function handleInn(game, choice):TownState {
   if (p.stats.hp < p.stats.maxHP && p.stats.gold >= 5) {
     rest_ready = "is-warning"
   }
+  if (game.debugMode == true) {
+    rest_ready = ""
+  }
 
   let resupply_ready = "is-disabled"
   if (p.stats.gold >= 10 && (p.stats.arrows < p.stats.maxArrows || p.stats.food < p.stats.maxFood)) {
     resupply_ready = "is-warning"
+  }
+  if (game.debugMode == true) {
+    resupply_ready = ""
   }
 
   let options: TownChoice[] = [
