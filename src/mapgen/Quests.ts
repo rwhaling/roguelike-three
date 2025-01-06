@@ -134,9 +134,8 @@ export let quests: {[key:string]: Quest} = {
         giveDescription: "Have you been in the old crypt?<br/><br/>The ancient warriors down there have this armor, never seen an alloy quite like it.<br/><br/>Bring me a piece of that armor, and we can see about making some proper protection for you! <br/><br/><span class='nes-text is-warning'>[CRYPT dungeon unlocked!]</span><br/><br/><span class='nes-text is-warning'>[Target: 2x Skeleton Armor, Crypt Level 1]</span>",
         handInDescription: "Look at that - cold iron.<br/><br/>Let’s take it over to the smith.<br/><br/><span class='nes-text is-warning'>[+1 DEF]</span>",
         rewardFunction: (game) => {
-            game.player.stats.DEF =  4;
-            game.player.baseStats.DEF = 4;
-        
+            game.player.baseStats.DEF += 1;
+            game.player.stats.DEF = game.player.baseStats.DEF;        
             console.log("armor quest COMPLETED")
         }
     },

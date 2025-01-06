@@ -131,7 +131,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // this is where we populate the map data structure
   // with all of the background tiles, items,
   // player and the monster positions
-  console.log(`spawning map (BIOME ${biome}), game state now:`,game);
+  console.log(`generating map (BIOME ${biome}), game state now:`,game);
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
 
@@ -140,6 +140,8 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   console.log(tilemapArray)
   let tilemapTexture = game.glDisplay.loadTilemap(tilemapArray,width,height)
   console.log("loading into texture",tilemapTexture)
+
+  console.log("spawning map contents with ", biome, n, game.currentQuest);
   
   if (n <= 7) {
     spawnLevelFrom(game, digger, levels[n], quests[game.currentQuest]);
@@ -514,7 +516,11 @@ export function checkItem(game:GameState, entity) {
           game.items[key] = "s";
         }
       } else if (item.item == "g") {
-        let [lower, upper, bonus] = goldAmountTable[game.currentLevel];
+        let goldAmountLevel = game.currentLevel;
+        if (game.currentBiome == "crypt") {
+          goldAmountLevel = game.currentLevel + 4;
+        }
+        let [lower, upper, bonus] = goldAmountTable[goldAmountLevel];
         let goldAmount = RNG.getUniformInt(lower, upper);
         game.player.stats.gold += goldAmount;
         renderStats(game.player);
