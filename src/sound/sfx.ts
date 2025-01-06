@@ -55,7 +55,7 @@ export const sfx = {
       "p_lpf_resonance": 0.12299999594688416,
       "p_hpf_freq": 0,
       "p_hpf_ramp": 0,
-      "sound_vol": 0.5,
+      "sound_vol": 0.25,
       "sample_rate": 44100,
       "sample_size": 8
     })).generate().getAudio(),
@@ -84,7 +84,7 @@ export const sfx = {
       "p_lpf_resonance": 0.07399999350309372,
       "p_hpf_freq": 0.44599997997283936,
       "p_hpf_ramp": 0,
-      "sound_vol": 0.5,
+      "sound_vol": 0.25,
       "sample_rate": 44100,
       "sample_size": 8
     })).generate().getAudio(),
@@ -113,7 +113,7 @@ export const sfx = {
       "p_lpf_resonance": 0.07399999350309372,
       "p_hpf_freq": 0.44599997997283936,
       "p_hpf_ramp": 0,
-      "sound_vol": 0.5,
+      "sound_vol": 0.25,
       "sample_rate": 44100,
       "sample_size": 8
     })).generate().getAudio(),
@@ -142,7 +142,7 @@ export const sfx = {
       "p_lpf_resonance": 0.5359526872634888,
       "p_hpf_freq": 0,
       "p_hpf_ramp": 0.31875574588775635,
-      "sound_vol": 0.5,
+      "sound_vol": 0.255,
       "sample_rate": 44100,
       "sample_size": 8
     })).generate().getAudio(),

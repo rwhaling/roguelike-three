@@ -11,7 +11,7 @@ import { makePlayer } from "../entities/player";
 import GameState from "../gamestate";
 import { AllCellContents, DecorItemContent, getCell, initLevel, ItemContent, QuestItemContent } from "../mapgen/Level";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
-import { play, musicState } from "../sound/music";
+import { play, musicState, stopMusic } from "../sound/music";
 import Display from "../mydisplay";
 import MyDisplay from "../myglbackend";
 import { createMapArray } from "../display/WebGLDisplay";
@@ -199,6 +199,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
 
   requestAnimationFrame(drawScene);
   if (musicState != "dungeon") {
+    // HACK - this causes problems on restart after death since we init() and then immediately load town
     play("dungeon");
     // music.stop();
     // music.play("dungeon");  
@@ -267,7 +268,9 @@ export function lose(game) {
 
   // play the lose sound effect
   sfx["lose"].play();
+  stopMusic();
   // wait 2 seconds for the ghost animation to finish
+  game.listening = false;
   setTimeout(function() {
     // set our stats for the end screen
     setEndScreenValues(game.player.stats.xp, game.player.stats.gold);
@@ -276,7 +279,6 @@ export function lose(game) {
     // show the "lose" screen to the user
     showScreen("lose", null);
     renderLoseScreen(game);
-    game.listening = false;
     p.sprite = oldsprite;
   }, 2000);
 }

@@ -393,11 +393,11 @@ export function handleCastle(game:GameState, choice): TownState {
     let quest = quests[questName];
     console.log("quest:",questName, quest.status)
     if (quest.status == "available") {
-      options = options.concat([["nav",`accept_${questName}`,`${quest.giver}: ${quest.name}`]])
+      options = options.concat([["nav",`accept_${questName}`,`${quest.giver}: [ACCEPT] ${quest.name}`]])
     } else if (quest.status == "accepted") {
-      options = options.concat([["nav",`check_${questName}`,`${quest.giver}: ${quest.name}`]])
+      options = options.concat([["nav",`check_${questName}`,`${quest.giver}: [INFO] ${quest.name}`]])
     } else if (quest.status == "ready") {
-      options = options.concat([["nav",`handin_${questName}`,`${quest.giver}: ${quest.name}`]])
+      options = options.concat([["nav",`handin_${questName}`,`${quest.giver}: [COMPLETE] ${quest.name}`]])
     }
   }
 

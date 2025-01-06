@@ -4,6 +4,7 @@ import GameState from "../gamestate";
 import { destroy, init } from "../core/GameLogic";
 import { renderTown } from "./TownUI";
 import { sfx, setVolume } from "../sound/sfx";
+import { play, musicState, stopMusic } from "../sound/music";
 import { Quest, QuestStatus, quests } from "../mapgen/Quests";
 import { setup } from "../game.js";
 
@@ -100,6 +101,13 @@ export function renderLoseScreen(game: GameState) {
       let nextState = getTownState(game, "town");
       renderTown(game, nextState);
       showScreen("town", ev);
+      if (musicState != "town") {
+        // music.stop();
+        // music.play("town");  
+        // setMusicState("town");
+        play("town");
+      }
+
     } else {
       // tear down the game
       destroy(game);

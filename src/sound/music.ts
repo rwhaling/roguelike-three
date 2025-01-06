@@ -21,18 +21,24 @@ export function play(k:string) {
     }
 }
 
+export function stopMusic() {
+    musicState = "null";
+    howls.town.stop();
+    howls.dungeon.stop();
+}
+
 let howls:{[key:string]:Howl} = {
     town: new Howl({
-        src: ['barrow_2_v1_1_town_bounce.mp3'],
+        src: ['barrow_2_v1_town_bounce_1.mp3'],
         sprite: {
-            "town": [0,154000,true],
+            "town": [120000,240000,true],
         },
         volume: 0.25
     }),
     dungeon: new Howl({
-        src: ['barrow_2_v2_arp_bounce_1.mp3'],
+        src: ['barrow_2_v3_bounce_3.mp3'],
         sprite: {
-            "dungeon": [0,85714,true]
+            "dungeon": [120000,240000,true]
         },
         volume: 0.25     
     })
