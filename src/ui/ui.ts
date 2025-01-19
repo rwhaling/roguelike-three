@@ -97,7 +97,10 @@ export function renderLoseScreen(game: GameState) {
       console.log("cheat selected", game);
       game.player.stats.hp = game.player.stats.maxHP;
       hideToast(true);
-      init(game,game.level.depth,game.level.biome);
+
+      // sketchy
+      // init(game,game.level.depth,game.level.biome);
+
       let nextState = getTownState(game, "town");
       renderTown(game, nextState);
       showScreen("town", ev);

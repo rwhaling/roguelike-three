@@ -152,7 +152,7 @@ export let quests: {[key:string]: Quest} = {
     //         ["questmonster", "a skeleton warrior", 1.0],
     //         ["questitem", "armor", 1.0],
     //         ["questmonster", "a skeleton warrior", 1.0],
-    //         ["questitem", "armor", 1.0], 
+    //         ["questitem", "armor", 1.0],    
 
     //         ["item", "g", 1.0],
     //         ["item", "g", 1.0],

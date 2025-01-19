@@ -174,7 +174,7 @@ let level6: LevelSpawner = {
     ["monster", "a skeleton warrior", 1.0],
     ["monster", "a skeleton", 1.0],
     ["monster", "a skeleton", 1.0],
-    ["monster", "a skeleton king", 1.0],
+    ["monster", "a skeleton mage", 1.0],
     ["item", "g", 1.0],
     ["item", "g", 1.0],
   ],
@@ -280,13 +280,13 @@ export let cryptLevels: {[key:number]: LevelSpawner} = {
 }
 
 export let goldAmountTable: {[key:number]: [number, number, number]} = {
-  1: [1,4,5],
-  2: [2,5,7],
-  3: [3,6,10],
-  4: [4,8,12],
-  5: [6,12,18],
-  6: [8,15,21],
-  7: [12,18,24],
-  8: [20,30,40],
-  9: [25,40,60]
+  1: [1,4,5], // avg 2.5
+  2: [2,5,7], // avg 3.5
+  3: [3,6,10], // avg 4.5
+  4: [4,8,12], // avg 6
+  5: [6,12,18], // avg 9
+  6: [8,15,21], // avg 11.5
+  7: [12,18,24], // avg 15
+  8: [20,30,40], // avg 25
+  9: [25,40,60] // avg 32.5
 }

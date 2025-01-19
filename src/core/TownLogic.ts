@@ -167,6 +167,10 @@ export function getShopPrices(game): TownPrices {
   let armorCosts = {
     1: 50,
     2: 150,
+    3: 400,
+    4: 1200,
+    5: 2000,
+    6: 2500,
     // 3: 1500,
     // 4: 450,
     // 4: 1500,
@@ -176,8 +180,12 @@ export function getShopPrices(game): TownPrices {
   let swordCosts = {
     1: 75,
     2: 250,
-    3: 1250,
-    4: 3000
+    3: 500,
+    4: 800,
+    5: 1250,
+    6: 2000,
+    7: 2500,
+    8: 3000
     // 3: 700,
     // 4: 2000,
     // 5: 6000
@@ -420,7 +428,9 @@ export function getTrainPrices(game):TownPrices {
     3: 30,
     4: 50,
     5: 75,
-    6: 90
+    6: 90,
+    7: 120,
+    8: 150
   }
 
   let agiCosts = {
@@ -429,7 +439,11 @@ export function getTrainPrices(game):TownPrices {
     5: 20,
     6: 25,
     7: 50,
-    8: 100
+    8: 100,
+    9: 130,
+    10: 170,
+    11: 200,
+    12: 250
   }
 
   let next_dex = game.player.stats.DEX + 1
