@@ -40,15 +40,15 @@ export function getCurrentTurnState(): TurnState {
 
 export function checkNextTurn(game:GameState) {
   if (!animationDone(game) && currentTurn == TurnState.WaitingForPlayer) {
-    console.log("player input received?")
+    // console.log("player input received?")
     currentTurn = TurnState.AnimatingPlayer
   } else if (animationDone(game)) {
     if (currentTurn == TurnState.WaitingForPlayer) {
       // console.log("checking for player input");
       if (game.lastKeyDown && game.listening) {
-        console.log("player input received");
+        // console.log("player input received");
         let ret = keyHandler(game, game.lastKeyDown);
-        console.log("keyHandler returned", ret);
+        // console.log("keyHandler returned", ret);
         game.lastKeyDown = null;
         // todo: check better
         if (ret == false) {
@@ -62,13 +62,13 @@ export function checkNextTurn(game:GameState) {
       currentTurn = TurnState.WaitingForPlayer;
       return
     } else if (currentTurn == TurnState.AnimatingPlayer) {
-      console.log("player turn done, beginning monster turn")
+      // console.log("player turn done, beginning monster turn")
       monsterTurn(game)
       currentTurn = TurnState.AnimatingMonster
       // somehow check if any monsters are active?
       
     } else if (currentTurn == TurnState.AnimatingMonster) {
-      console.log("monster turn done, waiting for player input")
+      // console.log("monster turn done, waiting for player input")
       game.player.act()
       currentTurn = TurnState.WaitingForPlayer
       

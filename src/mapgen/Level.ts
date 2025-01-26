@@ -115,7 +115,7 @@ export function getRoomItems(level:Level, player:Player): [number,number][] {
         // console.log("checking if", [player._x, player._y], "in room", [r._x1, r._x2, r._y1, r._y2])
         if (roomContains(r, player._x, player._y)) {
             let items = level.roomItems[idx];
-            console.log("found room",r,idx,items)
+            // console.log("found room",r,idx,items)
 
             return items.filter( i => {
                 let cell = getCell(level, i[0], i[1])

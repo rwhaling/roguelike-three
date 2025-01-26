@@ -46,7 +46,7 @@ export function updateBuffs(player:Player) {
     player.buffs.forEach( b => b.duration -= 1 );
     let removeBuffs = player.buffs.filter( b => b.duration == 0 );
     for (let b of removeBuffs) {
-        console.log("removing buff", b);
+        // console.log("removing buff", b);
     }
 
     player.buffs = player.buffs.filter( b => b.duration > 0 );
@@ -92,24 +92,24 @@ export class PlayerControls {
     movePlayer(game,dir):boolean {
         const p = game.player;
         game.player.lastArrow = dir;
-        console.log(dir);
+        // console.log(dir);
         let target_x = p._x + dir[0];
         let target_y = p._y + dir[1];
-        console.log(`dir: ${dir} moving player from ${p._x},${p._y} to ${target_x},${target_y}`);
+        // console.log(`dir: ${dir} moving player from ${p._x},${p._y} to ${target_x},${target_y}`);
 
         hideToast(false);
 
         const targetKey = `${target_x},${target_y}`;
 
         if (walkable.indexOf(game.map[targetKey]) == -1) { 
-            console.log("can't move to ", targetKey, " WAITing instead");
+            // console.log("can't move to ", targetKey, " WAITing instead");
             return this.tempAttemptSkillByName(game, game.player, "WAIT");
         }
 
         let contains_monster = monsterAt(game, target_x, target_y);
-        console.log("tile monster check returned: ", contains_monster);
+        // console.log("tile monster check returned: ", contains_monster);
         if (contains_monster != null) {
-            console.log("bumping ATK ", contains_monster);
+            // console.log("bumping ATK ", contains_monster);
             return this.attemptMoveWithTarget(game, game.player, "ATK", contains_monster.id);
         }
       
@@ -155,7 +155,7 @@ export class PlayerControls {
     selectMove(dir:number) {
         let currentMove = this.moves[this.selectedMove] 
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
-        console.log(`current selected move: ${currentMove} at pos ${this.selectedMove}, increment: ${dir}`);
+        // console.log(`current selected move: ${currentMove} at pos ${this.selectedMove}, increment: ${dir}`);
         let newPosition = this.selectedMove + dir;
         let movesLen = this.moves.length + this.skills.length;
         if (newPosition < 0) {
@@ -177,7 +177,7 @@ export class PlayerControls {
         let currentTarget = game.player.controls.currentTarget
         let awakeTargets = game.monsters.filter( (m) => m.awake).map( (m) => m.id);
         let currentTargetIndex = awakeTargets.indexOf(currentTarget);
-        console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
+        // console.log("currentTargetIndex:",currentTargetIndex,"awake targets:",awakeTargets)
         let newTargetIndex = currentTargetIndex + dir;
         if (newTargetIndex < 0) { 
           game.player.controls.currentTarget = awakeTargets[awakeTargets.length - 1];
@@ -191,7 +191,7 @@ export class PlayerControls {
 
     selectTargetById(game, player, id) {
         let target = game.monsters.filter( (m) => m.id == id )[0];
-        console.log("selected new target: ",target)
+        // console.log("selected new target: ",target)
         this.currentTarget = id;
     }
 
@@ -214,7 +214,7 @@ export class PlayerControls {
     attemptAction(game:GameState, player):boolean {
         let currentMove = this.moves.concat(...this.skills)[this.selectedMove];
         // let selectedMovePosition = this.moves.map((m) => m.name).indexOf(this.selectedMove);
-        console.log(`attempting current selected move at pos ${this.selectedMove}`,currentMove);
+        // console.log(`attempting current selected move at pos ${this.selectedMove}`,currentMove);
         let actionRet = false;
         if (currentMove.ready == false) {
             return false;
@@ -234,25 +234,25 @@ export class PlayerControls {
         }
         let boundingBox = getBoundingBox(entities,3);
         let paths = dijkstraMap(game, [game.player],[], boundingBox);
-        console.log("dijkstra map:", paths);
+        // console.log("dijkstra map:", paths);
         for (let [pos,m] of Object.entries(activeMonsters)) {
-            console.log("distance to monster at ",pos, paths[pos]);
+            // console.log("distance to monster at ",pos, paths[pos]);
         }
         let target;
         if (player.controls.currentTarget == null) {
-            console.log("auto targeting");
+            // console.log("auto targeting");
             let targets = Object.values(activeMonsters).sort( (a,b) => {
                 let k_a = `${a._x},${a._y}`;
                 let k_b = `${b._x},${b._y}`;
                 return paths[k_a] - paths[k_b]
             })
-            console.log("candidate targets:", targets)
+            // console.log("candidate targets:", targets)
             target = targets[0];
         } else {
             target = Object.values(activeMonsters).filter( (m) => m.id == player.controls.currentTarget )[0];
         }
 
-        console.log("targeting",target);
+        // console.log("targeting",target);
 
         if (currentMove.name == "ATK") {
             actionRet = attackAction(game,player,target);
@@ -309,7 +309,7 @@ export class PlayerControls {
 }
 
 function attackAction(game, player, target:Monster):boolean {
-    console.log("invoking ATK");
+    // console.log("invoking ATK");
     if (manhattan(player,target) <= 1) {
         combat(game, player, target);
         return true;    
@@ -318,21 +318,21 @@ function attackAction(game, player, target:Monster):boolean {
 
         let current_pos = `${player._x},${player._y}`
         let current_cost = paths[current_pos];
-        console.log("current pos distance from frontier", current_cost);
+        // console.log("current pos distance from frontier", current_cost);
         
         let neighbors = get_neighbors([game.player._x, game.player._y])
         let best_neighbor = null
         for (let n of neighbors) {
-            console.log("checking neighbor", n);
+            // console.log("checking neighbor", n);
             let n_key = `${n[0]},${n[1]}`
             if (walkable.indexOf(game.map[n_key]) != -1) {
                 let n_cost = paths[n_key]
-                console.log("cost for ", n_key, n_cost)
+                // console.log("cost for ", n_key, n_cost)
                 if (n_cost < current_cost) {
                     best_neighbor = n
                 }
             } else {
-                console.log('not walkable')
+                // console.log('not walkable')
             }
         }
         if (best_neighbor) {
@@ -348,7 +348,7 @@ function attackAction(game, player, target:Monster):boolean {
 }
 
 function bashAction(game, player:Player, target): boolean {
-    console.log("invoking BASH");
+    // console.log("invoking BASH");
     if (manhattan(player,target) > 1) {
         toast(game, "out of range");
         return false;
@@ -403,7 +403,7 @@ function bowAction(game, player:Player, target): boolean {
           orientation = 7
         }
   
-        console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,player._x, player._y, `target at`,target._x,target._y);
+        // console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from player at`,player._x, player._y, `target at`,target._x,target._y);
         let id = uuidv4();
   
         let particle = {
@@ -422,9 +422,9 @@ function bowAction(game, player:Player, target): boolean {
         damage(game, player, target, damageRoll);
 
         player.stats.arrows -= 1;
-        console.log("remaining arrows:", player.stats.arrows)
+        // console.log("remaining arrows:", player.stats.arrows)
         if (player.stats.arrows == 0) {
-            console.log("out of arrows");
+            // console.log("out of arrows");
             player.controls.moves[2].ready = false;
         }
 
@@ -449,7 +449,7 @@ function aimAction(game, player): boolean {
 }
 
 function dashAction(game, player, target, paths):boolean {
-    console.log("invoking DASH");
+    // console.log("invoking DASH");
     let activeMonsters = getActiveMonsters(game, 16)
     let obstacles = Object.values(activeMonsters).map( m =>
         `${m._x},${m._y}`
@@ -531,7 +531,7 @@ function dashAction(game, player, target, paths):boolean {
 }
 
 function defendAction(game, player):boolean {
-    console.log("applying DEFEND");
+    // console.log("applying DEFEND");
     applyBuff(player, {
         duration: 6,
         displayName: "DFND",
@@ -545,13 +545,13 @@ function defendAction(game, player):boolean {
 }
 
 function useAction(game, player): boolean {
-    console.log("applying USE");
+    // console.log("applying USE");
     let locKey = `${game.player._x},${game.player._y}`
     let items = game.items[locKey];
     for (let i of items) {
-        console.log(`item at ${locKey}: `, i)
+        // console.log(`item at ${locKey}: `, i)
         if (i == "<") {
-            console.log("stairs up")
+            // console.log("stairs up")
             unload(game);
             if (musicState != "town") {
                 // music.stop();
@@ -566,7 +566,7 @@ function useAction(game, player): boolean {
             showScreen("town", null);
             // init(game);
         } else if (i == ">") {
-            console.log("stairs down")
+            // console.log("stairs down")
             unload(game);
             init(game, game.currentLevel + 1, game.currentBiome);
         }
@@ -575,7 +575,7 @@ function useAction(game, player): boolean {
 }
 
 function waitAction(game, player): boolean {
-    console.log("WAITing");
+    // console.log("WAITing");
     let id = uuidv4();
     let particle = {
         id: id,
@@ -593,14 +593,14 @@ function waitAction(game, player): boolean {
 }
 
 function eatAction(game, player:Player): boolean {
-    console.log("applying EAT");
+    // console.log("applying EAT");
     player.stats.hp = player.stats.maxHP;
     player.stats.food -= 1;
     if (player.stats.food <= 0) {
         player.controls.skills[4].ready = false;
     }
 
-    console.log("spawning green tile flash at ", [player._x, player._y])
+    // console.log("spawning green tile flash at ", [player._x, player._y])
     let id = uuidv4();
     let particle = {
         id: id,
@@ -617,8 +617,8 @@ function eatAction(game, player:Player): boolean {
 }
 
 function searchAction(game:GameState, player:Player): boolean {
-    console.log("applying SEARCH");
-    console.log("checking if in combat")
+    // console.log("applying SEARCH");
+    // console.log("checking if in combat")
     let targets = []
 
     for (let m of game.monsters) {
@@ -629,13 +629,13 @@ function searchAction(game:GameState, player:Player): boolean {
     if (targets.length == 0) {
         targets = game.level.newDrops.map( i => { return { _x: i[0], _y: i[1]}})
         if (targets.length > 0) {
-            console.log("navigating toward newDrops:", game.level.newDrops);
+            // console.log("navigating toward newDrops:", game.level.newDrops);
         }
     }
 
     if (targets.length == 0) {
         let loot = getRoomItems(game.level, game.player)
-        console.log("searching room items", loot, "nearest ", [player._x, player._y]);
+        // console.log("searching room items", loot, "nearest ", [player._x, player._y]);
         targets = loot.map( i => { return { _x: i[0], _y:i[1]}})
     }
 
@@ -649,13 +649,13 @@ function searchAction(game:GameState, player:Player): boolean {
             }
         })
     }
-    console.log("tile to explore:", targets);
+    // console.log("tile to explore:", targets);
 
     if (targets.length == 0) {
         let exit = null;
         for (let [k,o] of Object.entries(game.items)) {
             if (o == ">") {
-                console.log("found stairs up ", o, " at ", k);
+                // console.log("found stairs up ", o, " at ", k);
                 exit = k
                 break
             }
@@ -669,27 +669,27 @@ function searchAction(game:GameState, player:Player): boolean {
             targets.push(exit_pos)
         }    
     }
-    console.log("tile to explore:", targets);
+    // console.log("tile to explore:", targets);
 
     let paths = dijkstraMap(game, targets, [], fullMap(game) );
 
     let current_pos = `${player._x},${player._y}`
     let current_cost = paths[current_pos];
-    console.log("current pos distance from frontier", current_cost);
+    // console.log("current pos distance from frontier", current_cost);
     
     let neighbors = get_neighbors([game.player._x, game.player._y])
     let best_neighbor = null
     for (let n of neighbors) {
-        console.log("checking neighbor", n);
+        // console.log("checking neighbor", n);
         let n_key = `${n[0]},${n[1]}`
         if (walkable.indexOf(game.map[n_key]) != -1) {
             let n_cost = paths[n_key]
-            console.log("cost for ", n_key, n_cost)
+            // console.log("cost for ", n_key, n_cost)
             if (n_cost < current_cost) {
                 best_neighbor = n
             }
         } else {
-            console.log('not walkable')
+            // console.log('not walkable')
         }
     }
     if (best_neighbor) {
@@ -701,7 +701,7 @@ function searchAction(game:GameState, player:Player): boolean {
     return false;
 }
 function menuAction(game, player) {
-    console.log("applying MENU");
+    // console.log("applying MENU");
     // if (UI.inHudModal) {
     //     hideHudModal(game)
     // }
@@ -711,7 +711,7 @@ function menuAction(game, player) {
 }
 
 function helpAction(game, player) {
-    console.log("applying HELP");
+    // console.log("applying HELP");
     if (UI.inHudModal) {
         hideHudModal(game)
     } else {
@@ -721,12 +721,12 @@ function helpAction(game, player) {
 }
 
 function fleeAction(game, player) {
-    console.log("applying SEARCH");
-    console.log("scanning items:", game.items);
+    // console.log("applying SEARCH");
+    // console.log("scanning items:", game.items);
     let exit: string = null
     for (let [k,o] of Object.entries(game.items)) {
         if (o == "<") {
-            console.log("found stairs up ", o, " at ", k);
+            // console.log("found stairs up ", o, " at ", k);
             exit = k
             break
         }
@@ -746,7 +746,7 @@ function fleeAction(game, player) {
     let neighbors = get_neighbors([game.player._x, game.player._y])
     let best_neighbor = null
     for (let n of neighbors) {
-        console.log("checking neighbor", n);
+        // console.log("checking neighbor", n);
         let n_key = `${n[0]},${n[1]}`
         if (walkable.indexOf(game.map[n_key]) != -1) {
             let n_cost = paths[n_key]
@@ -755,7 +755,7 @@ function fleeAction(game, player) {
                 best_neighbor = n
             }
         } else {
-            console.log('not walkable')
+            // console.log('not walkable')
         }
     }
     if (best_neighbor) {
@@ -828,17 +828,17 @@ export interface PlayerMove {
 
 // creates a player object with position, inventory, and stats
 export function makePlayer(game):Player {
-    console.log("creating player.",game.playerClass)
+    // console.log("creating player.",game.playerClass)
     let name = "Player"
     let sprite: [number, number] = [0,0]
     if (game.playerClass == "warrior") {
-        name = "Ordis"
+        // name = "Ordis"
         sprite = [0,0]
     } else if (game.playerClass == "ranger") {
-        name = "Eleth"
+        // name = "Eleth"
         sprite = [8,4]
     } else if (game.playerClass == "bard") {
-        name = "Giaco"
+        // name = "Giaco"
         sprite = [12,4]
     }
     return {

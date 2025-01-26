@@ -69,11 +69,11 @@ export function targetPath(game: GameState, entity: Entity, target: Entity, obst
     const passableCallback = function(x, y) {
         let k = `${x},${y}`
         if (k != e_pos && k != target_key && k in obstacle_keys) {
-          console.log("tile occupied", k, obstacle_keys);
+          // console.log("tile occupied", k, obstacle_keys);
           return false;
         }
         else if (x < box[0] || y < box[1] || x > box[2] || y > box[3]) {
-          console.log("point ", [x,y], " outside of bounding box ",box);
+          // console.log("point ", [x,y], " outside of bounding box ",box);
           return false;
         }
         return (walkable.indexOf(game.map[x + "," + y]) != -1);

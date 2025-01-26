@@ -94,7 +94,7 @@ export function renderTown(game:GameState, town:any) {
     document.querySelectorAll(".modal button.townaction")
     .forEach(function(el) {
       el.addEventListener(clickevt, ev => { 
-        console.log("click", ev.target['id'], ev);
+        // console.log("click", ev.target['id'], ev);
         handleTownAction(game, town.zone, ev);
       });
       // el.addEventListener(clickevt, hideModalGame);
@@ -129,7 +129,7 @@ export function renderTown(game:GameState, town:any) {
     document.querySelectorAll(".modal button.townaction")
     .forEach(function(el) {
       el.addEventListener(clickevt, ev => { 
-        console.log("click", ev.target['id'], ev);
+        // console.log("click", ev.target['id'], ev);
         handleTownAction(game, "levelselect", ev);
       });
     });

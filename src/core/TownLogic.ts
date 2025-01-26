@@ -40,13 +40,13 @@ export function getTownState(game,zone):TownState {
 
 export function handleTownAction(game, zone, ev) {
   let choice = ev.target['id'];
-  console.log("town action in zone", zone, ev, choice, ev.target.classList);
+  // console.log("town action in zone", zone, ev, choice, ev.target.classList);
   showScreen("town",ev)
   if (choice == "return") {
     // parse levelSelect here
     let biome = game.levelSelect.substr(0,game.levelSelect.length - 1)
     let depth = parseInt(game.levelSelect.substr(-1))
-    console.log("loading level selection:",game.levelSelect, biome, depth)
+    // console.log("loading level selection:",game.levelSelect, biome, depth)
     init(game, depth, biome);
     hideModalGame(ev);
   } else if (choice == "town") {
@@ -70,7 +70,7 @@ export function handleTownAction(game, zone, ev) {
       renderLevelSelect(game, choices);  
     } else if (choice.startsWith("dungeon")) {
       let level = parseInt(choice.slice(-1));
-      console.log("selecting dungeon level ",level);
+      // console.log("selecting dungeon level ",level);
       game.levelSelect = choice
       let state = getTownState(game, "town");
       renderTown(game, state);
@@ -78,7 +78,7 @@ export function handleTownAction(game, zone, ev) {
       // hideModalGame(ev);
     } else if (choice.startsWith("crypt")) {
       let level = parseInt(choice.slice(-1));
-      console.log("selecting CRYPT level ",level);
+      // console.log("selecting CRYPT level ",level);
       game.levelSelect = choice
       let state = getTownState(game, "town");
       renderTown(game, state);
@@ -90,10 +90,10 @@ export function handleTownAction(game, zone, ev) {
     // This is an error at this point.
     let state = getTownState(game, choice);
     if (state) {
-      console.log("rendering town for ", choice)
+      // console.log("rendering town for ", choice)
       renderTown(game, state);
     } else {
-      console.log("noop");
+      // console.log("noop");
     }
   }
 }
@@ -248,7 +248,7 @@ function checkReadyXp(game:GameState, price: number): boolean {
 
 export function handleShop(game, choice):TownState {
   // let choice = ev.target['id'];
-  console.log("shop action", choice);
+  // console.log("shop action", choice);
 
   let prices = getShopPrices(game)
   
@@ -361,11 +361,11 @@ export function handleShop(game, choice):TownState {
 }
 
 export function handleCastle(game:GameState, choice): TownState {
-  console.log("loading castle, choice:", choice)
+  // console.log("loading castle, choice:", choice)
 
 
   let hasAmulet = game.player.inventory.map( i => i[0]).indexOf("amulet") != -1;
-  console.log("loading town, has amulet:", hasAmulet, "inventory:", game.player.inventory);
+  // console.log("loading town, has amulet:", hasAmulet, "inventory:", game.player.inventory);
 
   let d = `<p>Location: The Castle</p>`
 
@@ -373,7 +373,7 @@ export function handleCastle(game:GameState, choice): TownState {
 
   if (choice.startsWith("accept_")) {
     let questName = choice.slice(7)
-    console.log("accepting:", questName)
+    // console.log("accepting:", questName)
     quests[questName].status = "accepted"
     d = d + quests[questName].giveDescription
     if (quests[questName].biome == "crypt" && game.biomeUnlock["crypt"] == 0) {
@@ -381,11 +381,11 @@ export function handleCastle(game:GameState, choice): TownState {
     }
   } else if (choice.startsWith("check_")) {
     let questName = choice.slice(6)
-    console.log("checking:", questName)
+    // console.log("checking:", questName)
     d = d + quests[questName].giveDescription
   } else if (choice.startsWith("handin_")) {
     let questName = choice.slice(7)
-    console.log("handing in:", questName)
+    // console.log("handing in:", questName)
     quests[questName].status = "completed"
     d = d + quests[questName].handInDescription
     quests[questName].rewardFunction(game)
@@ -399,7 +399,7 @@ export function handleCastle(game:GameState, choice): TownState {
 
   for (let questName in quests) {
     let quest = quests[questName];
-    console.log("quest:",questName, quest.status)
+    // console.log("quest:",questName, quest.status)
     if (quest.status == "available") {
       options = options.concat([["nav",`accept_${questName}`,`${quest.giver}: [ACCEPT] ${quest.name}`]])
     } else if (quest.status == "accepted") {
@@ -410,7 +410,7 @@ export function handleCastle(game:GameState, choice): TownState {
   }
 
   options = options.concat([["nav","town","Return"]])
-  console.log(options);
+  // console.log(options);
   let i = "castle"  
 
   return {

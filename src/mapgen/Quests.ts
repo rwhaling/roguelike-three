@@ -37,7 +37,7 @@ export let quests: {[key:string]: Quest} = {
         giveDescription: "Descend into the barrow, and return to tell the tale!",
         handInDescription: "So you’ve been down into the barrow, eh?  <br/><br/> Piles of treasure in there, but evil, too. <br/><br/> If you’re going back, make sure to stock up on food - the old ruins go deep, you’ll need supplies. <br/><br/> Might want to talk to the master-at-arms in the barracks, too - your gear might need some work.",
         rewardFunction: (game) => {
-            console.log("tutorial quest COMPLETED")
+            // console.log("tutorial quest COMPLETED")
         }
     },
     // "staves": {
@@ -88,7 +88,7 @@ export let quests: {[key:string]: Quest} = {
         rewardFunction: (game) => {
             game.player.stats.DEF = 3;
             game.player.baseStats.DEF = 3;
-            console.log("staves quest COMPLETED")
+            // console.log("staves quest COMPLETED")
         }
     },
     "amulet": {
@@ -111,7 +111,7 @@ export let quests: {[key:string]: Quest} = {
         giveDescription: "Oh, another adventurer?  <br/><br/> If you’re looking for work, there’s an old amulet deep in the barrow - bring it back and I’ll pay you well.  <br/><br/> Well?  What are you waiting for?<br/><br/><span class='nes-text is-warning'>[Target: 1x Amulet, Dungeon Level 6]</span>",
         handInDescription: "Magnificent.  <br/><br/> A mysterious warrior had it, you say?  <br/><br/> Hmm, can’t imagine how anyone could have been living down there alone.\n\n",
         rewardFunction: (game) => {
-            console.log("amulet quest COMPLETED")
+            // console.log("amulet quest COMPLETED")
         }
     },
     "armor": {
@@ -136,7 +136,7 @@ export let quests: {[key:string]: Quest} = {
         rewardFunction: (game) => {
             game.player.baseStats.DEF += 1;
             game.player.stats.DEF = game.player.baseStats.DEF;        
-            console.log("armor quest COMPLETED")
+            // console.log("armor quest COMPLETED")
         }
     },
     // "armor": {
@@ -192,7 +192,7 @@ export let quests: {[key:string]: Quest} = {
         giveDescription: "Ready for more?  Splendid, it’s so rare to see a good work ethic these days.<br/><br/>My scholars tell me of an old crown in the deepest part of the crypt, that once belonged to the old witch-king Yendor.<br/><br/><span class='nes-text is-warning'>[Target: 1x Yendor's Crown, Crypt Level 6]</span>",
         handInDescription: "Fine work. <br/><br/> Now begone! <br/><br/> <span class='nes-text is-primary'>CONGRATULATIONS, you have FINISHED the test build of Barrow 2. <br/><br/> Check back soon to find out what the sinister Count does with the amulet and crown of Yendor!</span>",
         rewardFunction: (game) => {
-            console.log("crown quest COMPLETED")
+            // console.log("crown quest COMPLETED")
         }
     },
 }
@@ -206,7 +206,7 @@ let questDependencies = {
 
 export function updateQuestStatus() {
     let doneQuests = Object.values(quests).filter( q => q.status === "completed").map( q => q.id);
-    console.log("checking quest status.  completed:", doneQuests)
+    // console.log("checking quest status.  completed:", doneQuests)
     for (let i in quests) {
         let quest = quests[i];
         if (quest.status === "unavailable" && quest.id in questDependencies) {
@@ -215,13 +215,13 @@ export function updateQuestStatus() {
             for (let dep of deps) {
                 if (!doneQuests.includes(dep)) {
                     shouldFlip = false
-                    console.log(`dependency not satisfied for ${i}:${dep}`)
+                    // console.log(`dependency not satisfied for ${i}:${dep}`)
                     break
                 }
             }
             if (shouldFlip) {
                 quest.status = "available"
-                console.log("flipped quest status to available", quest)
+                // console.log("flipped quest status to available", quest)
             }
         }
     }

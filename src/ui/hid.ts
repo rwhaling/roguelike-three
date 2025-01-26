@@ -141,7 +141,7 @@ export function keyHandler(game:GameState,ev:KeyboardEvent) {
   // full screen
   if (code == 70 && ev.altKey && ev.ctrlKey && ev.shiftKey) {
     document.body.requestFullscreen();
-    console.log("Full screen pressed.");
+    // console.log("Full screen pressed.");
     return false;
   }
 
@@ -156,37 +156,37 @@ export function keyHandler(game:GameState,ev:KeyboardEvent) {
   }
   /* one of numpad directions? */
   if (code in moveSelectMap) {
-    console.log("move selector: ",code, moveSelectMap[code]);
+    // console.log("move selector: ",code, moveSelectMap[code]);
     game.player.controls.selectMove(moveSelectMap[code]);
     return false;
   }
   if (code in targetSelectMap) {
-    console.log("target selector:", code, targetSelectMap[code]);
-    console.log("player:", game.player);
-    console.log("current target:", game.player.controls.currentTarget);
+    // console.log("target selector:", code, targetSelectMap[code]);
+    // console.log("player:", game.player);
+    // console.log("current target:", game.player.controls.currentTarget);
     game.player.controls.cycleTarget(game, game.player, targetSelectMap[code]);
     return false;
   }
   if (code in actionMap) {
-    console.log("ACTION!");
+    // console.log("ACTION!");
     let ret = game.player.controls.attemptAction(game, game.player);
     return ret;
   }
   if (code in skillMap) {
-    console.log("SKILL!", skillMap[code]);    
+    // console.log("SKILL!", skillMap[code]);    
     let ret = game.player.controls.tempAttemptSkillByName(game, game.player, skillMap[code]);
     return ret;
   }
   if (code in qwertyMap) {
     const move = qwertyMap[code]
-    console.log("pressed qwerty key", code, move);
+    // console.log("pressed qwerty key", code, move);
     let ret = game.player.controls.tempAttemptSkillByName(game, game.player, move);
     return ret;
   }
 
   if (code in numMap) {
     const move = numMap[code];
-    console.log(`pressed number ${code} for ${move}`);
+    // console.log(`pressed number ${code} for ${move}`);
     let ret = game.player.controls.tempAttemptSkillByName(game, game.player, move);
     return ret;
 
@@ -206,8 +206,8 @@ function arrowStart(game, dir) {
   let last = game.arrowHeld;
   game.arrowHeld = dir;
   // Game.player.lastArrow = dir;
-  console.log("arrowHeld:");
-  console.log(game.arrowHeld);
+  // console.log("arrowHeld:");
+  // console.log(game.arrowHeld);
   // if (!last) {
   game.player.controls.movePlayer(game,dir)
     // document.dispatchEvent(new Event("arrow"));

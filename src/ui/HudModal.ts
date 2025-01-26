@@ -153,7 +153,7 @@ let menus: [string, string][] = [
     modal_st =  $("#hud_modal");
     
     let header_row = $("#hud_modal_headers")  
-    console.log(modal_st);
+    // console.log(modal_st);
     if (modal_st.style.visibility == "visible") {
       modal_st.style.visibility = "hidden";
       game.listening = true;
@@ -165,12 +165,12 @@ let menus: [string, string][] = [
       UI.inHudModal = true;
   
       let handleHudModal = (e) => {
-        console.log("click!",e)
+        // console.log("click!",e)
   
         let parent_th = e.target.closest("th");
         let parent_input = e.target.closest("input");
         if (parent_input) {
-          console.log("clicked modal body:", parent_input, parent_input.name, parent_input.value);
+          // console.log("clicked modal body:", parent_input, parent_input.name, parent_input.value);
           if (parent_input.value == "music_vol_full") {
             setMusicVolume(0.25);
           } else if (parent_input.value == "music_vol_quiet") {
@@ -191,10 +191,12 @@ let menus: [string, string][] = [
           return
         }
   
-        let menu_id = parent_th.id
-        console.log("clicked modal submenu:",menu_id)
+        let menu_id = parent_th?.id;
+        if (!menu_id) return;
+        
+        // console.log("clicked modal submenu:", menu_id);
         if (menu_id == "hud_modal_dismiss") {
-          console.log("dismissing")
+          // console.log("dismissing")
           hideHudModal(game)
         } else {
           renderHudModal(menu_id, game);
@@ -231,14 +233,14 @@ export function renderHelpModal(game,page) {
   modal_st.parentNode.replaceChild(new_element, modal_st);
   modal_st =  $("#hud_modal");
 
-  console.log(modal_st);
+  // console.log(modal_st);
   modal_st.style.visibility = "visible";
   game.listening = false;
   UI.inHudModal = true;
 
   let menu_html = "";
   for (let [i,d] of help_menus) {
-    console.log("checking menu:",i,d);
+    // console.log("checking menu:",i,d);
     if (i == page) {
       menu_html += `<th id="${i}"><span class='nes-badge'><span class='is-primary'>${d}</span></span></th>`
     } else {
@@ -264,7 +266,7 @@ export function renderHelpModal(game,page) {
   } else if (page == "help_modal_combat_1") {
     contents.innerHTML = "<td colspan=6><ul><li/>Healing is powerful! Press EAT to consume 1 food and fully restore your hitpoints - but food is scarce, so time it well.<br/>" +
                          "<li/>Your character can eventually unlock three combat skills - BASH, BOW, and DASH - all are very powerful!<br/>" +
-                         "<li/>BASH and DASH have cooldowns - if you use them often, you’ll get the most value - and you can shorten their cooldown, if you have enough XP<br/>" + 
+                         "<li/>BASH and DASH have cooldowns - if you use them often, you'll get the most value - and you can shorten their cooldown, if you have enough XP<br/>" + 
                          "</ul></td>"
   } else if (page == "help_modal_combat_2") {
     contents.innerHTML = "<td colspan=6><ul><li/>BOW consumes 1 arrow - arrows are scarce, so use them wisely.<br/>" + 
@@ -275,7 +277,7 @@ export function renderHelpModal(game,page) {
                          "</ul></td>"
   } else if (page == "help_modal_exploration") {
     contents.innerHTML = "<td colspan=6><ul><li/>Barrow 2 has an advanced auto-explore functionality.  Try holding down the SEARCH button, and see what happens.  <li/>Try holding FLEE as well!<br/>" + 
-                         "<li/>There are multiple dungeons to explore!  Advance the Quartermaster’s quest-line to gain access to the CRYPT, and then use the Level Select function in TOWN to enter the CRYPT.<br/>" +
+                         "<li/>There are multiple dungeons to explore!  Advance the Quartermaster's quest-line to gain access to the CRYPT, and then use the Level Select function in TOWN to enter the CRYPT.<br/>" +
                          "<li/>As you go deeper into any dungeon, the monsters will become harder, and more numerous - but there are greater treasures to discover as well!" +
                          "</ul></td>"
   } else if (page == "help_modal_advanced") {
@@ -285,11 +287,11 @@ export function renderHelpModal(game,page) {
   }
 
   let handleHudModal = (e) => {
-    console.log("click!",e)
+    // console.log("click!",e)
 
     let parent_th = e.target.closest("th");
     let menu_id = parent_th.id
-    console.log("clicked modal submenu:",menu_id)
+    // console.log("clicked modal submenu:",menu_id)
     if (menu_id == "help_modal_dismiss") {
       hideHudModal(game)
     } else {

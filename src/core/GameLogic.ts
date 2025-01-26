@@ -51,9 +51,9 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   for (let questName in quests) {
     let quest = quests[questName];
     if (quest.status == "accepted") {
-      console.log(`checking if accepted quest ${questName} is loadable`);
+      // console.log(`checking if accepted quest ${questName} is loadable`);
       if (quest.biome == biome && quest.depth == n) {
-        console.log(`loading quest ${questName} for biome ${biome} level ${n}`);
+        // console.log(`loading quest ${questName} for biome ${biome} level ${n}`);
         game.currentQuest = questName;
         questRoom = quest.room;
         break;
@@ -131,17 +131,17 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
   // this is where we populate the map data structure
   // with all of the background tiles, items,
   // player and the monster positions
-  console.log(`generating map (BIOME ${biome}), game state now:`,game);
+  // console.log(`generating map (BIOME ${biome}), game state now:`,game);
   // spawnLevel(game, digger, freeCells);
   let [zeroCells, freeCells, digger] = genMap(game, width, height, game.tileOptions, game.mapDisplay);
 
-  console.log('generating new-style map array for texture with width', width, "height", height);
+  // console.log('generating new-style map array for texture with width', width, "height", height);
   let tilemapArray = createMapArray(game.map, width, height, newTileset);
-  console.log(tilemapArray)
+  // console.log(tilemapArray)
   let tilemapTexture = game.glDisplay.loadTilemap(tilemapArray,width,height)
-  console.log("loading into texture",tilemapTexture)
+  // console.log("loading into texture",tilemapTexture)
 
-  console.log("spawning map contents with ", biome, n, game.currentQuest);
+  // console.log("spawning map contents with ", biome, n, game.currentQuest);
   
   if (n <= 7) {
     spawnLevelFrom(game, digger, levels[n], quests[game.currentQuest]);
@@ -167,7 +167,7 @@ export function init(game:GameState, n: number, biome:string = "dungeon") {
     }
     requestAnimationFrame(drawScene);
     if (game.player && game.player.controls.dirty && game.monsters) {
-      console.log("ui dirty");
+      // console.log("ui dirty");
       renderStats(game.player);
       renderTargets(game);
     }
@@ -308,7 +308,7 @@ export function checkDeath(game:GameState,m) {
       const key = m._x + "," + m._y;
       removeMonster(game,m);      
       if (m.loot) {
-        console.log('spawning loot drop:', m.loot);
+        // console.log('spawning loot drop:', m.loot);
 
         let cell = getCell(game.level, m._x, m._y)
         if (m.loot[0] == "Q") {
@@ -332,10 +332,10 @@ export function checkDeath(game:GameState,m) {
         }
         game.level.newDrops.push([m._x, m._y])
       } else {
-        console.log("generating loot at random");
+        // console.log("generating loot at random");
         let roll = RNG.getUniformInt(0,19);
         if (roll > 4) {
-          console.log('spawning loot drop for level:', game.level.biome, game.level.depth);
+          // console.log('spawning loot drop for level:', game.level.biome, game.level.depth);
 
           let cell = getCell(game.level, m._x, m._y)
 
@@ -350,7 +350,7 @@ export function checkDeath(game:GameState,m) {
           game.level.newDrops.push([m._x, m._y])
 
         } else {
-          console.log(`rolled ${roll},no loot`)
+          // console.log(`rolled ${roll},no loot`)
           if (!(key in game.items)) {
             let cell = getCell(game.level, m._x, m._y)
             let i:ItemContent = {
@@ -427,7 +427,7 @@ export function damage(game, hitter, receiver, amount) {
   // todo: actually calulate, fewer magic numbers
   let x_offset = 64 * (5 + receiver._x - game.player._x) + 4;
   let y_offset = 64 * (5 + receiver._y - game.player._y) - 24;
-  console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);
+  // console.log(`printing damage for ${receiver.name} at ${x_offset},${y_offset}`);
 
   let id = uuidv4();
   let particle = {
@@ -555,16 +555,16 @@ export function checkItem(game:GameState, entity) {
       game.player.inventory.push([questItemName,displayName]);
       toast(game, `You found the ${displayName}`);
       let itemCount = game.player.inventory.filter( ([a,b]) => { 
-        console.log('checking inventory item:', a, b[0]);
+        // console.log('checking inventory item:', a, b[0]);
         return a === questItemName;
       }).length;
-      console.log(`found ${itemCount} ${questItemName} in inventory:`, game.player.inventory)
+      // console.log(`found ${itemCount} ${questItemName} in inventory:`, game.player.inventory)
 
       if (itemCount >= quest.itemCount) {
-        console.log("marking quest as ready:", quest)
+        // console.log("marking quest as ready:", quest)
         quest.status = "ready"
       } else {
-        console.log("quest item count not fulfilled:", quest)
+        // console.log("quest item count not fulfilled:", quest)
       }
       sfx["win"].play();
       delete game.items[key];      

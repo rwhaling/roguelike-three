@@ -83,7 +83,7 @@ export function spawnLevelFrom(game:GameState, digger:Digger, spawner: LevelSpaw
         } else {
             spawnRoomFrom(game, cells, spawner.default, game.level.roomItems[i])
         }
-        console.log("spawned room", room, i, game.level.roomItems[i])
+        // console.log("spawned room", room, i, game.level.roomItems[i])
     }
     game.level.rooms = shuffledRooms;
 }

@@ -108,15 +108,15 @@ function resetCanvas(game, el) {
 function setup(game) {
   game.player = makePlayer(game);
 
-  console.log("about to retrieve encrypted image")
+  // console.log("about to retrieve encrypted image")
 
   // var picture = document.getElementById("picture");
   var data = new XMLHttpRequest();
   data.open('GET', 'tiny_dungeon_world_3_dark_test_7.png.enc.b64', true);
   data.onreadystatechange = function(){
       if(this.readyState == 4 && this.status==200){
-          console.log("got back data", data.responseText.length, "bytes")
-          console.log("Crypto:",Crypto);
+          // console.log("got back data", data.responseText.length, "bytes")
+          // console.log("Crypto:",Crypto);
           var dec = Crypto.AES.decrypt(data.responseText, process.env.ASSET_KEY);
           var plain = Crypto.enc.Base64.stringify( dec );
 
@@ -134,12 +134,12 @@ function setup(game) {
           const blob = new Blob([byteArray])
           const url = URL.createObjectURL(blob, { type: "image/png"})
           tileSet.src = url;
-          console.log('image url:',url)
-          console.log('tileSet:',tileSet)
+          // console.log('image url:',url)
+          // console.log('tileSet:',tileSet)
 
           // Call innerSetup with a callback
           innerSetup(game, url, function() {
-            console.log("Inner setup completed");
+            // console.log("Inner setup completed");
             // Any additional code that needs to run after innerSetup
           });
       } else {
@@ -150,7 +150,7 @@ function setup(game) {
 }
 
 function innerSetup(game, tilesetBlobUrl, callback) {
-  console.log("initializing canvas")
+  // console.log("initializing canvas")
   let canvas = document.createElement("canvas");
   $("#canvas").innerHTML = "";
   $("#canvas").appendChild(canvas);
@@ -416,7 +416,7 @@ function runGame(w,mydisplay) {
       // listen for inventory interactions
       // $("#inventory").addEventListener(clickevt, toggleInventory);
       $("#inventory").addEventListener(clickevt, (e) => {
-        console.log("inventory clicked");
+        // console.log("inventory clicked");
         toggleInventory(e,false, Game);
       });
     

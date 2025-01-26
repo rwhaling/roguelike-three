@@ -29,9 +29,9 @@ export function stopMusic() {
 
 let howls:{[key:string]:Howl} = {
     town: new Howl({
-        src: ['barrow_2_v1_town_bounce_1.mp3'],
+        src: ['barrow_2_v1_town_rework_2_bounce.mp3'],
         sprite: {
-            "town": [120000,240000,true],
+            "town": [0,120000,true],
         },
         volume: 0.25
     }),

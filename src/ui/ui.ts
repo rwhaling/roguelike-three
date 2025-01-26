@@ -42,20 +42,20 @@ export let UI = {
 // }
 
 export function renderTitleScreen(game:GameState,which: string) {
-  console.log("rendering title screen:",which);
+  // console.log("rendering title screen:",which);
   let id = "#" + which
   let screen_el = $(id)
   screen_el.outerHTML = screen_el.outerHTML
   screen_el = $(id)
-  console.log("rendered:",screen_el);
+  // console.log("rendered:",screen_el);
   let handleTitleScreen = ev => {
     let input = ev.target.closest("input");
     if (input) {
       let choice = input.getAttribute("value");
-      console.log("handling title screen click:", input, ev, ev.target, choice)
+      // console.log("handling title screen click:", input, ev, ev.target, choice)
   
       if (choice.startsWith("class")) {
-        console.log("class selection:",choice.substr(6));
+        // console.log("class selection:",choice.substr(6));
         game.playerClass = choice.substr(6);
         sfx["choice"].play();    
       } else {
@@ -68,7 +68,7 @@ export function renderTitleScreen(game:GameState,which: string) {
     }
     let button = ev.target.closest("button");
     if (button) {
-      console.log("handling title screen button:", button.id)  
+      // console.log("handling title screen button:", button.id)  
       ev.preventDefault();
       // const choice = which.getAttribute("value");
       if (button.id == "play") {
@@ -91,10 +91,10 @@ export function renderLoseScreen(game: GameState) {
   lose_st = $("#lose")
   let handleLoseScreen = ev => {
     let choice = ev.target['id'];
-    console.log("hiding modal, returning to title", ev);
+    // console.log("hiding modal, returning to title", ev);
     ev.preventDefault();
     if (choice == "lose-cheat") {
-      console.log("cheat selected", game);
+      // console.log("cheat selected", game);
       game.player.stats.hp = game.player.stats.maxHP;
       hideToast(true);
 
@@ -210,7 +210,7 @@ export function renderInventory(tileOptions,items) {
 }
     
 export function hideModalGame(ev) {
-  console.log("hiding modal and returning to game", ev);
+  // console.log("hiding modal and returning to game", ev);
   ev.preventDefault();
   showScreen("game", ev);
   sfx['choice'].play();
@@ -259,7 +259,7 @@ export function renderStats(player:Player) {
   let lower_skills_content = ""
   let moves = player.controls.moves;
   let selected = player.controls.selectedMove;
-  console.log("selected move:", selected);
+  // console.log("selected move:", selected);
   // for (let s in stats) {
   moves.forEach((s,idx) => {
     let decoration = idx == selected ? "underline" : "none";
@@ -374,7 +374,7 @@ export function toggleInventory(ev, force, game:GameState) {
     let inv_html = ""
 
     for (let i of game.player.inventory) {
-      console.log(i);
+      // console.log(i);
       inv_html += `<li>${i[1]}</li>`
     }
     inv_st.innerHTML = "<ul>" + inv_html + "</ul>"
@@ -401,7 +401,7 @@ export function createGhost(w,h,pos) {
 export function damageNum(x,y,n) {
   // HACK, need a stable id
   let canv = document.getElementsByTagName("canvas")[0]
-  console.log("canvas position:",canv.offsetLeft, canv.offsetTop);
+  // console.log("canvas position:",canv.offsetLeft, canv.offsetTop);
 
   const style = `left: ${x + canv.offsetLeft}px; top: ${y + canv.offsetTop}px`;
   // const num = el("div", {"className": "free float-up", "style": style});

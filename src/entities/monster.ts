@@ -317,7 +317,7 @@ export function monsterAct(game:GameState, m:Monster, player_path:any[], activeM
     // update state to engaged when player does viz checks
     // prevent heavy ai compute
     if (player_path.length <= 6) {
-      console.log("INACTIVE: should activate");
+      // console.log("INACTIVE: should activate");
       m.behaviorState = BehaviorState.ENGAGED;
       m.awake = true;
     }
@@ -342,7 +342,7 @@ function ranged_engaged_behavior(game: GameState, m:Monster, player_path:any[], 
 
   let spawn_dist = Math.abs(m.spawnPointX - m._x) + Math.abs(m.spawnPointY - m._y);
   if (spawn_dist >= m.minChaseRadius && m.currentAggro == 0) {
-    console.log("ACTIVE: will RETURN");
+    // console.log("ACTIVE: will RETURN");
     m.behaviorState = BehaviorState.RETURNING;
   } else if (player_path.length > 3) {
     let oldPos: [number, number] = [m._x, m._y];
@@ -353,8 +353,8 @@ function ranged_engaged_behavior(game: GameState, m:Monster, player_path:any[], 
     // the player is safe for now so update the monster position
     // to the first step on the path and redraw
     let delta: [number, number] = [player_path[0][0] - m._x, player_path[0][1] - m._y ];
-    console.log("moving monster");
-    console.log(delta);
+    // console.log("moving monster");
+    // console.log(delta);
     m.lastArrow = delta;
 
     m._x = player_path[0][0];
@@ -403,7 +403,7 @@ function ranged_engaged_behavior(game: GameState, m:Monster, player_path:any[], 
       orientation = 7
     }
 
-    console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from monster at`,m._x, m._y, `target at`,p._x,p._y);
+    // console.log(`spawning arrow with ${angle} (${angle / Math.PI}) [${orientation}] from monster at`,m._x, m._y, `target at`,p._x,p._y);
     let id = uuidv4();
     
     let particle:Particle = {
@@ -429,7 +429,7 @@ function melee_engaged_behavior(game: GameState, m:Monster, player_path:any[], a
 
   let spawn_dist = Math.abs(m.spawnPointX - m._x) + Math.abs(m.spawnPointY - m._y);
   if (spawn_dist >= m.minChaseRadius && m.currentAggro == 0) {
-    console.log("ACTIVE: will RETURN");
+    // console.log("ACTIVE: will RETURN");
     m.behaviorState = BehaviorState.RETURNING;
   } else if (player_path.length > 1) {
     // draw whatever was on the last tile the monster was on
@@ -442,8 +442,8 @@ function melee_engaged_behavior(game: GameState, m:Monster, player_path:any[], a
     // the player is safe for now so update the monster position
     // to the first step on the path and redraw
     let delta: [number, number] = [player_path[0][0] - m._x, player_path[0][1] - m._y ];
-    console.log("moving monster");
-    console.log(delta);
+    // console.log("moving monster");
+    // console.log(delta);
     m.lastArrow = delta;
 
     m._x = player_path[0][0];
@@ -471,7 +471,7 @@ function return_behavior(game: GameState, m: Monster) {
   let return_path = targetPath(game, m, spawn_point as Entity, [], fullMap(game,));
 
   if (return_path.length == 0) {
-    console.log("RETURNING: will inactivate");
+    // console.log("RETURNING: will inactivate");
     m.behaviorState = BehaviorState.INACTIVE;
     return
   }
@@ -480,8 +480,8 @@ function return_behavior(game: GameState, m: Monster) {
   // the player is safe for now so update the monster position
   // to the first step on the path and redraw
   let delta: [number, number] = [return_path[0][0] - m._x, return_path[0][1] - m._y ];
-  console.log("moving monster");
-  console.log(delta);
+  // console.log("moving monster");
+  // console.log(delta);
   m.lastArrow = delta;
 
   m._x = return_path[0][0];

@@ -51,7 +51,7 @@ export function purgeAnimations(game:GameState) {
         }
     }
     for (let a of entities_to_remove) {
-        console.log("deleting animation",a)
+        // console.log("deleting animation",a)
         delete game.animatingEntities[a]
     }
 
